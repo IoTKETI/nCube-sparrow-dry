@@ -1,0 +1,19 @@
+{
+  "name": "thyme",
+  "version": "2.3.0",
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "express": "^4.17.1",
+    "ip": "^1.1.5",
+    "mqtt": "^3.0.0",
+    "shortid": "^2.2.15"
+  },
+  "description": "&Cube:Thyme:Sparrow_dry",
+  "main": "thyme.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Il Yeup Ahn, KETI",
+  "license": "BSD-3-Clause"
+}
