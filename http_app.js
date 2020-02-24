@@ -482,6 +482,86 @@ function mqtt_connect(serverip, noti_topic) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+var dry_mqtt_client = null;
+var dry_noti_topic = [];
+
+dry_noti_topic.push('/get_zero_point');
+dry_noti_topic.push('/get_internal_temp');
+dry_noti_topic.push('/get_input_door');
+dry_noti_topic.push('/get_output_door');
+dry_noti_topic.push('/get_safe_door');
+dry_noti_topic.push('/get_weight');
+dry_noti_topic.push('/get_operation_mode');
+dry_noti_topic.push('/get_debug_mode');
+dry_noti_topic.push('/get_start_btn');
+
+function dry_mqtt_connect(broker_ip, port, noti_topic) {
+    if(dry_mqtt_client == null) {
+        if (conf.usesecure === 'disable') {
+            var connectOptions = {
+                host: broker_ip,
+                port: port,
+//              username: 'keti',
+//              password: 'keti123',
+                protocol: "mqtt",
+                keepalive: 10,
+//              clientId: serverUID,
+                protocolId: "MQTT",
+                protocolVersion: 4,
+                clean: true,
+                reconnectPeriod: 2000,
+                connectTimeout: 2000,
+                rejectUnauthorized: false
+            };
+        }
+        else {
+            connectOptions = {
+                host: broker_ip,
+                port: port,
+                protocol: "mqtts",
+                keepalive: 10,
+//              clientId: serverUID,
+                protocolId: "MQTT",
+                protocolVersion: 4,
+                clean: true,
+                reconnectPeriod: 2000,
+                connectTimeout: 2000,
+                key: fs.readFileSync("./server-key.pem"),
+                cert: fs.readFileSync("./server-crt.pem"),
+                rejectUnauthorized: false
+            };
+        }
+
+        dry_mqtt_client = mqtt.connect(connectOptions);
+    }
+
+    dry_mqtt_client.on('connect', function () {
+        console.log('msw_mqtt connected to ' + broker_ip);
+        for(var idx in noti_topic) {
+            if(noti_topic.hasOwnProperty(idx)) {
+                dry_mqtt_client.subscribe(noti_topic[idx]);
+                console.log('[msw_mqtt_connect] noti_topic[' + idx + ']: ' + noti_topic[idx]);
+            }
+        }
+    });
+
+    dry_mqtt_client.on('message', function (topic, message) {
+        var msg_obj = JSON.parse(message.toString());
+
+        console.log(topic + ' - ' + JSON.stringify(msg_obj));
+
+        func[topic.replace('/', '')](msg_obj.val);
+    });
+
+    dry_mqtt_client.on('error', function (err) {
+        console.log(err.message);
+    });
+}
+
+dry_mqtt_connect('localhost', 1883, dry_noti_topic);
+
+///////////////////////////////////////////////////////////////////////////////
+
 var dry_data_block = {};
 try {
     dry_data_block = JSON.parse(fs.readFileSync('ddb.json', 'utf8'));
@@ -520,241 +600,103 @@ dry_data_block.debug_message = 'initialize';
 // function of food dryer machine controling, sensing
 
 function print_lcd_state() {
-    exec('phython3 print_lcd_state ' + dry_data_block.state, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`print_lcd_state() error: ${error.message}`);
-            return;
-        }
-
-        if (stderr) {
-            console.log(`print_lcd_state() stderr: ${stderr}`);
-            return;
-        }
-
-        console.log(`print_lcd_state() stdout: ${stdout}`);
-    });
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = dry_data_block.state;
+        dry_mqtt_client.publish('/print_lcd_state', JSON.stringify(msg_obj));
+    }
 }
 
 function print_lcd_loadcell() {
-    exec('phython3 print_lcd_loadcell ' + dry_data_block.cur_weight + ' ' + dry_data_block.tar_weight3, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`print_lcd_loadcell() error: ${error.message}`);
-            return;
-        }
-
-        if (stderr) {
-            console.log(`print_lcd_loadcell() stderr: ${stderr}`);
-            return;
-        }
-
-        console.log(`print_lcd_loadcell() stdout: ${stdout}`);
-    });
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = dry_data_block.cur_weight;
+        msg_obj.val2 = dry_data_block.tar_weight3;
+        dry_mqtt_client.publish('/print_lcd_loadcell', JSON.stringify(msg_obj));
+    }
 }
 
 function print_lcd_loadcell_factor() {
-    exec('phython3 print_lcd_loadcell_factor ' + dry_data_block.loadcell_factor + ' ' + dry_data_block.loadcell_ref_weight, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`print_lcd_loadcell_factor() error: ${error.message}`);
-            return;
-        }
-
-        if (stderr) {
-            console.log(`print_lcd_loadcell_factor() stderr: ${stderr}`);
-            return;
-        }
-
-        console.log(`print_lcd_loadcell_factor() stdout: ${stdout}`);
-    });
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = dry_data_block.loadcell_factor;
+        msg_obj.val2 = dry_data_block.loadcell_ref_weight;
+        dry_mqtt_client.publish('/print_lcd_loadcell_factor', JSON.stringify(msg_obj));
+    }
 }
 
 function print_lcd_input_door() {
-    exec('phython3 print_lcd_input_door ' + dry_data_block.input_door, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`print_lcd_input_door() error: ${error.message}`);
-            return;
-        }
-
-        if (stderr) {
-            console.log(`print_lcd_input_door() stderr: ${stderr}`);
-            return;
-        }
-
-        console.log(`print_lcd_input_door() stdout: ${stdout}`);
-    });
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = dry_data_block.input_door;
+        dry_mqtt_client.publish('/print_lcd_input_door', JSON.stringify(msg_obj));
+    }
 }
 
 function print_lcd_output_door() {
-    exec('phython3 print_lcd_output_door ' + dry_data_block.output_door, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`print_lcd_output_door() error: ${error.message}`);
-            return;
-        }
-
-        if (stderr) {
-            console.log(`print_lcd_output_door() stderr: ${stderr}`);
-            return;
-        }
-
-        console.log(`print_lcd_output_door() stdout: ${stdout}`);
-    });
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = dry_data_block.output_door;
+        dry_mqtt_client.publish('/print_lcd_output_door', JSON.stringify(msg_obj));
+    }
 }
 
 function print_lcd_safe_door() {
-    exec('phython3 print_lcd_safe_door ' + dry_data_block.safe_door, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`print_lcd_safe_door() error: ${error.message}`);
-            return;
-        }
-
-        if (stderr) {
-            console.log(`print_lcd_safe_door() stderr: ${stderr}`);
-            return;
-        }
-
-        console.log(`print_lcd_safe_door() stdout: ${stdout}`);
-    });
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = dry_data_block.safe_door;
+        dry_mqtt_client.publish('/print_lcd_safe_door', JSON.stringify(msg_obj));
+    }
 }
 
 function print_lcd_internal_temp() {
-    exec('phython3 print_lcd_internal_temp ' + dry_data_block.internal_temp, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`print_lcd_internal_temp() error: ${error.message}`);
-            return;
-        }
-
-        if (stderr) {
-            console.log(`print_lcd_internal_temp() stderr: ${stderr}`);
-            return;
-        }
-
-        console.log(`print_lcd_internal_temp() stdout: ${stdout}`);
-    });
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = dry_data_block.internal_temp;
+        dry_mqtt_client.publish('/print_lcd_internal_temp', JSON.stringify(msg_obj));
+    }
 }
 
 function print_lcd_elapsed_time() {
-    exec('phython3 print_lcd_elapsed_time ' + dry_data_block.elapsed_time, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`print_lcd_elapsed_time() error: ${error.message}`);
-            return;
-        }
-
-        if (stderr) {
-            console.log(`print_lcd_elapsed_time() stderr: ${stderr}`);
-            return;
-        }
-
-        console.log(`print_lcd_elapsed_time() stdout: ${stdout}`);
-    });
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = dry_data_block.elapsed_time;
+        dry_mqtt_client.publish('/print_lcd_elapsed_time', JSON.stringify(msg_obj));
+    }
 }
 
 function set_solenoid(command) {
-    exec('phython3 write_digital_pin ' + solenoid_pin + ' ' + command, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`set_solenoid() error: ${error.message}`);
-            return;
-        }
-
-        if (stderr) {
-            console.log(`set_solenoid() stderr: ${stderr}`);
-            return;
-        }
-
-        console.log(`set_solenoid() stdout: ${stdout}`);
-    });
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = command;
+        dry_mqtt_client.publish('/set_solenoid', JSON.stringify(msg_obj));
+    }
 }
 
 function set_fan(command) {
-    exec('phython3 write_digital_pin ' + fan_pin + ' ' + command, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`set_fan() error: ${error.message}`);
-            return;
-        }
-
-        if (stderr) {
-            console.log(`set_fan() stderr: ${stderr}`);
-            return;
-        }
-
-        console.log(`set_fan() stdout: ${stdout}`);
-    });
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = command;
+        dry_mqtt_client.publish('/set_fan', JSON.stringify(msg_obj));
+    }
 }
 
 function set_heater(command1, command2, command3) {
-    exec('phython3 write_digital_pin ' + heater1_pin + ' ' + command1, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`set_heater1() error: ${error.message}`);
-            return;
-        }
-
-        if (stderr) {
-            console.log(`set_heater1() stderr: ${stderr}`);
-            return;
-        }
-
-        console.log(`set_heater1() stdout: ${stdout}`);
-    });
-
-    exec('phython3 write_digital_pin ' + heater2_pin + ' ' + command2, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`set_heater2() error: ${error.message}`);
-            return;
-        }
-
-        if (stderr) {
-            console.log(`set_heater2() stderr: ${stderr}`);
-            return;
-        }
-
-        console.log(`set_heater2() stdout: ${stdout}`);
-    });
-
-    exec('phython3 write_digital_pin ' + heater3_pin + ' ' + command3, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`set_heater3() error: ${error.message}`);
-            return;
-        }
-
-        if (stderr) {
-            console.log(`set_heater3() stderr: ${stderr}`);
-            return;
-        }
-
-        console.log(`set_heater3() stdout: ${stdout}`);
-    });
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = command1;
+        msg_obj.val2 = command2;
+        msg_obj.val3 = command3;
+        dry_mqtt_client.publish('/set_heater', JSON.stringify(msg_obj));
+    }
 }
 
 function set_stirrer(command) {
-    exec('phython3 write_digital_pin ' + stirrer_pin + ' ' + command, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`set_stirrer() error: ${error.message}`);
-            return;
-        }
-
-        if (stderr) {
-            console.log(`set_stirrer() stderr: ${stderr}`);
-            return;
-        }
-
-        console.log(`set_stirrer() stdout: ${stdout}`);
-    });
-}
-
-function set_zero_point() {
-    exec('phython3 set_zero_point ' + dry_data_block.loadcell_ref_weight, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`set_zero_point() error: ${error.message}`);
-            return;
-        }
-
-        if (stderr) {
-            console.log(`set_zero_point() stderr: ${stderr}`);
-            return;
-        }
-
-        console.log(`set_zero_point() stdout: ${stdout}`);
-
-        dry_data_block.loadcell_factor = parseInt(stdout.toString());
-    });
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = command;
+        dry_mqtt_client.publish('/set_stirrer', JSON.stringify(msg_obj));
+    }
 }
 
 function set_buzzer() {
@@ -773,265 +715,168 @@ function set_buzzer() {
     });
 }
 
-function get_internal_temp() {
-    exec('phython3 read_internal_temp ', function(error, stdout, stderr) {
-        if (error) {
-            console.log(`get_internal_temp() error: ${error.message}`);
-            return;
-        }
+function set_zero_point() {
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = dry_data_block.loadcell_ref_weight;
+        dry_mqtt_client.publish('/set_zero_point', JSON.stringify(msg_obj));
+    }
+}
 
-        if (stderr) {
-            console.log(`get_internal_temp() stderr: ${stderr}`);
-            return;
-        }
+function get_zero_point(val) {
+    dry_data_block.loadcell_ref_weight = parseFloat(val.toString()).toFixed(1);
+}
 
-        console.log(`get_internal_temp() stdout: ${stdout}`);
-
-        dry_data_block.internal_temp = parseFloat(stdout.toString()).toFixed(1);
-    });
+function get_internal_temp(val) {
+    dry_data_block.internal_temp = parseFloat(val.toString()).toFixed(1);
 }
 
 var input_door_close_count = 0;
 var input_door_open_count = 0;
-function get_input_door() {
-    exec('phython3 read_digital_pin ' + input_door_pin, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`get_input_door() error: ${error.message}`);
-            return;
-        }
+function get_input_door(val) {
+    var status = parseInt(val.toString());
 
-        if (stderr) {
-            console.log(`get_input_door() stderr: ${stderr}`);
-            return;
+    if(status == 0) {
+        input_door_close_count++;
+        input_door_open_count = 0;
+        if(input_door_close_count > 2) {
+            input_door_close_count = 2;
+            dry_data_block.input_door = 0;
         }
-
-        console.log(`get_input_door() stdout: ${stdout}`);
-
-        var status = parseInt(stdout.toString());
-
-        if(status == 0) {
-            input_door_close_count++;
-            input_door_open_count = 0;
-            if(input_door_close_count > 2) {
-                input_door_close_count = 2;
-                dry_data_block.input_door = 0;
-            }
+    }
+    else {
+        input_door_close_count = 0;
+        input_door_open_count++;
+        if(input_door_open_count > 2) {
+            input_door_open_count = 2;
+            dry_data_block.input_door = 1;
         }
-        else {
-            input_door_close_count = 0;
-            input_door_open_count++;
-            if(input_door_open_count > 2) {
-                input_door_open_count = 2;
-                dry_data_block.input_door = 1;
-            }
-        }
-    });
+    }
 }
 
 var output_door_close_count = 0;
 var output_door_open_count = 0;
-function get_output_door() {
-    exec('phython3 read_digital_pin ' + output_door_pin, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`get_output_door() error: ${error.message}`);
-            return;
-        }
+function get_output_door(val) {
+    var status = parseInt(val.toString());
 
-        if (stderr) {
-            console.log(`get_output_door() stderr: ${stderr}`);
-            return;
+    if(status == 0) {
+        output_door_close_count++;
+        output_door_open_count = 0;
+        if(output_door_close_count > 2) {
+            output_door_close_count = 2;
+            dry_data_block.output_door = 0;
         }
-
-        console.log(`get_output_door() stdout: ${stdout}`);
-
-        var status = parseInt(stdout.toString());
-
-        if(status == 0) {
-            output_door_close_count++;
-            output_door_open_count = 0;
-            if(output_door_close_count > 2) {
-                output_door_close_count = 2;
-                dry_data_block.output_door = 0;
-            }
+    }
+    else {
+        output_door_close_count = 0;
+        output_door_open_count++;
+        if(output_door_open_count > 2) {
+            output_door_open_count = 2;
+            dry_data_block.output_door = 1;
         }
-        else {
-            output_door_close_count = 0;
-            output_door_open_count++;
-            if(output_door_open_count > 2) {
-                output_door_open_count = 2;
-                dry_data_block.output_door = 1;
-            }
-        }
-    });
+    }
 }
 
 var safe_door_close_count = 0;
 var safe_door_open_count = 0;
-function get_safe_door() {
-    exec('phython3 read_digital_pin ' + safe_door_pin, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`get_safe_door() error: ${error.message}`);
-            return;
-        }
+function get_safe_door(val) {
+    var status = parseInt((val).toString());
 
-        if (stderr) {
-            console.log(`get_safe_door() stderr: ${stderr}`);
-            return;
+    if(status == 0) {
+        safe_door_close_count++;
+        safe_door_open_count = 0;
+        if(safe_door_close_count > 2) {
+            safe_door_close_count = 2;
+            dry_data_block.safe_door = 0;
         }
-
-        console.log(`get_safe_door() stdout: ${stdout}`);
-
-        var status = parseInt((stdout).toString());
-
-        if(status == 0) {
-            safe_door_close_count++;
-            safe_door_open_count = 0;
-            if(safe_door_close_count > 2) {
-                safe_door_close_count = 2;
-                dry_data_block.safe_door = 0;
-            }
+    }
+    else {
+        safe_door_close_count = 0;
+        safe_door_open_count++;
+        if(safe_door_open_count > 2) {
+            safe_door_open_count = 2;
+            dry_data_block.safe_door = 1;
         }
-        else {
-            safe_door_close_count = 0;
-            safe_door_open_count++;
-            if(safe_door_open_count > 2) {
-                safe_door_open_count = 2;
-                dry_data_block.safe_door = 1;
-            }
-        }
-    });
+    }
 }
 
-function get_weight() {
-    exec('phython3 read_weight ' + dry_data_block.loadcell_factor, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`get_weight() error: ${error.message}`);
-            return;
-        }
-
-        if (stderr) {
-            console.log(`get_weight() stderr: ${stderr}`);
-            return;
-        }
-
-        console.log(`get_weight() stdout: ${stdout}`);
-
-        dry_data_block.cur_weight = parseFloat(stdout.toString()).toFixed(1);
-    });
+function get_weight(val) {
+    dry_data_block.cur_weight = parseFloat(val.toString()).toFixed(1);
 }
 
 var operation_press_count = 0;
 var operation_release_count = 0;
-function get_operation_mode() {
-    exec('phython3 read_digital_pin ' + operation_pin, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`get_operation_mode() error: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.log(`get_operation_mode() stderr: ${stderr}`);
-            return;
-        }
+function get_operation_mode(val) {
+    var status = parseInt(val.toString());
 
-        console.log(`get_operation_mode() stdout: ${stdout}`);
-
-        var status = parseInt(stdout.toString());
-
-        if(status == 0) {
-            operation_press_count++;
-            operation_release_count = 0;
-            if(operation_press_count > 2) {
-                operation_press_count = 2;
-                dry_data_block.operation_mode = 1;
-            }
+    if(status == 0) {
+        operation_press_count++;
+        operation_release_count = 0;
+        if(operation_press_count > 2) {
+            operation_press_count = 2;
+            dry_data_block.operation_mode = 1;
         }
-        else {
-            operation_press_count = 0;
-            operation_release_count++;
-            if(operation_release_count > 2) {
-                operation_release_count = 2;
-                dry_data_block.operation_mode = 0;
-            }
+    }
+    else {
+        operation_press_count = 0;
+        operation_release_count++;
+        if(operation_release_count > 2) {
+            operation_release_count = 2;
+            dry_data_block.operation_mode = 0;
         }
-    });
+    }
 }
 
 var debug_press_count = 0;
 var debug_release_count = 0;
-function get_debug_mode() {
-    exec('phython3 read_digital_pin ' + debug_pin, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`get_debug_mode() error: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.log(`get_debug_mode() stderr: ${stderr}`);
-            return;
-        }
+function get_debug_mode(val) {
+    var status = parseInt(val.toString());
 
-        console.log(`get_debug_mode() stdout: ${stdout}`);
-
-        var status = parseInt(stdout.toString());
-
-        if(status == 0) {
-            debug_press_count++;
-            debug_release_count = 0;
-            if(debug_press_count > 2) {
-                debug_press_count = 2;
-                dry_data_block.debug_mode = 1;
-            }
+    if(status == 0) {
+        debug_press_count++;
+        debug_release_count = 0;
+        if(debug_press_count > 2) {
+            debug_press_count = 2;
+            dry_data_block.debug_mode = 1;
         }
-        else {
-            debug_press_count = 0;
-            debug_release_count++;
-            if(debug_release_count > 2) {
-                debug_release_count = 2;
-                dry_data_block.debug_mode = 0;
-            }
+    }
+    else {
+        debug_press_count = 0;
+        debug_release_count++;
+        if(debug_release_count > 2) {
+            debug_release_count = 2;
+            dry_data_block.debug_mode = 0;
         }
-    });
+    }
 }
 
 
 var start_press_count = 0;
 var start_press_flag = 0;
-function get_start_btn() {
-    exec('phython3 read_digital_pin ' + start_btn_pin, function(error, stdout, stderr) {
-        if (error) {
-            console.log(`get_start_btn() error: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.log(`get_start_btn() stderr: ${stderr}`);
-            return;
+function get_start_btn(val) {
+    var status = parseInt(val.toString());
+
+    if(status == 0) {
+        start_press_count++;
+        if(start_press_count > 2) {
+            start_press_flag = 1;
         }
 
-        console.log(`get_start_btn() stdout: ${stdout}`);
-
-        var status = parseInt(stdout.toString());
-
-        if(status == 0) {
-            start_press_count++;
-            if(start_press_count > 2) {
-                start_press_flag = 1;
-            }
-
-            if(start_press_count > 15) {
-                start_press_flag = 2;
-                dry_data_block.start_btn = 2;
-            }
+        if(start_press_count > 15) {
+            start_press_flag = 2;
+            dry_data_block.start_btn = 2;
         }
-        else {
-            if(start_press_flag == 1) {
-                dry_data_block.start_btn = 1;
-            }
-            else if(start_press_flag == 2) {
-            }
-
-            start_press_flag = 0;
-            debug_press_count = 0;
+    }
+    else {
+        if(start_press_flag == 1) {
+            dry_data_block.start_btn = 1;
         }
-    });
+        else if(start_press_flag == 2) {
+        }
+
+        start_press_flag = 0;
+        debug_press_count = 0;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1112,8 +957,6 @@ function lcd_display_watchdog() {
     }
 
     setTimeout(lcd_display_watchdog, display_interval);
-
-    console.log('lcd_display_watchdog');
 }
 
 
@@ -1544,26 +1387,13 @@ function core_watchdog() {
     //console.log('core watchdog');
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-setTimeout(food_watchdog, first_interval);
-
-function food_watchdog(){
-    //100ms동작
-    //실시간으로 변경되는상태값 저장
-    //roadcell_lunch() //roadcell측정
-
-    setTimeout(get_internal_temp, parseInt(Math.random()*10));
-    setTimeout(get_input_door, parseInt(Math.random()*10));
-    setTimeout(get_output_door, parseInt(Math.random()*10));
-    setTimeout(get_safe_door, parseInt(Math.random()*10));
-    setTimeout(get_weight, parseInt(Math.random()*10));
-    setTimeout(get_operation_mode, parseInt(Math.random()*10));
-    setTimeout(get_debug_mode, parseInt(Math.random()*10));
-    setTimeout(get_start_btn, parseInt(Math.random()*10));
-
-    setTimeout(food_watchdog, food_interval);
-
-    //console.log('food watchdog');
-}
-
+var func = {};
+func['get_zero_point'] = get_zero_point;
+func['get_internal_temp'] = get_internal_temp;
+func['get_input_door'] = get_input_door;
+func['get_output_door'] = get_output_door;
+func['get_safe_door'] = get_safe_door;
+func['get_weight'] = get_weight;
+func['get_weight'] = get_operation_mode;
+func['get_debug_mode'] = get_debug_mode;
+func['get_start_btn'] = get_start_btn;
