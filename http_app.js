@@ -514,32 +514,116 @@ dry_data_block.debug_message = 'initialize';
 ///////////////////////////////////////////////////////////////////////////////
 // function of food dryer machine controling, sensing
 
-function print_lcd_state(state) {
+function print_lcd_state() {
+    exec('phython3 print_lcd_state ' + dry_data_block.state, function(error, stdout, stderr) {
+        if (error) {
+            console.log(`print_lcd_state() error: ${error.message}`);
+            return;
+        }
 
+        if (stderr) {
+            console.log(`print_lcd_state() stderr: ${stderr}`);
+            return;
+        }
+
+        console.log(`print_lcd_state() stdout: ${stdout}`);
+    });
 }
 
-function print_lcd_loadcell(loadcell) {
+function print_lcd_loadcell() {
+    exec('phython3 print_lcd_loadcell ' + dry_data_block.cur_weight + ' ' + dry_data_block.tar_weight3, function(error, stdout, stderr) {
+        if (error) {
+            console.log(`print_lcd_loadcell() error: ${error.message}`);
+            return;
+        }
 
+        if (stderr) {
+            console.log(`print_lcd_loadcell() stderr: ${stderr}`);
+            return;
+        }
+
+        console.log(`print_lcd_loadcell() stdout: ${stdout}`);
+    });
 }
 
-function print_lcd_input_door(input_door) {
+function print_lcd_input_door() {
+    exec('phython3 print_lcd_input_door ' + dry_data_block.input_door, function(error, stdout, stderr) {
+        if (error) {
+            console.log(`print_lcd_input_door() error: ${error.message}`);
+            return;
+        }
 
+        if (stderr) {
+            console.log(`print_lcd_input_door() stderr: ${stderr}`);
+            return;
+        }
+
+        console.log(`print_lcd_input_door() stdout: ${stdout}`);
+    });
 }
 
-function print_lcd_output_door(output_door) {
+function print_lcd_output_door() {
+    exec('phython3 print_lcd_output_door ' + dry_data_block.output_door, function(error, stdout, stderr) {
+        if (error) {
+            console.log(`print_lcd_output_door() error: ${error.message}`);
+            return;
+        }
 
+        if (stderr) {
+            console.log(`print_lcd_output_door() stderr: ${stderr}`);
+            return;
+        }
+
+        console.log(`print_lcd_output_door() stdout: ${stdout}`);
+    });
 }
 
-function print_lcd_safe_door(safe_door) {
+function print_lcd_safe_door() {
+    exec('phython3 print_lcd_safe_door ' + dry_data_block.safe_door, function(error, stdout, stderr) {
+        if (error) {
+            console.log(`print_lcd_safe_door() error: ${error.message}`);
+            return;
+        }
 
+        if (stderr) {
+            console.log(`print_lcd_safe_door() stderr: ${stderr}`);
+            return;
+        }
+
+        console.log(`print_lcd_safe_door() stdout: ${stdout}`);
+    });
 }
 
-function print_lcd_internal_temp(internal_temp) {
+function print_lcd_internal_temp() {
+    exec('phython3 print_lcd_internal_temp ' + dry_data_block.internal_temp, function(error, stdout, stderr) {
+        if (error) {
+            console.log(`print_lcd_internal_temp() error: ${error.message}`);
+            return;
+        }
 
+        if (stderr) {
+            console.log(`print_lcd_internal_temp() stderr: ${stderr}`);
+            return;
+        }
+
+        console.log(`print_lcd_internal_temp() stdout: ${stdout}`);
+    });
 }
 
-function print_lcd_elapsed_time(elapsed_time) {
+function print_lcd_elapsed_time() {
+    exec('phython3 print_lcd_elapsed_time ' + dry_data_block.elapsed_time, function(error, stdout, stderr) {
+        if (error) {
+            console.log(`print_lcd_elapsed_time() error: ${error.message}`);
+            return;
+        }
 
+        if (stderr) {
+            console.log(`print_lcd_elapsed_time() stderr: ${stderr}`);
+            return;
+        }
+
+        console.log(`print_lcd_elapsed_time() stdout: ${stdout}`);
+    });
 }
 
 function set_solenoid(command) {
@@ -974,8 +1058,8 @@ function always_watchdog() {
 
     setTimeout(always_watchdog, always_interval);
 
-    console.log(toggle_command);
-    console.log('check temp if internal temp is 70 more and 80 less');
+    // console.log(toggle_command);
+    // console.log('check temp if internal temp is 70 more and 80 less');
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -985,37 +1069,17 @@ setTimeout(lcd_display_watchdog, display_interval);
 function lcd_display_watchdog() {
     // print current info of dry from dry_data_block to lcd
 
-    if(dry_data_block.hasOwnProperty('state')) {
-        print_lcd_state(dry_data_block.state);
+    if(dry_data_block.state == 'heat') {
+        dry_data_block.elapsed_time++;
     }
 
-    if(dry_data_block.hasOwnProperty('cur_weight')) {
-        print_lcd_loadcell(dry_data_block.cur_weight);
-    }
-
-    if(dry_data_block.hasOwnProperty('input_door')) {
-        print_lcd_input_door(dry_data_block['input_door']);
-    }
-
-    if(dry_data_block.hasOwnProperty('output_door')) {
-        print_lcd_output_door(dry_data_block['output_door']);
-    }
-
-    if(dry_data_block.hasOwnProperty('safe_door')) {
-        print_lcd_safe_door(dry_data_block['safe_door']);
-    }
-
-    if(dry_data_block.hasOwnProperty('internal_temp')) {
-        print_lcd_internal_temp(dry_data_block['internal_temp']);
-    }
-
-    if(dry_data_block.hasOwnProperty('elapsed_time')) {
-        print_lcd_elapsed_time(dry_data_block['elapsed_time']);
-    }
-
-    if(dry_data_block.hasOwnProperty('debug_message')) {
-        print_lcd_elapsed_time(dry_data_block['debug_message']);
-    }
+    setTimeout(print_lcd_state, parseInt(Math.random()*10));
+    setTimeout(print_lcd_loadcell, parseInt(Math.random()*10));
+    setTimeout(print_lcd_input_door, parseInt(Math.random()*10));
+    setTimeout(print_lcd_output_door, parseInt(Math.random()*10));
+    setTimeout(print_lcd_safe_door, parseInt(Math.random()*10));
+    setTimeout(print_lcd_internal_temp, parseInt(Math.random()*10));
+    setTimeout(print_lcd_elapsed_time, parseInt(Math.random()*10));
 
     setTimeout(lcd_display_watchdog, display_interval);
 
@@ -1066,6 +1130,8 @@ function core_watchdog() {
             dry_data_block.tar_weight3 = 0.0;
 
             dry_data_block.state = 'input';
+
+            dry_data_block.elapsed_time = 0;
         }
 
         if(dry_data_block.cum_weight > dry_data_block.cum_ref_weight) {
@@ -1314,6 +1380,8 @@ function core_watchdog() {
                         set_buzzer();
                         dry_data_block.state = 'input';
 
+                        dry_data_block.elapsed_time = 0;
+
                         setTimeout(core_watchdog, normal_interval * 5);
                         return;
                     }
@@ -1359,6 +1427,8 @@ function core_watchdog() {
             set_buzzer();
 
             dry_data_block.state = 'input';
+
+            dry_data_block.elapsed_time = 0;
 
             setTimeout(core_watchdog, normal_interval * 10);
             return;
