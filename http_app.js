@@ -22,7 +22,7 @@ var ip = require('ip');
 var shortid = require('shortid');
 // var moment = require('moment');
 
-const { exec } = require("child_process");
+var spawn = require('child_process').spawn;
 
 global.sh_adn = require('./http_adn');
 var noti = require('./noti');
@@ -599,14 +599,21 @@ dry_data_block.debug_message = 'initialize';
 ///////////////////////////////////////////////////////////////////////////////
 // function of food dryer machine controling, sensing
 
+var pre_state = 'init';
 function print_lcd_state() {
     if(dry_mqtt_client != null) {
-        var msg_obj = {};
-        msg_obj.val = dry_data_block.state;
-        dry_mqtt_client.publish('/print_lcd_state', JSON.stringify(msg_obj));
+        if (pre_state != dry_data_block.state) {
+            pre_state = dry_data_block.state;
+
+            var msg_obj = {};
+            msg_obj.val = dry_data_block.state;
+
+            dry_mqtt_client.publish('/print_lcd_state', JSON.stringify(msg_obj));
+        }
     }
 }
 
+var pre_cur_weight = -1.0;
 function print_lcd_loadcell() {
     if(dry_mqtt_client != null) {
         var msg_obj = {};
@@ -616,52 +623,82 @@ function print_lcd_loadcell() {
     }
 }
 
+var pre_loadcell_factor = -1.0;
 function print_lcd_loadcell_factor() {
     if(dry_mqtt_client != null) {
-        var msg_obj = {};
-        msg_obj.val = dry_data_block.loadcell_factor;
-        msg_obj.val2 = dry_data_block.loadcell_ref_weight;
-        dry_mqtt_client.publish('/print_lcd_loadcell_factor', JSON.stringify(msg_obj));
+        if (pre_loadcell_factor != dry_data_block.loadcell_factor) {
+            pre_loadcell_factor = dry_data_block.loadcell_factor;
+
+            var msg_obj = {};
+            msg_obj.val = dry_data_block.loadcell_factor;
+            msg_obj.val2 = dry_data_block.loadcell_ref_weight;
+            dry_mqtt_client.publish('/print_lcd_loadcell_factor', JSON.stringify(msg_obj));
+        }
     }
 }
 
+var pre_input_door = -1;
 function print_lcd_input_door() {
     if(dry_mqtt_client != null) {
-        var msg_obj = {};
-        msg_obj.val = dry_data_block.input_door;
-        dry_mqtt_client.publish('/print_lcd_input_door', JSON.stringify(msg_obj));
+        if (pre_input_door != dry_data_block.input_door) {
+            pre_input_door = dry_data_block.input_door;
+
+            var msg_obj = {};
+            msg_obj.val = dry_data_block.input_door;
+            dry_mqtt_client.publish('/print_lcd_input_door', JSON.stringify(msg_obj));
+        }
     }
 }
 
+var pre_output_door = -1;
 function print_lcd_output_door() {
     if(dry_mqtt_client != null) {
-        var msg_obj = {};
-        msg_obj.val = dry_data_block.output_door;
-        dry_mqtt_client.publish('/print_lcd_output_door', JSON.stringify(msg_obj));
+        if (pre_output_door != dry_data_block.output_door) {
+            pre_output_door = dry_data_block.output_door;
+
+            var msg_obj = {};
+            msg_obj.val = dry_data_block.output_door;
+            dry_mqtt_client.publish('/print_lcd_output_door', JSON.stringify(msg_obj));
+        }
     }
 }
 
+var pre_safe_door = -1;
 function print_lcd_safe_door() {
     if(dry_mqtt_client != null) {
-        var msg_obj = {};
-        msg_obj.val = dry_data_block.safe_door;
-        dry_mqtt_client.publish('/print_lcd_safe_door', JSON.stringify(msg_obj));
+        if (pre_safe_door != dry_data_block.safe_door) {
+            pre_safe_door = dry_data_block.safe_door;
+
+            var msg_obj = {};
+            msg_obj.val = dry_data_block.safe_door;
+            dry_mqtt_client.publish('/print_lcd_safe_door', JSON.stringify(msg_obj));
+        }
     }
 }
 
+var pre_internal_temp = -1.0;
 function print_lcd_internal_temp() {
     if(dry_mqtt_client != null) {
-        var msg_obj = {};
-        msg_obj.val = dry_data_block.internal_temp;
-        dry_mqtt_client.publish('/print_lcd_internal_temp', JSON.stringify(msg_obj));
+        if (pre_internal_temp != dry_data_block.internal_temp) {
+            pre_internal_temp = dry_data_block.internal_temp;
+
+            var msg_obj = {};
+            msg_obj.val = dry_data_block.internal_temp;
+            dry_mqtt_client.publish('/print_lcd_internal_temp', JSON.stringify(msg_obj));
+        }
     }
 }
 
+var pre_elapsed_time = -1;
 function print_lcd_elapsed_time() {
     if(dry_mqtt_client != null) {
-        var msg_obj = {};
-        msg_obj.val = dry_data_block.elapsed_time;
-        dry_mqtt_client.publish('/print_lcd_elapsed_time', JSON.stringify(msg_obj));
+        if (pre_elapsed_time != dry_data_block.elapsed_time) {
+            pre_elapsed_time = dry_data_block.elapsed_time;
+
+            var msg_obj = {};
+            msg_obj.val = dry_data_block.elapsed_time;
+            dry_mqtt_client.publish('/print_lcd_elapsed_time', JSON.stringify(msg_obj));
+        }
     }
 }
 
@@ -700,19 +737,11 @@ function set_stirrer(command) {
 }
 
 function set_buzzer() {
-    exec('phython3 set_buzzer ', function(error, stdout, stderr) {
-        if (error) {
-            console.log(`set_buzzer() error: ${error.message}`);
-            return;
-        }
-
-        if (stderr) {
-            console.log(`set_buzzer() stderr: ${stderr}`);
-            return;
-        }
-
-        console.log(`set_buzzer() stdout: ${stdout}`);
-    });
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = 1;
+        dry_mqtt_client.publish('/set_buzzer', JSON.stringify(msg_obj));
+    }
 }
 
 function set_zero_point() {
@@ -1397,3 +1426,21 @@ func['get_weight'] = get_weight;
 func['get_weight'] = get_operation_mode;
 func['get_debug_mode'] = get_debug_mode;
 func['get_start_btn'] = get_start_btn;
+
+var tas_dryer = spawn('python3', ['exec.py']);
+
+tas_dryer.stdout.on('data', function(data) {
+    console.log('stdout: ' + data);
+});
+
+tas_dryer.stderr.on('data', function(data) {
+    console.log('stderr: ' + data);
+});
+
+tas_dryer.on('exit', function(code) {
+    console.log('exit: ' + code);
+});
+
+tas_dryer.on('error', function(code) {
+    console.log('error: ' + code);
+});
