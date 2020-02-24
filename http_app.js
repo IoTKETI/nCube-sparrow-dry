@@ -262,6 +262,10 @@ function retrieve_my_cnt_name(callback) {
                 dry_data_block.cum_ref_weight = dry_info.cum_ref_weight;
             }
 
+            if(dry_info.hasOwnProperty('loadcell_ref_weight')) {
+                dry_data_block.loadcell_ref_weight = dry_info.loadcell_ref_weight;
+            }
+
             MQTT_SUBSCRIPTION_ENABLE = 1;
             sh_state = 'crtct';
             setTimeout(http_watchdog, normal_interval);
@@ -503,6 +507,7 @@ catch (e) {
     dry_data_block.elapsed_time = 0;
     dry_data_block.debug_message = 'init';
     dry_data_block.loadcell_factor = 1517;
+    dry_data_block.loadcell_ref_weight = 10.0;
 
     fs.writeFileSync('ddb.json', JSON.stringify(dry_data_block, null, 4), 'utf8');
 }
@@ -718,19 +723,21 @@ function set_stirrer(command) {
     });
 }
 
-function set_loadcell_tare() {
-    exec('phython3 set_loadcell_tare ' + dry_data_block.loadcell_factor, function(error, stdout, stderr) {
+function set_zero_point() {
+    exec('phython3 set_zero_point ' + dry_data_block.loadcell_ref_weight, function(error, stdout, stderr) {
         if (error) {
-            console.log(`set_loadcell_tare() error: ${error.message}`);
+            console.log(`set_zero_point() error: ${error.message}`);
             return;
         }
 
         if (stderr) {
-            console.log(`set_loadcell_tare() stderr: ${stderr}`);
+            console.log(`set_zero_point() stderr: ${stderr}`);
             return;
         }
 
-        console.log(`set_loadcell_tare() stdout: ${stdout}`);
+        console.log(`set_zero_point() stdout: ${stdout}`);
+
+        dry_data_block.loadcell_factor = parseInt(stdout.toString());
     });
 }
 
@@ -880,7 +887,7 @@ function get_safe_door() {
 }
 
 function get_weight() {
-    exec('phython3 read_weight ', function(error, stdout, stderr) {
+    exec('phython3 read_weight ' + dry_data_block.loadcell_factor, function(error, stdout, stderr) {
         if (error) {
             console.log(`get_weight() error: ${error.message}`);
             return;
@@ -1069,17 +1076,23 @@ setTimeout(lcd_display_watchdog, display_interval);
 function lcd_display_watchdog() {
     // print current info of dry from dry_data_block to lcd
 
-    if(dry_data_block.state == 'heat') {
-        dry_data_block.elapsed_time++;
-    }
+    if(dry_data_block.state == 'debug') {
 
-    setTimeout(print_lcd_state, parseInt(Math.random()*10));
-    setTimeout(print_lcd_loadcell, parseInt(Math.random()*10));
-    setTimeout(print_lcd_input_door, parseInt(Math.random()*10));
-    setTimeout(print_lcd_output_door, parseInt(Math.random()*10));
-    setTimeout(print_lcd_safe_door, parseInt(Math.random()*10));
-    setTimeout(print_lcd_internal_temp, parseInt(Math.random()*10));
-    setTimeout(print_lcd_elapsed_time, parseInt(Math.random()*10));
+    }
+    else {
+        if (dry_data_block.state == 'heat') {
+            dry_data_block.elapsed_time++;
+        }
+
+        setTimeout(print_lcd_state, parseInt(Math.random() * 10));
+        setTimeout(print_lcd_loadcell, parseInt(Math.random() * 10));
+        setTimeout(print_lcd_input_door, parseInt(Math.random() * 10));
+        setTimeout(print_lcd_output_door, parseInt(Math.random() * 10));
+        setTimeout(print_lcd_safe_door, parseInt(Math.random() * 10));
+        setTimeout(print_lcd_internal_temp, parseInt(Math.random() * 10));
+        setTimeout(print_lcd_elapsed_time, parseInt(Math.random() * 10));
+
+    }
 
     setTimeout(lcd_display_watchdog, display_interval);
 
@@ -1103,8 +1116,6 @@ function core_watchdog() {
 
         set_heater(0, 0, 0);
         set_stirrer(0);
-
-        set_loadcell_tare();
 
         if(dry_data_block.start_btn == 1) {
             dry_data_block.start_btn = 0;
@@ -1432,6 +1443,19 @@ function core_watchdog() {
 
             setTimeout(core_watchdog, normal_interval * 10);
             return;
+        }
+        else {
+            if(dry_data_block.cur_weight == dry_data_block.loadcell_ref_weight) {
+                dry_data_block.debug_message = 'Complete Zero point';
+
+            }
+            else {
+                dry_data_block.debug_message = 'Raise 10Kg weight';
+
+                set_zero_point();
+            }
+
+            core_interval = normal_interval * 50;
         }
 
         setTimeout(core_watchdog, core_interval);
