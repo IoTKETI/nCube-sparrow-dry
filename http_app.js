@@ -1427,7 +1427,7 @@ func['get_weight'] = get_operation_mode;
 func['get_debug_mode'] = get_debug_mode;
 func['get_start_btn'] = get_start_btn;
 
-var tas_dryer = spawn('python3', ['exec.py']);
+var tas_dryer = spawn('python3', ['./exec.py']);
 
 tas_dryer.stdout.on('data', function(data) {
     console.log('stdout: ' + data);
