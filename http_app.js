@@ -551,6 +551,22 @@ function print_lcd_loadcell() {
     });
 }
 
+function print_lcd_loadcell_factor() {
+    exec('phython3 print_lcd_loadcell_factor ' + dry_data_block.loadcell_factor + ' ' + dry_data_block.loadcell_ref_weight, function(error, stdout, stderr) {
+        if (error) {
+            console.log(`print_lcd_loadcell_factor() error: ${error.message}`);
+            return;
+        }
+
+        if (stderr) {
+            console.log(`print_lcd_loadcell_factor() stderr: ${stderr}`);
+            return;
+        }
+
+        console.log(`print_lcd_loadcell_factor() stdout: ${stdout}`);
+    });
+}
+
 function print_lcd_input_door() {
     exec('phython3 print_lcd_input_door ' + dry_data_block.input_door, function(error, stdout, stderr) {
         if (error) {
@@ -1077,7 +1093,9 @@ function lcd_display_watchdog() {
     // print current info of dry from dry_data_block to lcd
 
     if(dry_data_block.state == 'debug') {
-
+        setTimeout(print_lcd_state, parseInt(Math.random() * 10));
+        setTimeout(print_lcd_loadcell, parseInt(Math.random() * 10));
+        setTimeout(print_lcd_loadcell_factor, parseInt(Math.random() * 10));
     }
     else {
         if (dry_data_block.state == 'heat') {
@@ -1091,7 +1109,6 @@ function lcd_display_watchdog() {
         setTimeout(print_lcd_safe_door, parseInt(Math.random() * 10));
         setTimeout(print_lcd_internal_temp, parseInt(Math.random() * 10));
         setTimeout(print_lcd_elapsed_time, parseInt(Math.random() * 10));
-
     }
 
     setTimeout(lcd_display_watchdog, display_interval);
