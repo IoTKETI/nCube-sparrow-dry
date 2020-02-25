@@ -47,8 +47,7 @@ const first_interval = 3000;
 const retry_interval = 2500;
 const normal_interval = 100;
 const data_interval = 2000;
-const display_interval = 1000;
-const food_interval = 200;
+const display_interval = 700;
 
 const always_interval = 30000;
 const always_period_tick = parseInt((3 * 60 * 1000) / always_interval);
