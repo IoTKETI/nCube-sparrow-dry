@@ -215,7 +215,7 @@ function retrieve_my_cnt_name(callback) {
     sh_adn.rtvct('/Mobius/DRY/approval/'+conf.ae.name+'/la', 0, function (rsc, res_body, count) {
         if(rsc == 2000) {
             dry_info = res_body[Object.keys(res_body)[0]].con;
-            // // console.log(drone_info);
+            //     // console.log(drone_info);
 
             conf.cnt = [];
             var info = {};
@@ -417,11 +417,11 @@ function mqtt_connect(serverip, noti_topic) {
             var connectOptions = {
                 host: serverip,
                 port: conf.cse.mqttport,
-// username: 'keti',
-// password: 'keti123',
+//              username: 'keti',
+//              password: 'keti123',
                 protocol: "mqtt",
                 keepalive: 10,
-// clientId: serverUID,
+//              clientId: serverUID,
                 protocolId: "MQTT",
                 protocolVersion: 4,
                 clean: true,
@@ -436,7 +436,7 @@ function mqtt_connect(serverip, noti_topic) {
                 port: conf.cse.mqttport,
                 protocol: "mqtts",
                 keepalive: 10,
-// clientId: serverUID,
+//              clientId: serverUID,
                 protocolId: "MQTT",
                 protocolVersion: 4,
                 clean: true,
@@ -502,11 +502,11 @@ function dry_mqtt_connect(broker_ip, port, noti_topic) {
             var connectOptions = {
                 host: broker_ip,
                 port: port,
-// username: 'keti',
-// password: 'keti123',
+//              username: 'keti',
+//              password: 'keti123',
                 protocol: "mqtt",
                 keepalive: 10,
-// clientId: serverUID,
+//              clientId: serverUID,
                 protocolId: "MQTT",
                 protocolVersion: 4,
                 clean: true,
@@ -521,7 +521,7 @@ function dry_mqtt_connect(broker_ip, port, noti_topic) {
                 port: port,
                 protocol: "mqtts",
                 keepalive: 10,
-// clientId: serverUID,
+//              clientId: serverUID,
                 protocolId: "MQTT",
                 protocolVersion: 4,
                 clean: true,
@@ -549,7 +549,7 @@ function dry_mqtt_connect(broker_ip, port, noti_topic) {
     dry_mqtt_client.on('message', function (topic, message) {
         var msg_obj = JSON.parse(message.toString());
 
-        //console.log(topic + ' - ' + JSON.stringify(msg_obj));
+        console.log(topic + ' - ' + JSON.stringify(msg_obj));
 
         func[topic.replace('/', '')](msg_obj.val);
     });
@@ -1605,18 +1605,20 @@ func['res_operation_mode'] = res_operation_mode;
 func['res_debug_mode'] = res_debug_mode;
 func['res_start_btn'] = res_start_btn;
 
-/*
 var tas_dryer = spawn('python3', ['./exec.py']);
+
 tas_dryer.stdout.on('data', function(data) {
- console.log('stdout: ' + data);
+    console.log('stdout: ' + data);
 });
+
 tas_dryer.stderr.on('data', function(data) {
- console.log('stderr: ' + data);
+    console.log('stderr: ' + data);
 });
+
 tas_dryer.on('exit', function(code) {
- console.log('exit: ' + code);
+    console.log('exit: ' + code);
 });
+
 tas_dryer.on('error', function(code) {
- console.log('error: ' + code);
+    console.log('error: ' + code);
 });
-*/
