@@ -215,7 +215,7 @@ function retrieve_my_cnt_name(callback) {
     sh_adn.rtvct('/Mobius/DRY/approval/'+conf.ae.name+'/la', 0, function (rsc, res_body, count) {
         if(rsc == 2000) {
             dry_info = res_body[Object.keys(res_body)[0]].con;
-        //     // console.log(drone_info);
+            //     // console.log(drone_info);
 
             conf.cnt = [];
             var info = {};
@@ -230,7 +230,7 @@ function retrieve_my_cnt_name(callback) {
             info.parent = '/Mobius/' + dry_info.space + '/Dry_Data/' + dry_info.dry; // /Mobius/KETI_DRY/Dry_Data/keti
             info.name = my_sortie_name; // /Mobius/KETI_DRY/Dry_Data/keti/disarm
             conf.cnt.push(JSON.parse(JSON.stringify(info)));
-            
+
             my_parent_cnt_name = info.parent; // /Mobius/KETI_DRY/Dry_Data/keti/
             my_cnt_name = my_parent_cnt_name + '/' + info.name; // /Mobius/KETI_DRY/Dry_Data/keti/
 
@@ -485,15 +485,16 @@ function mqtt_connect(serverip, noti_topic) {
 var dry_mqtt_client = null;
 var dry_noti_topic = [];
 
-dry_noti_topic.push('/get_zero_point');
-dry_noti_topic.push('/get_internal_temp');
-dry_noti_topic.push('/get_input_door');
-dry_noti_topic.push('/get_output_door');
-dry_noti_topic.push('/get_safe_door');
-dry_noti_topic.push('/get_weight');
-dry_noti_topic.push('/get_operation_mode');
-dry_noti_topic.push('/get_debug_mode');
-dry_noti_topic.push('/get_start_btn');
+dry_noti_topic.push('/res_zero_point');
+dry_noti_topic.push('/res_calc_factor');
+dry_noti_topic.push('/res_internal_temp');
+dry_noti_topic.push('/res_input_door');
+dry_noti_topic.push('/res_output_door');
+dry_noti_topic.push('/res_safe_door');
+dry_noti_topic.push('/res_weight');
+dry_noti_topic.push('/res_operation_mode');
+dry_noti_topic.push('/res_debug_mode');
+dry_noti_topic.push('/res_start_btn');
 
 function dry_mqtt_connect(broker_ip, port, noti_topic) {
     if(dry_mqtt_client == null) {
@@ -702,6 +703,19 @@ function print_lcd_elapsed_time() {
     }
 }
 
+var pre_debug_message = -1;
+function print_lcd_debug_message() {
+    if(dry_mqtt_client != null) {
+        if (pre_debug_message != dry_data_block.debug_message) {
+            pre_debug_message = dry_data_block.debug_message;
+
+            var msg_obj = {};
+            msg_obj.val = dry_data_block.debug_message;
+            dry_mqtt_client.publish('/print_lcd_elapsed_time', JSON.stringify(msg_obj));
+        }
+    }
+}
+
 function set_solenoid(command) {
     if(dry_mqtt_client != null) {
         var msg_obj = {};
@@ -744,25 +758,147 @@ function set_buzzer() {
     }
 }
 
-function set_zero_point() {
+function req_zero_point() {
     if(dry_mqtt_client != null) {
         var msg_obj = {};
         msg_obj.val = dry_data_block.loadcell_ref_weight;
-        dry_mqtt_client.publish('/set_zero_point', JSON.stringify(msg_obj));
+        dry_mqtt_client.publish('/req_zero_point', JSON.stringify(msg_obj));
     }
 }
 
-function get_zero_point(val) {
-    dry_data_block.loadcell_ref_weight = parseFloat(val.toString()).toFixed(1);
+function req_calc_factor() {
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = dry_data_block.loadcell_ref_weight;
+        dry_mqtt_client.publish('/req_calc_factor', JSON.stringify(msg_obj));
+    }
 }
 
-function get_internal_temp(val) {
+
+function req_internal_temp() {
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = 1;
+        dry_mqtt_client.publish('/req_internal_temp', JSON.stringify(msg_obj));
+
+        setTimeout(req_internal_temp, 400 + parseInt(Math.random() * 100));
+    }
+    else {
+        setTimeout(req_internal_temp, 1000 + parseInt(Math.random() * 1000));
+    }
+}
+
+function req_input_door() {
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = 1;
+        dry_mqtt_client.publish('/req_input_door', JSON.stringify(msg_obj));
+
+        setTimeout(req_input_door, 50 + parseInt(Math.random() * 50));
+    }
+    else {
+        setTimeout(req_input_door, 1000 + parseInt(Math.random() * 1000));
+    }
+}
+
+function req_output_door() {
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = 1;
+        dry_mqtt_client.publish('/req_output_door', JSON.stringify(msg_obj));
+
+        setTimeout(req_output_door, 50 + parseInt(Math.random() * 50));
+    }
+    else {
+        setTimeout(req_output_door, 1000 + parseInt(Math.random() * 1000));
+    }
+}
+
+function req_safe_door() {
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = 1;
+        dry_mqtt_client.publish('/req_safe_door', JSON.stringify(msg_obj));
+
+        setTimeout(req_safe_door, 50 + parseInt(Math.random() * 50));
+    }
+    else {
+        setTimeout(req_safe_door, 1000 + parseInt(Math.random() * 1000));
+    }
+}
+
+function req_weight() {
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = 1;
+        dry_mqtt_client.publish('/req_weight', JSON.stringify(msg_obj));
+
+        setTimeout(req_weight, 400 + parseInt(Math.random() * 100));
+    }
+    else {
+        setTimeout(req_weight, 1000 + parseInt(Math.random() * 1000));
+    }
+}
+
+function req_operation_mode() {
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = 1;
+        dry_mqtt_client.publish('/req_operation_mode', JSON.stringify(msg_obj));
+
+        setTimeout(req_operation_mode, 50 + parseInt(Math.random() * 50));
+    }
+    else {
+        setTimeout(req_operation_mode, 1000 + parseInt(Math.random() * 1000));
+    }
+}
+
+function req_debug_mode() {
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = 1;
+        dry_mqtt_client.publish('/req_debug_mode', JSON.stringify(msg_obj));
+
+        setTimeout(req_debug_mode, 50 + parseInt(Math.random() * 50));
+    }
+    else {
+        setTimeout(req_debug_mode, 1000 + parseInt(Math.random() * 1000));
+    }
+}
+
+function req_start_btn() {
+    if(dry_mqtt_client != null) {
+        var msg_obj = {};
+        msg_obj.val = 1;
+        dry_mqtt_client.publish('/req_start_btn', JSON.stringify(msg_obj));
+
+        setTimeout(req_start_btn, 50 + parseInt(Math.random() * 50));
+    }
+    else {
+        setTimeout(req_start_btn, 1000 + parseInt(Math.random() * 1000));
+    }
+}
+
+function res_zero_point(val) {
+    //dry_data_block.loadcell_factor = parseFloat(val.toString()).toFixed(1);
+
+    debug_mode_state = 'put_on';
+}
+
+function res_calc_factor(val) {
+    dry_data_block.loadcell_factor = parseFloat(val.toString()).toFixed(1);
+
+    debug_mode_state = 'complete';
+}
+
+
+function res_internal_temp(val) {
     dry_data_block.internal_temp = parseFloat(val.toString()).toFixed(1);
 }
 
 var input_door_close_count = 0;
 var input_door_open_count = 0;
-function get_input_door(val) {
+function res_input_door(val) {
     var status = parseInt(val.toString());
 
     if(status == 0) {
@@ -785,7 +921,7 @@ function get_input_door(val) {
 
 var output_door_close_count = 0;
 var output_door_open_count = 0;
-function get_output_door(val) {
+function res_output_door(val) {
     var status = parseInt(val.toString());
 
     if(status == 0) {
@@ -808,7 +944,7 @@ function get_output_door(val) {
 
 var safe_door_close_count = 0;
 var safe_door_open_count = 0;
-function get_safe_door(val) {
+function res_safe_door(val) {
     var status = parseInt((val).toString());
 
     if(status == 0) {
@@ -829,13 +965,13 @@ function get_safe_door(val) {
     }
 }
 
-function get_weight(val) {
+function res_weight(val) {
     dry_data_block.cur_weight = parseFloat(val.toString()).toFixed(1);
 }
 
 var operation_press_count = 0;
 var operation_release_count = 0;
-function get_operation_mode(val) {
+function res_operation_mode(val) {
     var status = parseInt(val.toString());
 
     if(status == 0) {
@@ -858,7 +994,7 @@ function get_operation_mode(val) {
 
 var debug_press_count = 0;
 var debug_release_count = 0;
-function get_debug_mode(val) {
+function res_debug_mode(val) {
     var status = parseInt(val.toString());
 
     if(status == 0) {
@@ -882,7 +1018,7 @@ function get_debug_mode(val) {
 
 var start_press_count = 0;
 var start_press_flag = 0;
-function get_start_btn(val) {
+function res_start_btn(val) {
     var status = parseInt(val.toString());
 
     if(status == 0) {
@@ -983,6 +1119,7 @@ function lcd_display_watchdog() {
         setTimeout(print_lcd_safe_door, parseInt(Math.random() * 10));
         setTimeout(print_lcd_internal_temp, parseInt(Math.random() * 10));
         setTimeout(print_lcd_elapsed_time, parseInt(Math.random() * 10));
+        setTimeout(print_lcd_debug_message, parseInt(Math.random() * 10));
     }
 
     setTimeout(lcd_display_watchdog, display_interval);
@@ -990,6 +1127,8 @@ function lcd_display_watchdog() {
 
 
 ///////////////////////////////////////////////////////////////////////////////
+
+var debug_mode_state = 'start';
 
 setTimeout(core_watchdog, first_interval);
 
@@ -1101,6 +1240,7 @@ function core_watchdog() {
         }
 
         if(dry_data_block.debug_mode == 1) {
+            debug_mode_state = 'start';
             dry_data_block.state = 'debug';
         }
 
@@ -1315,6 +1455,10 @@ function core_watchdog() {
     else if(dry_data_block.state == 'debug') {
         if(dry_data_block.start_btn == 1) {
             dry_data_block.start_btn = 0;
+
+            if(debug_mode_state == 'put_on_waiting') {
+                req_calc_factor();
+            }
         }
         else if(dry_data_block.start_btn == 2) {
             dry_data_block.start_btn = 0;
@@ -1334,17 +1478,25 @@ function core_watchdog() {
             return;
         }
         else {
-            if(dry_data_block.cur_weight == dry_data_block.loadcell_ref_weight) {
-                dry_data_block.debug_message = 'Complete Zero point';
+            if(debug_mode_state == 'start') {
+                dry_data_block.debug_message = 'Start zero point';
 
-            }
-            else {
-                dry_data_block.debug_message = 'Raise 10Kg weight';
+                req_zero_point();
 
-                set_zero_point();
+                debug_mode_state = 'start_waiting';
             }
 
-            core_interval = normal_interval * 50;
+            else if(debug_mode_state == 'put_on') {
+                dry_data_block.debug_message = 'Put weight on - ' + dry_data_block.loadcell_ref_weight;
+
+                debug_mode_state = 'put_on_waiting';
+            }
+
+            else if(debug_mode_state == 'complete') {
+                dry_data_block.debug_message = 'Complete zero point';
+            }
+
+            core_interval = normal_interval * 10;
         }
 
         setTimeout(core_watchdog, core_interval);
@@ -1416,16 +1568,38 @@ function core_watchdog() {
     //console.log('core watchdog');
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+setTimeout(food_watchdog, first_interval);
+
+function food_watchdog(){
+    //100ms동작
+    //실시간으로 변경되는상태값 저장
+    //roadcell_lunch() //roadcell측정
+
+    setTimeout(req_internal_temp, parseInt(Math.random()*10));
+    setTimeout(req_input_door, parseInt(Math.random()*10));
+    setTimeout(req_output_door, parseInt(Math.random()*10));
+    setTimeout(req_safe_door, parseInt(Math.random()*10));
+    setTimeout(req_weight, parseInt(Math.random()*10));
+    setTimeout(req_operation_mode, parseInt(Math.random()*10));
+    setTimeout(req_debug_mode, parseInt(Math.random()*10));
+    setTimeout(req_start_btn, parseInt(Math.random()*10));
+
+    //console.log('food watchdog');
+}
+
 var func = {};
-func['get_zero_point'] = get_zero_point;
-func['get_internal_temp'] = get_internal_temp;
-func['get_input_door'] = get_input_door;
-func['get_output_door'] = get_output_door;
-func['get_safe_door'] = get_safe_door;
-func['get_weight'] = get_weight;
-func['get_weight'] = get_operation_mode;
-func['get_debug_mode'] = get_debug_mode;
-func['get_start_btn'] = get_start_btn;
+func['res_zero_point'] = res_zero_point;
+func['res_calc_factor'] = res_calc_factor;
+func['res_internal_temp'] = res_internal_temp;
+func['res_input_door'] = res_input_door;
+func['res_output_door'] = res_output_door;
+func['res_safe_door'] = res_safe_door;
+func['res_weight'] = res_weight;
+func['res_operation_mode'] = res_operation_mode;
+func['res_debug_mode'] = res_debug_mode;
+func['res_start_btn'] = res_start_btn;
 
 var tas_dryer = spawn('python3', ['./exec.py']);
 
