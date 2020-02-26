@@ -20,7 +20,7 @@ var util = require('util');
 var url = require('url');
 var ip = require('ip');
 var shortid = require('shortid');
-// var moment = require('moment');
+var moment = require('moment');
 
 var spawn = require('child_process').spawn;
 
@@ -37,8 +37,8 @@ global.my_cnt_name = '';
 global.pre_my_cnt_name = '';
 global.my_mission_parent = '';
 global.my_mission_name = '';
-global.lte_parent_mission_name = '';
-global.lte_mission_name = '';
+global.zero_parent_mission_name = '';
+global.zero_mission_name = '';
 global.my_sortie_name = 'disarm';
 // global.my_drone_type = 'pixhawk';
 global.my_secure = 'off';
@@ -214,7 +214,7 @@ function retrieve_my_cnt_name(callback) {
     sh_adn.rtvct('/Mobius/DRY/approval/'+conf.ae.name+'/la', 0, function (rsc, res_body, count) {
         if(rsc == 2000) {
             dry_info = res_body[Object.keys(res_body)[0]].con;
-            //     // console.log(drone_info);
+            // // console.log(drone_info);
 
             conf.cnt = [];
             var info = {};
@@ -231,7 +231,7 @@ function retrieve_my_cnt_name(callback) {
             conf.cnt.push(JSON.parse(JSON.stringify(info)));
 
             my_parent_cnt_name = info.parent; // /Mobius/KETI_DRY/Dry_Data/keti/
-            my_cnt_name = my_parent_cnt_name + '/' + info.name; // /Mobius/KETI_DRY/Dry_Data/keti/
+            my_cnt_name = my_parent_cnt_name + '/' + my_sortie_name; // /Mobius/KETI_DRY/Dry_Data/keti/
 
             info.parent = '/Mobius/' + dry_info.space;// /Mobius/KETI_DRY
             info.name = 'Zero_Data';
@@ -246,8 +246,8 @@ function retrieve_my_cnt_name(callback) {
             info.name = 'Adjustment';
             conf.cnt.push(JSON.parse(JSON.stringify(info)));
 
-            lte_parent_mission_name = info.parent + '/' + info.name;
-            lte_mission_name = lte_parent_mission_name + '/' + my_sortie_name;
+            zero_parent_mission_name = info.parent + '/' + info.name;
+            zero_mission_name = lte_parent_mission_name + '/' + my_sortie_name;
 
             info.parent = lte_parent_mission_name;
             info.name = my_sortie_name;
@@ -395,12 +395,12 @@ function http_watchdog() {
         });
     }
     else if (sh_state === 'crtci') {
-        send_to_Mobius();
+        send_to_Mobius(my_cnt_name, dry_data_block);
     }
 }
 
-function send_to_Mobius() {
-    sh_adn.crtci(my_cnt_name+'?rcn=0', 0, dry_data_block, null, function () {
+function send_to_Mobius(url, obj_content) {
+    sh_adn.crtci(url+'?rcn=0', 0, obj_content, null, function () {
 
     });
 
@@ -416,11 +416,11 @@ function mqtt_connect(serverip, noti_topic) {
             var connectOptions = {
                 host: serverip,
                 port: conf.cse.mqttport,
-//              username: 'keti',
-//              password: 'keti123',
+// username: 'keti',
+// password: 'keti123',
                 protocol: "mqtt",
                 keepalive: 10,
-//              clientId: serverUID,
+// clientId: serverUID,
                 protocolId: "MQTT",
                 protocolVersion: 4,
                 clean: true,
@@ -435,7 +435,7 @@ function mqtt_connect(serverip, noti_topic) {
                 port: conf.cse.mqttport,
                 protocol: "mqtts",
                 keepalive: 10,
-//              clientId: serverUID,
+// clientId: serverUID,
                 protocolId: "MQTT",
                 protocolVersion: 4,
                 clean: true,
@@ -501,11 +501,11 @@ function dry_mqtt_connect(broker_ip, port, noti_topic) {
             var connectOptions = {
                 host: broker_ip,
                 port: port,
-//              username: 'keti',
-//              password: 'keti123',
+// username: 'keti',
+// password: 'keti123',
                 protocol: "mqtt",
                 keepalive: 10,
-//              clientId: serverUID,
+// clientId: serverUID,
                 protocolId: "MQTT",
                 protocolVersion: 4,
                 clean: true,
@@ -520,7 +520,7 @@ function dry_mqtt_connect(broker_ip, port, noti_topic) {
                 port: port,
                 protocol: "mqtts",
                 keepalive: 10,
-//              clientId: serverUID,
+// clientId: serverUID,
                 protocolId: "MQTT",
                 protocolVersion: 4,
                 clean: true,
@@ -548,7 +548,7 @@ function dry_mqtt_connect(broker_ip, port, noti_topic) {
     dry_mqtt_client.on('message', function (topic, message) {
         var msg_obj = JSON.parse(message.toString());
 
-        console.log(topic + ' - ' + JSON.stringify(msg_obj));
+        //console.log(topic + ' - ' + JSON.stringify(msg_obj));
 
         func[topic.replace('/', '')](msg_obj.val);
     });
@@ -588,6 +588,7 @@ catch (e) {
     dry_data_block.debug_message = 'INIT';
     dry_data_block.loadcell_factor = 1517;
     dry_data_block.loadcell_ref_weight = 10.0;
+    dry_data_block.correlation_value = 4.6;
 
     fs.writeFileSync('ddb.json', JSON.stringify(dry_data_block, null, 4), 'utf8');
 }
@@ -705,9 +706,7 @@ function print_lcd_elapsed_time() {
 var pre_debug_message = -1;
 function print_lcd_debug_message() {
     if(dry_mqtt_client != null) {
-        console.log(dry_data_block.debug_message);
         if (pre_debug_message != dry_data_block.debug_message) {
-            console.log(pre_debug_message);
             pre_debug_message = dry_data_block.debug_message;
 
             var msg_obj = {};
@@ -830,11 +829,13 @@ function req_safe_door() {
 
 function req_weight() {
     if(dry_mqtt_client != null) {
-        var msg_obj = {};
-        msg_obj.val = 1;
-        dry_mqtt_client.publish('/req_weight', JSON.stringify(msg_obj));
 
-        setTimeout(req_weight, 400 + parseInt(Math.random() * 100));
+        if(dry_data_block.state != 'DEBUG') {
+            var msg_obj = {};
+            msg_obj.val = 1;
+            dry_mqtt_client.publish('/req_weight', JSON.stringify(msg_obj));
+        }
+        setTimeout(req_weight, 1000 + parseInt(Math.random() * 100));
     }
     else {
         setTimeout(req_weight, 1000 + parseInt(Math.random() * 1000));
@@ -967,6 +968,7 @@ function res_safe_door(val) {
 }
 
 function res_weight(val) {
+    console.log('weight: ' + val);
     dry_data_block.cur_weight = parseFloat(val.toString()).toFixed(1);
 }
 
@@ -980,7 +982,7 @@ function res_operation_mode(val) {
         operation_release_count = 0;
         if(operation_press_count > 2) {
             operation_press_count = 2;
-            dry_data_block.operation_mode = 1;
+            dry_data_block.operation_mode = 0;
         }
     }
     else {
@@ -988,7 +990,7 @@ function res_operation_mode(val) {
         operation_release_count++;
         if(operation_release_count > 2) {
             operation_release_count = 2;
-            dry_data_block.operation_mode = 0;
+            dry_data_block.operation_mode = 1;
         }
     }
 }
@@ -998,14 +1000,12 @@ var debug_release_count = 0;
 function res_debug_mode(val) {
     var status = parseInt(val.toString());
 
-    //console.log(debug_press_count);
-
     if(status == 0) {
         debug_press_count++;
         debug_release_count = 0;
         if(debug_press_count > 2) {
             debug_press_count = 2;
-            dry_data_block.debug_mode = 1;
+            dry_data_block.debug_mode = 0;
         }
     }
     else {
@@ -1013,7 +1013,7 @@ function res_debug_mode(val) {
         debug_release_count++;
         if(debug_release_count > 2) {
             debug_release_count = 2;
-            dry_data_block.debug_mode = 0;
+            dry_data_block.debug_mode = 1;
         }
     }
 }
@@ -1142,8 +1142,26 @@ action_message.push('Choose an INPUT mode');
 var action_toggle = 0;
 
 function core_watchdog() {
-
+    console.log(dry_data_block.debug_mode);
+    console.log(dry_data_block.state);
     if(dry_data_block.state == 'INIT') {
+
+        sh_adn.rtvct(zero_mission_name+'/la', 0, function (rsc, res_body, count) {
+            if (rsc == 2000) {
+                var zero_obj = res_body[Object.keys(res_body)[0]].con;
+
+                dry_data_block.loadcell_factor = zero_obj.loadcell_factor;
+                dry_data_block.correlation_value = zero_obj.correlation_value;
+
+                if(dry_mqtt_client != null) {
+                    var msg_obj = {};
+                    msg_obj.val = dry_data_block.loadcell_factor;
+                    msg_obj.val2 = dry_data_block.correlation_value;
+                    dry_mqtt_client.publish('/set_zero_point', JSON.stringify(msg_obj));
+                }
+            }
+        });
+
         set_heater(0, 0, 0);
         set_stirrer(0);
 
@@ -1235,6 +1253,11 @@ function core_watchdog() {
                             set_heater(1, 1, 1);
                             set_stirrer(1);
 
+                            my_sortie_name = moment().format('YYYY_MM_DD_T_hh_mm');
+                            my_cnt_name = my_parent_cnt_name + '/' + my_sortie_name;
+                            sh_adn.crtct(my_parent_cnt_name+'?rcn=0', my_sortie_name, 0, function (rsc, res_body, count) {
+                            });
+
                             setTimeout(core_watchdog, normal_interval);
                         }
                         else {
@@ -1277,7 +1300,10 @@ function core_watchdog() {
         else {
             if (dry_data_block.debug_mode == 1) {
                 debug_mode_state = 'start';
+
+                console.log(dry_data_block.state);
                 dry_data_block.state = 'DEBUG';
+                console.log('->' + dry_data_block.state);
 
                 setTimeout(core_watchdog, normal_interval);
             }
@@ -1366,6 +1392,9 @@ function core_watchdog() {
 
                     set_buzzer();
 
+                    my_sortie_name = 'disarm';
+                    my_cnt_name = my_parent_cnt_name + '/' + my_sortie_name;
+
                     setTimeout(core_watchdog, normal_interval * 10);
                 }
                 else {
@@ -1447,6 +1476,8 @@ function core_watchdog() {
     }
 
     else if(dry_data_block.state == 'DEBUG') {
+
+
         if(dry_data_block.start_btn == 1) {
             dry_data_block.start_btn = 0;
 
@@ -1468,7 +1499,9 @@ function core_watchdog() {
 
                 set_buzzer();
 
+                console.log(dry_data_block.state);
                 dry_data_block.state = 'INPUT';
+                console.log('->' + dry_data_block.state);
 
                 dry_data_block.debug_message = '';
 
@@ -1498,6 +1531,14 @@ function core_watchdog() {
                 else if (debug_mode_state == 'complete') {
                     dry_data_block.debug_message = 'Complete zero point';
 
+                    var obj = {};
+                    obj.loadcell_factor = dry_data_block.loadcell_factor;
+                    obj.correlation_value = dry_data_block.correlation_value;
+                    send_to_Mobius(zero_mission_name, obj);
+
+                    setTimeout(core_watchdog, normal_interval);
+                }
+                else {
                     setTimeout(core_watchdog, normal_interval);
                 }
             }
@@ -1565,7 +1606,7 @@ function core_watchdog() {
     }
 
     else {
-        setTimeout(core_watchdog, core_interval);
+        setTimeout(core_watchdog, normal_interval);
     }
 
     //console.log('core watchdog');
@@ -1603,21 +1644,17 @@ func['res_weight'] = res_weight;
 func['res_operation_mode'] = res_operation_mode;
 func['res_debug_mode'] = res_debug_mode;
 func['res_start_btn'] = res_start_btn;
-
+/*
 var tas_dryer = spawn('python3', ['./exec.py']);
-
 tas_dryer.stdout.on('data', function(data) {
-    console.log('stdout: ' + data);
+ console.log('stdout: ' + data);
 });
-
 tas_dryer.stderr.on('data', function(data) {
-    console.log('stderr: ' + data);
+ console.log('stderr: ' + data);
 });
-
 tas_dryer.on('exit', function(code) {
-    console.log('exit: ' + code);
+ console.log('exit: ' + code);
 });
-
 tas_dryer.on('error', function(code) {
-    console.log('error: ' + code);
-});
+ console.log('error: ' + code);
+});*/

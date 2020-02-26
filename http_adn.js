@@ -261,7 +261,7 @@ exports.delsub = function(target, count, callback) {
 };
 
 
-exports.crtci = function(parent, count, content, socket, callback) {
+exports.crtci = function(parent, count, obj_content, socket, callback) {
     var results_ci = {};
     var bodyString = '';
     if(conf.ae.bodytype === 'xml') {
@@ -270,7 +270,7 @@ exports.crtci = function(parent, count, content, socket, callback) {
     }
     else {
         results_ci['m2m:cin'] = {};
-        results_ci['m2m:cin'].con = content;
+        results_ci['m2m:cin'].con = obj_content;
 
         bodyString = JSON.stringify(results_ci);
         
