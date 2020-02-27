@@ -247,9 +247,9 @@ function retrieve_my_cnt_name(callback) {
             conf.cnt.push(JSON.parse(JSON.stringify(info)));
 
             zero_parent_mission_name = info.parent + '/' + info.name;
-            zero_mission_name = lte_parent_mission_name + '/' + my_sortie_name;
+            zero_mission_name = zero_parent_mission_name + '/' + my_sortie_name;
 
-            info.parent = lte_parent_mission_name;
+            info.parent = zero_parent_mission_name;
             info.name = my_sortie_name;
             conf.cnt.push(JSON.parse(JSON.stringify(info)));
 
@@ -1142,8 +1142,8 @@ action_message.push('Choose an INPUT mode');
 var action_toggle = 0;
 
 function core_watchdog() {
-    console.log(dry_data_block.debug_mode);
-    console.log(dry_data_block.state);
+    //console.log(dry_data_block.debug_mode);
+    //console.log(dry_data_block.state);
     if(dry_data_block.state == 'INIT') {
 
         sh_adn.rtvct(zero_mission_name+'/la', 0, function (rsc, res_body, count) {
