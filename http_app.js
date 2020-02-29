@@ -586,8 +586,8 @@ catch (e) {
     dry_data_block.stirrer_mode = 0;
     dry_data_block.elapsed_time = 0;
     dry_data_block.debug_message = 'INIT';
-    dry_data_block.loadcell_factor = 1517;
-    dry_data_block.loadcell_ref_weight = 10.0;
+    dry_data_block.loadcell_factor = 1841;
+    dry_data_block.loadcell_ref_weight = 20;
     dry_data_block.correlation_value = 4.6;
 
     fs.writeFileSync('ddb.json', JSON.stringify(dry_data_block, null, 4), 'utf8');
@@ -762,6 +762,7 @@ function req_zero_point() {
     if(dry_mqtt_client != null) {
         var msg_obj = {};
         msg_obj.val = dry_data_block.loadcell_ref_weight;
+        //console.log(dry_data_block.loadcell_ref_weight)
         dry_mqtt_client.publish('/req_zero_point', JSON.stringify(msg_obj));
     }
 }
@@ -908,7 +909,7 @@ function res_input_door(val) {
         input_door_open_count = 0;
         if(input_door_close_count > 2) {
             input_door_close_count = 2;
-            dry_data_block.input_door = 0;
+            dry_data_block.input_door = 1;
         }
     }
     else {
@@ -916,7 +917,7 @@ function res_input_door(val) {
         input_door_open_count++;
         if(input_door_open_count > 2) {
             input_door_open_count = 2;
-            dry_data_block.input_door = 1;
+            dry_data_block.input_door = 0;
         }
     }
 }
@@ -931,7 +932,7 @@ function res_output_door(val) {
         output_door_open_count = 0;
         if(output_door_close_count > 2) {
             output_door_close_count = 2;
-            dry_data_block.output_door = 0;
+            dry_data_block.output_door = 1;
         }
     }
     else {
@@ -939,7 +940,7 @@ function res_output_door(val) {
         output_door_open_count++;
         if(output_door_open_count > 2) {
             output_door_open_count = 2;
-            dry_data_block.output_door = 1;
+            dry_data_block.output_door = 0;
         }
     }
 }
@@ -954,7 +955,7 @@ function res_safe_door(val) {
         safe_door_open_count = 0;
         if(safe_door_close_count > 2) {
             safe_door_close_count = 2;
-            dry_data_block.safe_door = 0;
+            dry_data_block.safe_door = 1;
         }
     }
     else {
@@ -962,7 +963,7 @@ function res_safe_door(val) {
         safe_door_open_count++;
         if(safe_door_open_count > 2) {
             safe_door_open_count = 2;
-            dry_data_block.safe_door = 1;
+            dry_data_block.safe_door = 0;
         }
     }
 }
@@ -1177,7 +1178,7 @@ function core_watchdog() {
         }
         else {
             if(dry_data_block.output_door == 1) {
-                dry_data_block.debug_message = 'Close the output door';
+                dry_data_block.debug_message = 'Close output door';
 
                 set_buzzer();
 
@@ -1185,7 +1186,7 @@ function core_watchdog() {
             }
             else {
                 if (dry_data_block.safe_door == 1) {
-                    dry_data_block.debug_message = 'Close the safe door';
+                    dry_data_block.debug_message = 'Close safe door';
 
                     set_buzzer();
 
@@ -1269,7 +1270,7 @@ function core_watchdog() {
                         }
                     }
                     else {
-                        dry_data_block.debug_message = 'Close the input door';
+                        dry_data_block.debug_message = 'Close input door';
 
                         set_buzzer();
 
@@ -1277,7 +1278,7 @@ function core_watchdog() {
                     }
                 }
                 else {
-                    dry_data_block.debug_message = 'Close the output door';
+                    dry_data_block.debug_message = 'Close output door';
 
                     set_buzzer();
 
@@ -1285,7 +1286,7 @@ function core_watchdog() {
                 }
             }
             else {
-                dry_data_block.debug_message = 'Close the safe door';
+                dry_data_block.debug_message = 'Close safe door';
 
                 set_buzzer();
 
@@ -1309,21 +1310,23 @@ function core_watchdog() {
             }
             else {
                 if (dry_data_block.output_door == 1) {
-                    dry_data_block.debug_message = 'Close the output door';
+                    dry_data_block.debug_message = 'Close output door';
 
                     set_buzzer();
 
                     setTimeout(core_watchdog, normal_interval * 10);
                 }
                 else {
+                    dry_data_block.debug_message = '';
                     if (dry_data_block.safe_door == 1) {
-                        dry_data_block.debug_message = 'Close the safe door';
+                        dry_data_block.debug_message = 'Close safe door';
 
                         set_buzzer();
 
                         setTimeout(core_watchdog, normal_interval * 10);
                     }
                     else {
+                        dry_data_block.debug_message = '';
                         setTimeout(core_watchdog, normal_interval);
                     }
                 }
@@ -1558,21 +1561,21 @@ function core_watchdog() {
         }
         else {
             if (dry_data_block.output_door == 1) {
-                dry_data_block.debug_message = 'Close the output door';
+                dry_data_block.debug_message = 'Close output door';
 
                 set_buzzer();
 
                 setTimeout(core_watchdog, normal_interval * 10);
             }
             else if (dry_data_block.safe_door == 1) {
-                dry_data_block.debug_message = 'Close the safe door';
+                dry_data_block.debug_message = 'Close safe door';
 
                 set_buzzer();
 
                 setTimeout(core_watchdog, normal_interval * 10);
             }
             else if (dry_data_block.input_door == 1) {
-                dry_data_block.debug_message = 'Close the input door';
+                dry_data_block.debug_message = 'Close input door';
 
                 set_buzzer();
 
@@ -1657,4 +1660,5 @@ tas_dryer.on('exit', function(code) {
 });
 tas_dryer.on('error', function(code) {
  console.log('error: ' + code);
-});*/
+});
+*/
