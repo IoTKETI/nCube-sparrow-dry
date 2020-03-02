@@ -617,10 +617,14 @@ function print_lcd_state() {
 var pre_cur_weight = -1.0;
 function print_lcd_loadcell() {
     if(dry_mqtt_client != null) {
-        var msg_obj = {};
-        msg_obj.val = dry_data_block.cur_weight;
-        msg_obj.val2 = dry_data_block.tar_weight3;
-        dry_mqtt_client.publish('/print_lcd_loadcell', JSON.stringify(msg_obj));
+        if (pre_cur_weight != dry_data_block.cur_weight) {
+            pre_cur_weight = dry_data_block.cur_weight;
+
+            var msg_obj = {};
+            msg_obj.val = dry_data_block.cur_weight;
+            msg_obj.val2 = dry_data_block.tar_weight3;
+            dry_mqtt_client.publish('/print_lcd_loadcell', JSON.stringify(msg_obj));
+        }
     }
 }
 
