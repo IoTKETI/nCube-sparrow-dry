@@ -616,6 +616,7 @@ function print_lcd_state() {
 var pre_cur_weight = -1.0;
 function print_lcd_loadcell() {
     if(dry_mqtt_client != null) {
+        console.log(dry_data_block.cur_weight);
         if (pre_cur_weight != dry_data_block.cur_weight) {
             pre_cur_weight = dry_data_block.cur_weight;
 
@@ -912,7 +913,7 @@ function res_input_door(val) {
         input_door_open_count = 0;
         if(input_door_close_count > 2) {
             input_door_close_count = 2;
-            dry_data_block.input_door = 1;
+            dry_data_block.input_door = 0;
         }
     }
     else {
@@ -920,7 +921,7 @@ function res_input_door(val) {
         input_door_open_count++;
         if(input_door_open_count > 2) {
             input_door_open_count = 2;
-            dry_data_block.input_door = 0;
+            dry_data_block.input_door = 1;
         }
     }
 }
@@ -935,7 +936,7 @@ function res_output_door(val) {
         output_door_open_count = 0;
         if(output_door_close_count > 2) {
             output_door_close_count = 2;
-            dry_data_block.output_door = 1;
+            dry_data_block.output_door = 0;
         }
     }
     else {
@@ -943,7 +944,7 @@ function res_output_door(val) {
         output_door_open_count++;
         if(output_door_open_count > 2) {
             output_door_open_count = 2;
-            dry_data_block.output_door = 0;
+            dry_data_block.output_door = 1;
         }
     }
 }
@@ -958,7 +959,7 @@ function res_safe_door(val) {
         safe_door_open_count = 0;
         if(safe_door_close_count > 2) {
             safe_door_close_count = 2;
-            dry_data_block.safe_door = 1;
+            dry_data_block.safe_door = 0;
         }
     }
     else {
@@ -966,7 +967,7 @@ function res_safe_door(val) {
         safe_door_open_count++;
         if(safe_door_open_count > 2) {
             safe_door_open_count = 2;
-            dry_data_block.safe_door = 0;
+            dry_data_block.safe_door = 1;
         }
     }
 }
@@ -1138,7 +1139,7 @@ function lcd_display_watchdog() {
 
 var debug_mode_state = 'start';
 
-setTimeout(core_watchdog, first_interval);
+setTimeout(core_watchdog, 2000);
 
 var action_message = [];
 action_message.push('Empty the contents');
@@ -1150,6 +1151,9 @@ function core_watchdog() {
     //console.log(dry_data_block.state);
     if(dry_data_block.state == 'INIT') {
 
+        pre_input_door = -1;
+        pre_output_door = -1;
+        pre_safe_door = -1;
         sh_adn.rtvct(zero_mission_name+'/la', 0, function (rsc, res_body, count) {
             if (rsc == 2000) {
                 var zero_obj = res_body[Object.keys(res_body)[0]].con;
@@ -1185,7 +1189,7 @@ function core_watchdog() {
 
                 set_buzzer();
 
-                setTimeout(core_watchdog, normal_interval * 10);
+                setTimeout(core_watchdog, normal_interval);
             }
             else {
                 if (dry_data_block.safe_door == 1) {
@@ -1193,7 +1197,7 @@ function core_watchdog() {
 
                     set_buzzer();
 
-                    setTimeout(core_watchdog, normal_interval * 10);
+                    setTimeout(core_watchdog, normal_interval);
                 }
                 else {
                     if (dry_data_block.operation_mode == 1) {
@@ -1202,7 +1206,7 @@ function core_watchdog() {
 
                         set_buzzer();
 
-                        setTimeout(core_watchdog, normal_interval * 10);
+                        setTimeout(core_watchdog, normal_interval);
                     }
                     else {
                         dry_data_block.cur_weight = 0.0;
@@ -1221,7 +1225,7 @@ function core_watchdog() {
 
                             set_buzzer();
 
-                            setTimeout(core_watchdog, normal_interval * 10);
+                            setTimeout(core_watchdog, normal_interval);
                         }
                         else {
                             setTimeout(core_watchdog, normal_interval);
@@ -1269,7 +1273,7 @@ function core_watchdog() {
 
                             set_buzzer();
 
-                            setTimeout(core_watchdog, normal_interval * 10);
+                            setTimeout(core_watchdog, normal_interval);
                         }
                     }
                     else {
@@ -1277,7 +1281,7 @@ function core_watchdog() {
 
                         set_buzzer();
 
-                        setTimeout(core_watchdog, normal_interval * 10);
+                        setTimeout(core_watchdog, normal_interval);
                     }
                 }
                 else {
@@ -1285,7 +1289,7 @@ function core_watchdog() {
 
                     set_buzzer();
 
-                    setTimeout(core_watchdog, normal_interval * 10);
+                    setTimeout(core_watchdog, normal_interval);
                 }
             }
             else {
@@ -1293,7 +1297,7 @@ function core_watchdog() {
 
                 set_buzzer();
 
-                setTimeout(core_watchdog, normal_interval * 10);
+                setTimeout(core_watchdog, normal_interval);
             }
         }
         else if(dry_data_block.start_btn == 2) {
@@ -1317,7 +1321,7 @@ function core_watchdog() {
 
                     set_buzzer();
 
-                    setTimeout(core_watchdog, normal_interval * 10);
+                    setTimeout(core_watchdog, normal_interval);
                 }
                 else {
                     dry_data_block.debug_message = '';
@@ -1326,7 +1330,7 @@ function core_watchdog() {
 
                         set_buzzer();
 
-                        setTimeout(core_watchdog, normal_interval * 10);
+                        setTimeout(core_watchdog, normal_interval);
                     }
                     else {
                         dry_data_block.debug_message = '';
@@ -1363,7 +1367,7 @@ function core_watchdog() {
 
                 set_buzzer();
 
-                setTimeout(core_watchdog, normal_interval * 10);
+                setTimeout(core_watchdog, normal_interval);
             }
             else {
                 if (dry_data_block.cur_weight <= dry_data_block.tar_weight1) {
@@ -1401,7 +1405,7 @@ function core_watchdog() {
                     my_sortie_name = 'disarm';
                     my_cnt_name = my_parent_cnt_name + '/' + my_sortie_name;
 
-                    setTimeout(core_watchdog, normal_interval * 10);
+                    setTimeout(core_watchdog, normal_interval);
                 }
                 else {
                     if (dry_data_block.output_door == 1 || dry_data_block.safe_door == 1 || dry_data_block.input_door == 1) {
@@ -1414,7 +1418,7 @@ function core_watchdog() {
 
                         set_buzzer();
 
-                        setTimeout(core_watchdog, normal_interval * 10);
+                        setTimeout(core_watchdog, normal_interval);
                     }
                     else {
                         setTimeout(core_watchdog, normal_interval);
@@ -1448,7 +1452,7 @@ function core_watchdog() {
 
                 dry_data_block.elapsed_time = 0;
 
-                setTimeout(core_watchdog, normal_interval * 5);
+                setTimeout(core_watchdog, normal_interval);
             }
             else {
                 if (dry_data_block.operation_mode == 0) {
@@ -1461,7 +1465,7 @@ function core_watchdog() {
 
                     set_buzzer();
 
-                    setTimeout(core_watchdog, normal_interval * 10);
+                    setTimeout(core_watchdog, normal_interval);
                 }
                 else {
                     if (dry_data_block.output_door == 0) {
@@ -1470,7 +1474,7 @@ function core_watchdog() {
 
                         set_buzzer();
 
-                        setTimeout(core_watchdog, normal_interval * 10);
+                        setTimeout(core_watchdog, normal_interval);
                     }
                     else {
                         set_stirrer(1);
@@ -1506,7 +1510,7 @@ function core_watchdog() {
                 set_buzzer();
 
                 console.log(dry_data_block.state);
-                dry_data_block.state = 'INPUT';
+                dry_data_block.state = 'INIT';
                 console.log('->' + dry_data_block.state);
 
                 dry_data_block.debug_message = '';
@@ -1568,28 +1572,28 @@ function core_watchdog() {
 
                 set_buzzer();
 
-                setTimeout(core_watchdog, normal_interval * 10);
+                setTimeout(core_watchdog, normal_interval);
             }
             else if (dry_data_block.safe_door == 1) {
                 dry_data_block.debug_message = 'Close safe door';
 
                 set_buzzer();
 
-                setTimeout(core_watchdog, normal_interval * 10);
+                setTimeout(core_watchdog, normal_interval);
             }
             else if (dry_data_block.input_door == 1) {
                 dry_data_block.debug_message = 'Close input door';
 
                 set_buzzer();
 
-                setTimeout(core_watchdog, normal_interval * 10);
+                setTimeout(core_watchdog, normal_interval);
             }
             else if (dry_data_block.operation_mode == 1) {
                 dry_data_block.debug_message = 'Choose an INPUT mode';
 
                 set_buzzer();
 
-                setTimeout(core_watchdog, normal_interval * 10);
+                setTimeout(core_watchdog, normal_interval);
             }
             else if (dry_data_block.operation_mode == 0) {
                 dry_data_block.pre_weight = dry_data_block.cur_weight;
@@ -1603,7 +1607,7 @@ function core_watchdog() {
 
                 set_buzzer();
 
-                setTimeout(core_watchdog, normal_interval * 5);
+                setTimeout(core_watchdog, normal_interval);
             }
             else {
                 setTimeout(core_watchdog, normal_interval);
@@ -1620,7 +1624,7 @@ function core_watchdog() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-setTimeout(food_watchdog, first_interval);
+setTimeout(food_watchdog, 1000);
 
 function food_watchdog(){
     //100ms동작
