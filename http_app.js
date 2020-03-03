@@ -549,7 +549,12 @@ function dry_mqtt_connect(broker_ip, port, noti_topic) {
 
         //console.log(topic + ' - ' + JSON.stringify(msg_obj));
 
-        func[topic.replace('/', '')](msg_obj.val);
+        if(msg_obj.hasOwnProperty('val2')) {
+            func[topic.replace('/', '')](msg_obj.val, msg_obj.val2);
+        }
+        else {
+            func[topic.replace('/', '')](msg_obj.val);
+        }
     });
 
     dry_mqtt_client.on('error', function (err) {
@@ -892,8 +897,9 @@ function res_zero_point(val) {
     debug_mode_state = 'put_on';
 }
 
-function res_calc_factor(val) {
+function res_calc_factor(val, val2) {
     dry_data_block.loadcell_factor = parseFloat(val.toString()).toFixed(1);
+    dry_data_block.correlation_value = parseFloat(val2.toString()).toFixed(1);
 
     debug_mode_state = 'complete';
 }
