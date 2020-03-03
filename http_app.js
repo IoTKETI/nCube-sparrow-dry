@@ -123,7 +123,7 @@ function ready_for_notification() {
                 }
             }
         }
-        mqtt_connect(conf.cse.host, noti_topic);
+        //mqtt_connect(conf.cse.host, noti_topic);
     }
 }
 
@@ -396,15 +396,14 @@ function http_watchdog() {
     }
     else if (sh_state === 'crtci') {
         send_to_Mobius(my_cnt_name, dry_data_block);
+
+        setTimeout(http_watchdog, data_interval);
     }
 }
 
 function send_to_Mobius(url, obj_content) {
     sh_adn.crtci(url+'?rcn=0', 0, obj_content, null, function () {
-
     });
-
-    setTimeout(http_watchdog, data_interval);
 }
 
 // for notification
@@ -600,7 +599,7 @@ dry_data_block.debug_message = 'Initialize';
 ///////////////////////////////////////////////////////////////////////////////
 // function of food dryer machine controling, sensing
 
-var pre_state = 'INIT';
+var pre_state = 'None';
 function print_lcd_state() {
     if(dry_mqtt_client != null) {
         if (pre_state != dry_data_block.state) {
