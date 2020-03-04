@@ -845,9 +845,13 @@ function req_safe_door() {
 
 function req_weight() {
     if(dry_mqtt_client != null) {
+        var msg_obj = {};
 
-        if(dry_data_block.state != 'DEBUG') {
-            var msg_obj = {};
+        if(dry_data_block.state == 'INIT') {
+        }
+        else if(dry_data_block.state == 'DEBUG') {
+        }
+        else {
             msg_obj.val = 1;
             dry_mqtt_client.publish('/req_weight', JSON.stringify(msg_obj));
         }
@@ -1203,7 +1207,8 @@ var debug_mode_state = 'start';
 
 setTimeout(core_watchdog, 2000);
 
-var delay_count = 0;
+var input_mode_delay_count = 0;
+var contents_delay_count = 0;
 
 function core_watchdog() {
     //console.log(dry_data_block.debug_mode);
@@ -1264,7 +1269,7 @@ function core_watchdog() {
                 if (dry_data_block.output_door == 0) {
                     if (dry_data_block.operation_mode == 1) {
 
-                        if(delay_count == 0) {
+                        if(input_mode_delay_count == 0) {
                             // operation switch가 heat로 선택되어져 있으면
                             dry_data_block.debug_message = 'Choose an INPUT mode';
                             //print_lcd_debug_message();
@@ -1273,13 +1278,14 @@ function core_watchdog() {
                             set_buzzer();
                         }
 
-                        delay_count++;
-                        if(delay_count > 20) {
-                            delay_count = 0;
+                        input_mode_delay_count++;
+                        if(input_mode_delay_count > 20) {
+                            input_mode_delay_count = 0;
                         }
                     }
                     else {
-                        delay_count = 0;
+                        input_mode_delay_count = 0;
+                        contents_delay_count = 0;
                         sh_adn.rtvct(zero_mission_name+'/la', 0, function (rsc, res_body, count) {
                             if (rsc == 2000) {
                                 var zero_obj = res_body[Object.keys(res_body)[0]].con;
@@ -1483,7 +1489,8 @@ function core_watchdog() {
 
             set_buzzer();
 
-            delay_count = 0;
+            input_mode_delay_count = 0;
+            contents_delay_count = 0;
         }
         else if(dryer_event & EVENT_INPUT_DOOR_CLOSE) {
             dryer_event &= ~EVENT_INPUT_DOOR_CLOSE;
@@ -1504,7 +1511,8 @@ function core_watchdog() {
 
             set_buzzer();
 
-            delay_count = 0;
+            input_mode_delay_count = 0;
+            contents_delay_count = 0;
         }
         else if(dryer_event & EVENT_OUTPUT_DOOR_CLOSE) {
             dryer_event &= ~EVENT_OUTPUT_DOOR_CLOSE;
@@ -1525,7 +1533,8 @@ function core_watchdog() {
 
             set_buzzer();
 
-            delay_count = 0;
+            input_mode_delay_count = 0;
+            contents_delay_count = 0;
         }
         else if(dryer_event & EVENT_SAFE_DOOR_CLOSE) {
             dryer_event &= ~EVENT_SAFE_DOOR_CLOSE;
@@ -1563,7 +1572,8 @@ function core_watchdog() {
                     pre_state = '';
                     print_lcd_state();
 
-                    delay_count = 0;
+                    input_mode_delay_count = 0;
+                    contents_delay_count = 0;
 
                     set_heater(0, 0, 0);
                     set_stirrer(0);
@@ -1636,7 +1646,7 @@ function core_watchdog() {
                     set_stirrer(0);
                 }
                 else {
-                    if(delay_count == 0) {
+                    if(input_mode_delay_count == 0) {
                         // operation switch가 heat로 선택되어져 있으면
                         dry_data_block.debug_message = 'Choose an INPUT mode';
                         //print_lcd_debug_message();
@@ -1645,22 +1655,22 @@ function core_watchdog() {
                         set_buzzer();
                     }
 
-                    delay_count++;
-                    if(delay_count > 20) {
-                        delay_count = 0;
+                    input_mode_delay_count++;
+                    if(input_mode_delay_count > 20) {
+                        input_mode_delay_count = 0;
                     }
                 }
             }
             else {
-                if(delay_count == 0) {
+                if(contents_delay_count == 0) {
                     dry_data_block.debug_message = 'Empty the contents';
                     pre_debug_message = '';
                     print_lcd_debug_message();
                 }
 
-                delay_count++;
-                if(delay_count > 20) {
-                    delay_count = 0;
+                contents_delay_count++;
+                if(contents_delay_count > 20) {
+                    contents_delay_count = 0;
                 }
             }
         }
@@ -1820,16 +1830,16 @@ function core_watchdog() {
         }
         else {
             if (dry_data_block.operation_mode == 1) {
-                if(delay_count == 0) {
+                if(input_mode_delay_count == 0) {
                     dry_data_block.debug_message = 'Choose an INPUT mode';
                     pre_debug_message = '';
                     print_lcd_debug_message();
                     set_buzzer();
                 }
 
-                delay_count++;
-                if(delay_count > 20) {
-                    delay_count = 0;
+                input_mode_delay_count++;
+                if(input_mode_delay_count > 20) {
+                    input_mode_delay_count = 0;
                 }
             }
             else {
@@ -1845,8 +1855,6 @@ function core_watchdog() {
                 set_stirrer(0);
 
                 set_buzzer();
-
-
             }
         }
 
