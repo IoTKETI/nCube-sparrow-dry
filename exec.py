@@ -1,45 +1,58 @@
-import time
-import board
-import busio
-import adafruit_character_lcd.character_lcd_i2c as character_lcd
-import sys,json,numpy as np
-import RPi.GPIO as GPIO
-import Adafruit_DHT
-import json
+import sys, os, time, json, queue
+import datetime
+import board, busio
+import serial
 import paho.mqtt.client as mqtt
+import Adafruit_GPIO.SPI as SPI
+import RPi.GPIO as GPIO
+import adafruit_character_lcd.character_lcd_i2c as character_lcd
+import MAX6675
 from hx711 import HX711
 from threading import Thread
-import random
-import queue
+
 
 q = queue.Queue()
+global buzzer_running
+buzzer_running = 0
 
 #---SET Pin-------------------------------------------------------------
 # Switch
 Debug_switch_pin = 16 # Debug Switch : Digital_Input_3
-SW4_pin = 17 # Start Button : Digital_Input_4
-Push_SW_pin = 26
+SW4_pin = 38 # Start Button : Digital_Input_2
+Push_SW_pin = 38 # Start Button : Digital_Input_15
+Select_SW = 6 # Select Switch
 
-# Load Cell vffffffffffffffffffffffffffffffff
-DAT = 6
-CLK = 7
+# Load Cell (Direct)
+DAT = 34
+CLK = 35
 
-# LCD I2C
+# LCD I2C (Arduino)
 SDA = 30
 SCL = 31
 
 # Digital IN
-Input_Door_pin = 38 # Input Door Sensor() : Digital_Input_5
-Output_Door_pin = 39 # Output Door Sensor() : Digital_Input_6
-Safe_Door_pin = 40 # Safe Door Sensor(Front Door) : Digital_Input_7
+Input_Door_pin = 7 # Input Door Sensor() : Digital_Input_5
+Output_Door_pin = 10 # Output Door Sensor() : Digital_Input_6
+Safe_Door_pin = 11 # Safe Door Sensor(Front Door) : Digital_Input_7
 
 # Digital OUT
-Mix_motor = 34 # Digital_Output_13(red)
-Cooling_motor = 35 # Digital_Output_14
-Sol_val = 11 # Digital_Output_15
-Heat_12 = 10 # Digital_Output_12
-Heat_3 = 41 # Digital_Output_11
-Heat_4 = 27 # Digital_Output_10
+Heat_12 = 13 # Digital_Output_12
+Heat_3 = 12 # Digital_Output_11
+Heat_4 = 11 # Digital_Output_10
+Mix_motor = 10 # Digital_Output_13(red)
+Cooling_motor = 9 # Digital_Output_14
+Sol_val = 6 # Digital_Output_15
+Buzzer = 5
+
+# Temperature 1
+CLK1 = 27
+CS1  = 26
+DO1  = 17
+
+# Temperature 2
+CLK2 = 41
+CS2  = 40
+DO2  = 39
 
 #---SET GPIO------------------------------------------------------------
 GPIO.setmode(GPIO.BCM)
@@ -48,25 +61,15 @@ GPIO.setwarnings(False)
 GPIO.setup(Debug_switch_pin, GPIO.IN, GPIO.PUD_UP)
 GPIO.setup(SW4_pin, GPIO.IN, GPIO.PUD_UP)
 GPIO.setup(Push_SW_pin, GPIO.IN, GPIO.PUD_UP)
+GPIO.setup(Select_SW, GPIO.IN, GPIO.PUD_UP)
 # Door
 GPIO.setup(Input_Door_pin, GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(Output_Door_pin, GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(Safe_Door_pin, GPIO.IN,GPIO.PUD_UP)
-# Heater
-GPIO.setup(Heat_12, GPIO.OUT)
-GPIO.setup(Heat_3, GPIO.OUT)
-GPIO.setup(Heat_4, GPIO.OUT)
-# ETC
-GPIO.setup(Sol_val, GPIO.OUT)
-GPIO.setup(Mix_motor, GPIO.OUT)
-GPIO.setup(Cooling_motor, GPIO.OUT)
-# Output OFF Setting...
-GPIO.output(Sol_val, GPIO.LOW)
-GPIO.output(Mix_motor, GPIO.LOW)
-GPIO.output(Cooling_motor, GPIO.LOW)
-GPIO.output(Heat_12, GPIO.LOW)
-GPIO.output(Heat_3, GPIO.LOW)
-GPIO.output(Heat_4, GPIO.LOW)
+
+# Temperature
+sensor1 = MAX6675.MAX6675(CLK1, CS1, DO1)
+sensor2 = MAX6675.MAX6675(CLK2, CS2, DO2)
 
 def json_to_val(json_val):
 #	if (str(type(json_val)) == "<class 'int'>"):
@@ -87,8 +90,11 @@ def json_to_val(json_val):
 		return (val, val2, val3)	
 	
 	
-def val_to_json(val):
-	json_val = {"val":val}
+def val_to_json(val,val2=None):
+	if (val2 != None):
+		json_val = {"val":val,"val2":val2}
+	else:
+		json_val = {"val":val}
 	json_val = json.dumps(json_val)
 	
 	return (json_val)
@@ -107,7 +113,7 @@ def mqtt_connect(broker_address, port):
 	dry_client.subscribe("/print_lcd_debug_message")
 	dry_client.subscribe("/print_lcd_loadcell")
 	dry_client.subscribe("/print_lcd_loadcell_factor")
-#	dry_client.subscribe("/print_lcd_elapsed_time")
+	dry_client.subscribe("/print_lcd_elapsed_time")
 	dry_client.subscribe("/print_lcd_input_door")
 	dry_client.subscribe("/print_lcd_output_door")
 	dry_client.subscribe("/print_lcd_safe_door")
@@ -120,12 +126,12 @@ def mqtt_connect(broker_address, port):
 	dry_client.subscribe("/req_output_door")
 	dry_client.subscribe("/req_safe_door")
 	dry_client.subscribe("/req_weight")
-#	dry_client.subscribe("/req_operation_mode")
+	dry_client.subscribe("/req_operation_mode")
 	dry_client.subscribe("/set_solenoid")
 	dry_client.subscribe("/set_fan")
 	dry_client.subscribe("/set_heater")
 	dry_client.subscribe("/set_stirrer")
-#	dry_client.subscribe("/set_buzzer")
+	dry_client.subscribe("/set_buzzer")
 	dry_client.subscribe("/set_zero_point")
 
 
@@ -148,7 +154,12 @@ def on_subscribe(client, userdata, mid, granted_qos):
 
 
 def func_set_q(msg):
-	q.put(msg)
+	if(msg.topic == '/set_buzzer'):
+		if(buzzer_running == 0):
+			q.put(msg)
+		
+	else: 
+		q.put(msg)
 
 
 def on_message(client, userdata, msg):
@@ -169,15 +180,61 @@ def lcd_init():
 		
 
 def displayMsg(msg, x, y):
-	g_lcd.cursor_position(x,y)
-	#print(msg)
-	if (y == 3):
-		message = '                    '
-	else:
-		message = '      '
-	g_lcd.message = message
-	g_lcd.cursor_position(x,y)
-	g_lcd.message = f'{msg}'
+	try:
+		g_lcd.cursor_position(x,y)
+		#print(msg)
+		if (y == 3):
+			message = '                    '
+		else:
+			message = ''
+		g_lcd.message = message
+		g_lcd.cursor_position(x,y)
+		g_lcd.message = f'{msg}'
+	
+	except OSError:
+		lcd_init()
+		g_lcd.cursor_position(x,y)
+		#print(msg)
+		if (y == 3):
+			message = '                    '
+		else:
+			message = ''
+		g_lcd.message = message
+		g_lcd.cursor_position(x,y)
+		g_lcd.message = f'{msg}'
+		
+		
+def displayLoadcell(msg, msg2):
+	try:
+		g_lcd.cursor_position(0,1)
+		#print(msg)
+		message = '          '
+		g_lcd.message = message
+		g_lcd.cursor_position(0,1)
+		g_lcd.message = f'{msg}'
+		
+		g_lcd.cursor_position(10,1)
+		#print(msg)
+		message = '          '
+		g_lcd.message = message
+		g_lcd.cursor_position(10,1)
+		g_lcd.message = f'{msg2}'
+	
+	except OSError:
+		lcd_init()
+		g_lcd.cursor_position(0,1)
+		#print(msg)
+		message = '          '
+		g_lcd.message = message
+		g_lcd.cursor_position(0,1)
+		g_lcd.message = f'{msg}'
+		
+		g_lcd.cursor_position(10,1)
+		#print(msg)
+		message = '          '
+		g_lcd.message = message
+		g_lcd.cursor_position(10,1)
+		g_lcd.message = f'{msg2}'
 
 
 def displayState(msg):
@@ -192,18 +249,14 @@ def displayState(msg):
 
 #---GET Temperature-----------------------------------------------------
 def get_temp():
-	#DHT_SENSOR = Adafruit_DHT.DHT22
-	#humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)
-	#temperature = round(temperature, 1)
+	temp1 = sensor1.readTempC()
+	#print ('Thermocouple Temperature 1: {0:0.3F}°C'.format(temp1))
+	temp2 = sensor2.readTempC()
+	#print ('Thermocouple Temperature 2: {0:0.3F}°C'.format(temp2))
 	
-	#temp = val_to_json(temperature)
-	#print("temperature: ", temperature)
+	temperature1 = val_to_json(temp1)
 
-	for i in range(5000):
-		temperature = random.randint(25,30)
-	temp = val_to_json(temperature)
-
-	return (temp)
+	return (temperature1)
 	
 #---Debug Button--------------------------------------------------------	
 def debug_mode(Debug_switch_pin):
@@ -229,9 +282,9 @@ def init_loadcell(referenceUnit = 1):
 	print('init_referenceUnit: ', referenceUnit)
 	global hx
 	global nWeightCount
-	nWeightCount = 5
+	nWeightCount = 1
 	
-	hx = HX711(6, 7)
+	hx = HX711(34, 35)
 	hx.set_reading_format("MSB", "MSB")
 	hx.set_reference_unit(referenceUnit)
 	hx.reset()
@@ -239,10 +292,15 @@ def init_loadcell(referenceUnit = 1):
 	#print("Tare done! Add weight now...")
 
 
+def set_factor(referenceUnit):
+	print(referenceUnit)
+	hx.set_reference_unit(referenceUnit)
+	hx.reset()
+
+
 def calc_ref_Unit(reference_weight, set_ref_Unit):
-	#reference_weight = 0.6
-	#reference_weight = round((reference_weight/1000), 1)
-	print ('calc_reference_weight: ', reference_weight, 'kg')
+	#global factor_weight
+	print ('calc_reference_weight: ', reference_weight)
 	ref_weight_total = 0
 
 	for i in range(nWeightCount):	
@@ -270,19 +328,36 @@ def calc_ref_Unit(reference_weight, set_ref_Unit):
 	hx.set_reference_unit(cur_factor)
 	hx.reset()
 
+	factor_weight_total = 0
+
+	for i in range(nWeightCount):	
+		weight = hx.get_weight(5)
+		#weight = round((val/1000), 1)
+		print(weight)
+		factor_weight_total += weight
+		
+	avg_factor_weight = (factor_weight_total / nWeightCount)
+	correlation_value = avg_factor_weight - reference_weight
+	print(correlation_value)
+	factor = {"factor":cur_factor, "correlation_value":correlation_value}
+
+	with open ("./factor.json", "w") as factor_json:
+		json.dump(factor, factor_json);
+
 	print("Complete!")
         
-	calc_ref_unit = val_to_json(cur_factor)
+	calc_ref_unit = val_to_json(cur_factor, correlation_value)
+	print(calc_ref_unit)
 
 	return calc_ref_unit
 
-# 208.2 - 311.0 = -102.8
-# 227.77 - 208.2 = 19.57
 
 def get_loadcell():
 	global flag
+	global weight_arr
 
 	try:
+		#print('get_weight: ',correlation_value)
 		if (flag == 0):
 			for i in range(nWeightCount):
 				weight = hx.get_weight(5)
@@ -299,17 +374,23 @@ def get_loadcell():
 				
 		#print('weight_arr: ', weight_arr)
 		avg_weight = round((sum(weight_arr) / nWeightCount), 2)
-		loadcell_weight = avg_weight - reference_weight
-		final_weight = avg_weight - loadcell_weight
-		print('Load Cell Weight: ', final_weight)
+		#loadcell_weight = avg_weight - reference_weight
+		final_weight = avg_weight - correlation_value
+		#print('Load Cell Weight: ', final_weight)
 		
 		weight_json = val_to_json(final_weight)
 
 	except (KeyboardInterrupt, SystemExit):
 		cleanAndExit()
-		
+	'''	
 	except NameError:
+		print('Name Error')
+		with open ("factor.json", 'r') as refUnit_json:
+			loadcell_factor = json.load(refUnit_json)
+		loadcell_factor = loadcell_factor['factor']
+		init_loadcell(loadcell_factor)
 		weight_json = val_to_json(0)
+		'''
 
 	return (weight_json)
 
@@ -367,30 +448,46 @@ def start_btn(SW4_pin):
 	SW4 = val_to_json(SW4)
 		
 	return (SW4)
+
+#---Operation Mode------------------------------------------------------
+def Operation(Select_SW):
+	sel_sw = GPIO.input(Select_SW)
+	sel_sw = val_to_json(sel_sw)
 	
-	
-#---Buzzer--------------------------------------------------------------			
-def buzzer(val):
-	GPIO.output(17, val)
-	print ("Beep")	
+	return (sel_sw)
+
+
+#---Serial Communication with Arduino-----------------------------------
+def Serial_Feather(pin=None, pin2=None, pin3=None, val=None, val2=None, val3=None):
+	if (pin != None and pin2 == None and pin3 == None):
+		msg = ('<' + str(pin) + ',' + str(val) + '>\n').encode()
+		ser.write(msg)
+	elif (pin != None and pin2 != None and pin3 != None):
+		msg = ('<' + str(pin) + ',' + str(val) + '/' + str(pin2) + ',' + str(val2) + '/' + str(pin3) + ',' + str(val3) + '>\n').encode()
+		ser.write(msg)
+#-----------------------------------------------------------------------
 
 #---Heater--------------------------------------------------------------
 def heater(Heat_12, Heat_3, Heat_4, val, val2, val3):
-	GPIO.output(Heat_12, val)
-	GPIO.output(Heat_3, val2)
-	GPIO.output(Heat_4, val3)
-
+	Serial_Feather(pin=Heat_12, pin2=Heat_3, pin3=Heat_4, val=val, val2=val2, val3=val3)	
+	
+#---Buzzer--------------------------------------------------------------			
+def buzzer(Buzzer, val):
+	Serial_Feather(pin=Buzzer, val=val)
+	print ("Beep")
+	
 #---Solenoid------------------------------------------------------------
 def solenoid(Sol_val, val):
-	GPIO.output(Sol_val, val)
+	Serial_Feather(pin=Sol_val, val=val)
 	
 #---Fan-----------------------------------------------------------------
 def fan(Cooling_motor, val):
-	GPIO.output(Cooling_motor, val)
+	Serial_Feather(pin=Cooling_motor, val=val)	
 	
 #---Stirrer-------------------------------------------------------------
 def stirrer(Mix_motor, val):
-	GPIO.output(Mix_motor, val)
+	Serial_Feather(pin=Mix_motor, val=val)	
+
 
 #=======================================================================
 global dry_client
@@ -399,7 +496,27 @@ port = 1883
 
 global g_lcd
 g_lcd = lcd_init()
+
 dry_client = mqtt_connect(broker_address, port)
+
+global correlation_value
+correlation_value = 0
+
+loadcell_param = {"factor":6555,"correlation_value":200}
+
+if (os. path.isfile("./factor.json") == False):
+    with open("./factor.json","w") as refUnit_json:
+        json.dump(loadcell_param, refUnit_json)
+	loadcell_factor = loadcell_param['factor']
+else:
+	with open ("./factor.json", 'r') as refUnit_json:
+		loadcell_factor = json.load(refUnit_json)
+	loadcell_factor = loadcell_factor['factor']
+init_loadcell(loadcell_factor)
+#init_loadcell()
+
+global ser
+ser = serial.Serial("/dev/ttyAMA0", 9600)
 
 global set_ref_Unit
 set_ref_Unit = 1
@@ -444,17 +561,19 @@ while True:
 		elif (g_recv_topic == '/req_weight'):
 			#print("topic: ", g_recv_topic)
 			weight = get_loadcell()
-#			print(weight)
+			#print(weight)
 			dry_client.publish("/res_weight", weight)
 			
 		elif (g_recv_topic == '/req_input_door'):
 			#print("topic: ", g_recv_topic)
 			json_input_door = get_input_door(Input_Door_pin)
+			#print(json_input_door)
 			dry_client.publish("/res_input_door", json_input_door)
 			
 		elif (g_recv_topic == '/req_output_door'):
 			#print("topic: ", g_recv_topic)
 			json_output_door = get_output_door(Output_Door_pin)
+			#print(json_output_door)
 			dry_client.publish("/res_output_door", json_output_door)		
 			
 		elif (g_recv_topic == '/req_safe_door'):
@@ -464,14 +583,14 @@ while True:
 					
 		elif (g_recv_topic == '/req_operation_mode'):
 			#print("topic: ", g_recv_topic)
-			a = 1
-			#dry_client.publish("/res_operation_mode", weight)		
+			json_operation_mode = Operation(Select_SW)
+			dry_client.publish("/res_operation_mode", json_operation_mode)		
 				
 		elif (g_recv_topic == '/print_lcd_internal_temp'):
 			#print("topic: ", g_recv_topic)
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			temper = json_to_val(data)
-			displayMsg(temper, 15,0)    
+			displayMsg(temper, 14,0)    
 			
 		elif (g_recv_topic == '/print_lcd_state'):
 			#print("topic: ", g_recv_topic)
@@ -483,33 +602,37 @@ while True:
 			#print("topic: ", g_recv_topic)
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			debug = json_to_val(data)
+			print (debug)
 			displayMsg(debug, 0, 3)
 					
 		elif (g_recv_topic == '/print_lcd_loadcell'):
 			#print("topic: ", g_recv_topic)
 			data = msg.payload.decode('utf-8').replace("'", '"')
-			loadcell = json_to_val(data)
+			loadcell, target_loadcell = json_to_val(data)
 			loadcell = str(loadcell)
-			loadcell = (loadcell[2:(len(loadcell)-5)])
-			displayMsg(loadcell,0,1)
+			#print(loadcell, ' ', target_loadcell)
+			target_loadcell = str(target_loadcell)
+			#loadcell = (loadcell[2:(len(loadcell)-5)])
+			#target_loadcell = (target_loadcell[2:(len(target_loadcell)-5)])
+			displayLoadcell(loadcell, target_loadcell)
 
 		elif (g_recv_topic == '/print_lcd_loadcell_factor'):
 			#print("topic: ", g_recv_topic)
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			loadcell_factor, corr_val = json_to_val(data)
 			displayMsg(loadcell_factor,14,1)
-			
+		
 		elif (g_recv_topic == '/print_lcd_input_door'):
 			#print("topic: ", g_recv_topic)
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			input_door = json_to_val(data)
-			displayMsg(input_door,1,2)
+			displayMsg(input_door,15,2)
 			
 		elif (g_recv_topic == '/print_lcd_output_door'):
 			#print("topic: ", g_recv_topic)
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			output_door = json_to_val(data)
-			displayMsg(output_door,6,2)
+			displayMsg(output_door,17,2)
 			
 		elif (g_recv_topic == '/print_lcd_safe_door'):
 			#print("topic: ", g_recv_topic)
@@ -521,7 +644,8 @@ while True:
 			#print("topic: ", g_recv_topic)
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			elapsed_time = json_to_val(data)
-			displayMsg(elapsed_time,6,0)
+			elapsed_time = str(datetime.timedelta(seconds=elapsed_time))
+			displayMsg(elapsed_time,0,2)
 						
 		elif (g_recv_topic == '/set_solenoid'):
 			#print("topic: ", g_recv_topic)
@@ -549,14 +673,17 @@ while True:
 			
 		elif (g_recv_topic == '/set_buzzer'):
 			#print("topic: ", g_recv_topic)
+			buzzer_running = 1
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			buzzer_val = json_to_val(data)
-			buzzer(buzzer_val)
+			buzzer(Buzzer, buzzer_val)
+			buzzer_running = 0	
 			
 		elif (g_recv_topic == '/set_zero_point'):
-			print("topic: ", g_recv_topic)
+			#print("topic: ", g_recv_topic)
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			set_ref_Unit, set_corr_val = json_to_val(data)
 			print('set_zero_point - ',set_ref_Unit, ', ', set_corr_val)
 			set_ref_Unit = float(set_ref_Unit)
-			init_loadcell(set_ref_Unit)
+			correlation_value = float(set_corr_val)
+			set_factor(set_ref_Unit)
