@@ -8,12 +8,18 @@ import RPi.GPIO as GPIO
 import adafruit_character_lcd.character_lcd_i2c as character_lcd
 import MAX6675
 from hx711 import HX711
-from threading import Thread
+import random
 
 
 q = queue.Queue()
 global buzzer_running
 buzzer_running = 0
+global arr_count
+arr_count = 5
+global bottom_temp_arr, top_temp_arr
+bottom_temp_arr = [0,0,0,0,0]
+top_temp_arr = [0,0,0,0,0]
+
 
 #---SET Pin-------------------------------------------------------------
 # Switch
@@ -238,25 +244,48 @@ def displayLoadcell(msg, msg2):
 
 
 def displayState(msg):
-	if (msg == 'DEBUG'):
-		g_lcd.clear()
-	g_lcd.cursor_position(0,0)
-	message = '     '
-	g_lcd.message = message
-	g_lcd.cursor_position(0,0)
-	g_lcd.message = f'{msg}'
+	try:
+		if (msg == 'DEBUG'):
+			g_lcd.clear()
+		g_lcd.cursor_position(0,0)
+		message = '     '
+		g_lcd.message = message
+		g_lcd.cursor_position(0,0)
+		g_lcd.message = f'{msg}'
+	except OSError:
+		lcd_init()
+		if (msg == 'DEBUG'):
+			g_lcd.clear()
+		g_lcd.cursor_position(0,0)
+		message = '     '
+		g_lcd.message = message
+		g_lcd.cursor_position(0,0)
+		g_lcd.message = f'{msg}'
+
 #-----------------------------------------------------------------------
 
 #---GET Temperature-----------------------------------------------------
 def get_temp():
-	temp1 = sensor1.readTempC()
+	global avg_bottom_temp, avg_top_temp
+	bottom_temp = round(sensor1.readTempC(), 2)
 	#print ('Thermocouple Temperature 1: {0:0.3F}°C'.format(temp1))
-	temp2 = sensor2.readTempC()
+	top_temp = round(sensor2.readTempC(), 2)
 	#print ('Thermocouple Temperature 2: {0:0.3F}°C'.format(temp2))
 	
-	temperature1 = val_to_json(temp1)
+	for i in range(arr_count):
+		if (i > 0):
+			bottom_temp_arr[i-1] = bottom_temp_arr[i]
+			top_temp_arr[i-1] = top_temp_arr[i]
+		bottom_temp_arr[arr_count-1] = bottom_temp
+		top_temp_arr[arr_count-1] = top_temp
+		
+	avg_bottom_temp = round((sum(bottom_temp_arr) / arr_count), 2)
+	avg_top_temp = round((sum(top_temp_arr) / arr_count), 2)
 
-	return (temperature1)
+	temperature1 = val_to_json(avg_bottom_temp)
+	temperature2 = val_to_json(avg_top_temp)
+
+	return (temperature1, temperature2)
 	
 #---Debug Button--------------------------------------------------------	
 def debug_mode(Debug_switch_pin):
@@ -279,7 +308,7 @@ def cleanAndExit():
 
 
 def init_loadcell(referenceUnit = 1):
-	print('init_referenceUnit: ', referenceUnit)
+	#print('init_referenceUnit: ', referenceUnit)
 	global hx
 	global nWeightCount
 	nWeightCount = 1
@@ -293,26 +322,27 @@ def init_loadcell(referenceUnit = 1):
 
 
 def set_factor(referenceUnit):
-	print(referenceUnit)
+	#print(referenceUnit)
 	hx.set_reference_unit(referenceUnit)
 	hx.reset()
 
 
 def calc_ref_Unit(reference_weight, set_ref_Unit):
 	#global factor_weight
-	print ('calc_reference_weight: ', reference_weight)
+	#print ('calc_reference_weight: ', reference_weight)
+	#print ('set_ref_Unit: ', set_ref_Unit)
 	ref_weight_total = 0
 
 	for i in range(nWeightCount):	
 		weight = hx.get_weight(5)
 		#weight = round((val/1000), 1)
-		print(weight)
+		#print(weight)
 		ref_weight_total += weight
 		
 	avg_ref_weight = (ref_weight_total / nWeightCount)
-	print ("avg_ref_weight: ", avg_ref_weight)
+	#print ("avg_ref_weight: ", avg_ref_weight)
 	cur_weight = (avg_ref_weight - avg_zero_weight)
-	print ("cur_weight: ", cur_weight)
+	#print ("cur_weight: ", cur_weight)
 	cur_factor = (cur_weight / reference_weight)
 	'''
 	if (avg_zero_weight == 0 and cur_weight > reference_weight):
@@ -323,7 +353,7 @@ def calc_ref_Unit(reference_weight, set_ref_Unit):
 		
 	if (cur_factor == 0.0):
 		cur_factor = set_ref_Unit
-	print("cur_factor: ", cur_factor)
+	#print("cur_factor: ", cur_factor)
 
 	hx.set_reference_unit(cur_factor)
 	hx.reset()
@@ -333,12 +363,12 @@ def calc_ref_Unit(reference_weight, set_ref_Unit):
 	for i in range(nWeightCount):	
 		weight = hx.get_weight(5)
 		#weight = round((val/1000), 1)
-		print(weight)
+		#print(weight)
 		factor_weight_total += weight
 		
 	avg_factor_weight = (factor_weight_total / nWeightCount)
 	correlation_value = avg_factor_weight - reference_weight
-	print(correlation_value)
+	#print(correlation_value)
 	factor = {"factor":cur_factor, "correlation_value":correlation_value}
 
 	with open ("./factor.json", "w") as factor_json:
@@ -347,7 +377,7 @@ def calc_ref_Unit(reference_weight, set_ref_Unit):
 	print("Complete!")
         
 	calc_ref_unit = val_to_json(cur_factor, correlation_value)
-	print(calc_ref_unit)
+	#print(calc_ref_unit)
 
 	return calc_ref_unit
 
@@ -359,7 +389,7 @@ def get_loadcell():
 	try:
 		#print('get_weight: ',correlation_value)
 		if (flag == 0):
-			for i in range(nWeightCount):
+			for i in range(arr_count):
 				weight = hx.get_weight(5)
 				#weight = round((val/1000), 1)
 				weight_arr[i] = weight
@@ -367,13 +397,13 @@ def get_loadcell():
 		else:
 			weight = hx.get_weight(5)
 			#weight = round((val/1000), 1)
-			for i in range(nWeightCount):
+			for i in range(arr_count):
 				if (i > 0):
 					weight_arr[i-1] = weight_arr[i]
-				weight_arr[nWeightCount-1] = weight
+				weight_arr[arr_count-1] = weight
 				
 		#print('weight_arr: ', weight_arr)
-		avg_weight = round((sum(weight_arr) / nWeightCount), 2)
+		avg_weight = round((sum(weight_arr) / arr_count), 2)
 		#loadcell_weight = avg_weight - reference_weight
 		final_weight = avg_weight - correlation_value
 		#print('Load Cell Weight: ', final_weight)
@@ -404,14 +434,14 @@ def ref_weight(tare_weight):
 	init_loadcell(1)
 	global avg_zero_weight
 	zero_weight = 0
-	for i in range(nWeightCount):	
+	for i in range(5):	
 		weight = hx.get_weight(5)
 		#weight = round((val/1000), 1)
 		#print(weight)
 		zero_weight += weight
 
-	avg_zero_weight = (zero_weight / nWeightCount)
-	print ("avg_zero_weight: ", avg_zero_weight)
+	avg_zero_weight = (zero_weight / 5)
+	#print ("avg_zero_weight: ", avg_zero_weight)
 	# parameter detail setting for calibration
 	
 	print("Add weight for initialize...")
@@ -474,7 +504,7 @@ def heater(Heat_12, Heat_3, Heat_4, val, val2, val3):
 #---Buzzer--------------------------------------------------------------			
 def buzzer(Buzzer, val):
 	Serial_Feather(pin=Buzzer, val=val)
-	print ("Beep")
+	#print ("Beep")
 	
 #---Solenoid------------------------------------------------------------
 def solenoid(Sol_val, val):
@@ -505,15 +535,15 @@ correlation_value = 0
 loadcell_param = {"factor":6555,"correlation_value":200}
 
 if (os. path.isfile("./factor.json") == False):
-    with open("./factor.json","w") as refUnit_json:
-        json.dump(loadcell_param, refUnit_json)
+	with open("./factor.json","w") as refUnit_json:
+		json.dump(loadcell_param, refUnit_json)
 	loadcell_factor = loadcell_param['factor']
 else:
 	with open ("./factor.json", 'r') as refUnit_json:
 		loadcell_factor = json.load(refUnit_json)
 	loadcell_factor = loadcell_factor['factor']
+	
 init_loadcell(loadcell_factor)
-#init_loadcell()
 
 global ser
 ser = serial.Serial("/dev/ttyAMA0", 9600)
@@ -524,14 +554,16 @@ weight_arr = [0, 0, 0, 0, 0]
 flag = 0
 
 while True:
+	#g_lcd.backlight = True
+
 	if(q.qsize()):
 		msg = q.get()
 		g_recv_topic = msg.topic;
 		#print(g_recv_topic)
 		if (g_recv_topic == '/req_internal_temp'):
 			#print("topic: ", g_recv_topic)
-			temperature = get_temp()
-			dry_client.publish("/res_internal_temp", temperature)
+			temp_bottom, temp_top = get_temp()
+			dry_client.publish("/res_internal_temp", temp_bottom)
 			
 		elif (g_recv_topic == '/req_debug_mode'):
 			#print("topic: ", g_recv_topic)
@@ -588,9 +620,12 @@ while True:
 				
 		elif (g_recv_topic == '/print_lcd_internal_temp'):
 			#print("topic: ", g_recv_topic)
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			temper = json_to_val(data)
-			displayMsg(temper, 14,0)    
+			#data = msg.payload.decode('utf-8').replace("'", '"')
+			#temper = json_to_val(data)
+			
+			displayMsg(avg_bottom_temp, 8,0)
+			displayMsg(avg_top_temp, 14,0)
+			#print(avg_bottom_temp, ' ', avg_top_temp)
 			
 		elif (g_recv_topic == '/print_lcd_state'):
 			#print("topic: ", g_recv_topic)
@@ -602,7 +637,7 @@ while True:
 			#print("topic: ", g_recv_topic)
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			debug = json_to_val(data)
-			print (debug)
+			#print (debug)
 			displayMsg(debug, 0, 3)
 					
 		elif (g_recv_topic == '/print_lcd_loadcell'):
@@ -683,7 +718,7 @@ while True:
 			#print("topic: ", g_recv_topic)
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			set_ref_Unit, set_corr_val = json_to_val(data)
-			print('set_zero_point - ',set_ref_Unit, ', ', set_corr_val)
+			#print('set_zero_point - ',set_ref_Unit, ', ', set_corr_val)
 			set_ref_Unit = float(set_ref_Unit)
 			correlation_value = float(set_corr_val)
 			set_factor(set_ref_Unit)
