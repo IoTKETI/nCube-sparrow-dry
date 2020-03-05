@@ -569,7 +569,11 @@ function dry_mqtt_connect(broker_ip, port, noti_topic) {
     });
 
     dry_mqtt_client.on('message', function (topic, message) {
-        var msg_obj = JSON.parse(message.toString());
+        try {
+            var msg_obj = JSON.parse(message.toString());
+        }
+        catch (e) {
+        }
 
         //console.log(topic + ' - ' + JSON.stringify(msg_obj));
 
@@ -615,7 +619,7 @@ catch (e) {
     dry_data_block.elapsed_time = 0;
     dry_data_block.debug_message = 'INIT';
     dry_data_block.loadcell_factor = 1841;
-    dry_data_block.loadcell_ref_weight = 20;
+    dry_data_block.loadcell_ref_weight = 7.2;
     dry_data_block.correlation_value = 4.6;
 
     fs.writeFileSync('ddb.json', JSON.stringify(dry_data_block, null, 4), 'utf8');
@@ -632,6 +636,10 @@ var pre_internal_temp = -1.0;
 var pre_elapsed_time = -1;
 var pre_debug_message = '';
 
+
+dry_data_block.input_door = 1;
+dry_data_block.output_door = 1;
+dry_data_block.safe_door = 1;
 
 dry_data_block.state = 'INIT';
 pre_state = '';
@@ -810,7 +818,7 @@ function req_input_door() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_input_door', JSON.stringify(msg_obj));
 
-        setTimeout(req_input_door, 50 + parseInt(Math.random() * 50));
+        setTimeout(req_input_door, 100 + parseInt(Math.random() * 50));
     }
     else {
         setTimeout(req_input_door, 1000 + parseInt(Math.random() * 1000));
@@ -823,7 +831,7 @@ function req_output_door() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_output_door', JSON.stringify(msg_obj));
 
-        setTimeout(req_output_door, 50 + parseInt(Math.random() * 50));
+        setTimeout(req_output_door, 100 + parseInt(Math.random() * 50));
     }
     else {
         setTimeout(req_output_door, 1000 + parseInt(Math.random() * 1000));
@@ -836,7 +844,7 @@ function req_safe_door() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_safe_door', JSON.stringify(msg_obj));
 
-        setTimeout(req_safe_door, 50 + parseInt(Math.random() * 50));
+        setTimeout(req_safe_door, 100 + parseInt(Math.random() * 50));
     }
     else {
         setTimeout(req_safe_door, 1000 + parseInt(Math.random() * 1000));
@@ -868,7 +876,7 @@ function req_operation_mode() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_operation_mode', JSON.stringify(msg_obj));
 
-        setTimeout(req_operation_mode, 50 + parseInt(Math.random() * 50));
+        setTimeout(req_operation_mode, 100 + parseInt(Math.random() * 50));
     }
     else {
         setTimeout(req_operation_mode, 1000 + parseInt(Math.random() * 1000));
@@ -881,7 +889,7 @@ function req_debug_mode() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_debug_mode', JSON.stringify(msg_obj));
         //console.log(msg_obj.val);
-        setTimeout(req_debug_mode, 50 + parseInt(Math.random() * 50));
+        setTimeout(req_debug_mode, 100 + parseInt(Math.random() * 50));
     }
     else {
         setTimeout(req_debug_mode, 1000 + parseInt(Math.random() * 1000));
@@ -894,7 +902,7 @@ function req_start_btn() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_start_btn', JSON.stringify(msg_obj));
 
-        setTimeout(req_start_btn, 50 + parseInt(Math.random() * 50));
+        setTimeout(req_start_btn, 100 + parseInt(Math.random() * 50));
     }
     else {
         setTimeout(req_start_btn, 1000 + parseInt(Math.random() * 1000));
@@ -932,7 +940,7 @@ var input_door_open_count = 0;
 function res_input_door(val) {
     var status = parseInt(val.toString());
 
-    if(status == 0) {
+    if(status == 1) {
         input_door_close_count++;
         input_door_open_count = 0;
         if(input_door_close_count > 2) {
@@ -965,7 +973,7 @@ var output_door_open_count = 0;
 function res_output_door(val) {
     var status = parseInt(val.toString());
 
-    if(status == 0) {
+    if(status == 1) {
         output_door_close_count++;
         output_door_open_count = 0;
         if(output_door_close_count > 2) {
@@ -998,7 +1006,7 @@ var safe_door_open_count = 0;
 function res_safe_door(val) {
     var status = parseInt((val).toString());
 
-    if(status == 0) {
+    if(status == 1) {
         safe_door_close_count++;
         safe_door_open_count = 0;
         if(safe_door_close_count > 2) {
@@ -1031,7 +1039,7 @@ function res_weight(val) {
     dry_data_block.cur_weight = parseFloat(val.toString()).toFixed(1);
 
     if (pre_cur_weight != dry_data_block.cur_weight) {
-        console.log(dry_data_block.cur_weight);
+        //console.log(dry_data_block.cur_weight);
         pre_cur_weight = dry_data_block.cur_weight;
 
 
@@ -1217,8 +1225,7 @@ function core_watchdog() {
         pre_input_door = -1;
         pre_output_door = -1;
         pre_safe_door = -1;
-
-
+        
         set_heater(0, 0, 0);
         set_stirrer(0);
 
@@ -1268,18 +1275,17 @@ function core_watchdog() {
             if (dry_data_block.safe_door == 0) {
                 if (dry_data_block.output_door == 0) {
                     if (dry_data_block.operation_mode == 1) {
-
                         if(input_mode_delay_count == 0) {
                             // operation switch가 heat로 선택되어져 있으면
                             dry_data_block.debug_message = 'Choose an INPUT mode';
-                            //print_lcd_debug_message();
-                            //pre_debug_message = '';
+                            print_lcd_debug_message();
+                            pre_debug_message = '';
 
                             set_buzzer();
                         }
 
                         input_mode_delay_count++;
-                        if(input_mode_delay_count > 20) {
+                        if(input_mode_delay_count > 40) {
                             input_mode_delay_count = 0;
                         }
                     }
@@ -1328,17 +1334,32 @@ function core_watchdog() {
                     }
                 }
                 else {
-                    dry_data_block.debug_message = 'Close output door';
+                    if(input_mode_delay_count == 0) {
+                        dry_data_block.debug_message = 'Close output door';
+                        pre_debug_message = '';
+                        print_lcd_debug_message();
+                        set_buzzer();
+                    }
+
+                    input_mode_delay_count++;
+                    if(input_mode_delay_count > 40) {
+                        input_mode_delay_count = 0;
+                    }
+
+                }
+            }
+            else {
+                if(input_mode_delay_count == 0) {
+                    dry_data_block.debug_message = 'Close safe door';
                     pre_debug_message = '';
                     print_lcd_debug_message();
                     set_buzzer();
                 }
-            }
-            else {
-                dry_data_block.debug_message = 'Close safe door';
-                pre_debug_message = '';
-                print_lcd_debug_message();
-                set_buzzer();
+
+                input_mode_delay_count++;
+                if(input_mode_delay_count > 40) {
+                    input_mode_delay_count = 0;
+                }
             }
         }
 
@@ -1371,6 +1392,10 @@ function core_watchdog() {
                             pre_state = '';
                             print_lcd_state();
                             console.log('->' + dry_data_block.state);
+                            
+                            dry_data_block.debug_message = '                    ';
+                            pre_debug_message = '';
+                            print_lcd_debug_message();
 
                             set_heater(1, 1, 1);
                             set_stirrer(1);
@@ -1555,40 +1580,53 @@ function core_watchdog() {
                 set_buzzer();
             }
             else {
-                console.log(dry_data_block.tar_weight3);
-                console.log(dry_data_block.cur_weight);
-                if (dry_data_block.cur_weight <= dry_data_block.tar_weight3) {
-                    dry_data_block.cum_weight += dry_data_block.ref_weight;
+                if(dry_data_block.internal_temp < 170) {
+                    if (parseFloat(dry_data_block.cur_weight) <= parseFloat(dry_data_block.tar_weight3)) {
+                        dry_data_block.cum_weight += dry_data_block.ref_weight;
+                        
+                        //console.log('heater 0');
 
-                    dry_data_block.ref_weight = 0.0;
-                    dry_data_block.pre_weight = 0.0;
-                    dry_data_block.tar_weight1 = 0.0;
-                    dry_data_block.tar_weight2 = 0.0;
-                    dry_data_block.tar_weight3 = 0.0;
+                        dry_data_block.ref_weight = 0.0;
+                        dry_data_block.pre_weight = 0.0;
+                        dry_data_block.tar_weight1 = 0.0;
+                        dry_data_block.tar_weight2 = 0.0;
+                        dry_data_block.tar_weight3 = 0.0;
 
-                    fs.writeFileSync('ddb.json', JSON.stringify(dry_data_block, null, 4), 'utf8');
+                        fs.writeFileSync('ddb.json', JSON.stringify(dry_data_block, null, 4), 'utf8');
 
-                    dry_data_block.state = 'END';
-                    pre_state = '';
-                    print_lcd_state();
+                        dry_data_block.state = 'END';
+                        pre_state = '';
+                        print_lcd_state();
 
-                    input_mode_delay_count = 0;
-                    contents_delay_count = 0;
+                        input_mode_delay_count = 0;
+                        contents_delay_count = 0;
 
+                        set_heater(0, 0, 0);
+                        set_stirrer(0);
+
+                        set_buzzer();
+
+                        my_sortie_name = 'disarm';
+                        my_cnt_name = my_parent_cnt_name + '/' + my_sortie_name;
+                    }
+                    else if (parseFloat(dry_data_block.cur_weight) <= parseFloat(dry_data_block.tar_weight2)) {
+                        //console.log('heater1 ' + dry_data_block.cur_weight + ' ' + dry_data_block.tar_weight1 + ' ' + dry_data_block.tar_weight2 + ' ' + dry_data_block.tar_weight3);
+                        set_heater(1, 0, 0);
+                        set_stirrer(1);
+                    }
+                    else if (parseFloat(dry_data_block.cur_weight) <= parseFloat(dry_data_block.tar_weight1)) {
+                        //console.log('heater2 ' + dry_data_block.cur_weight + ' ' + dry_data_block.tar_weight1 + ' ' + dry_data_block.tar_weight2 + ' ' + dry_data_block.tar_weight3);
+                        set_heater(1, 1, 0);
+                        set_stirrer(1);
+                    }
+                    else {
+                        //console.log('heater3 ' + dry_data_block.cur_weight + ' ' + dry_data_block.tar_weight1 + ' ' + dry_data_block.tar_weight2 + ' ' + dry_data_block.tar_weight3);
+                        set_heater(1, 1, 1);
+                        set_stirrer(1);
+                    }
+                }
+                else {
                     set_heater(0, 0, 0);
-                    set_stirrer(0);
-
-                    set_buzzer();
-
-                    my_sortie_name = 'disarm';
-                    my_cnt_name = my_parent_cnt_name + '/' + my_sortie_name;
-                }
-                else if (dry_data_block.cur_weight <= dry_data_block.tar_weight2) {
-                    set_heater(1, 0, 0);
-                    set_stirrer(1);
-                }
-                else if (dry_data_block.cur_weight <= dry_data_block.tar_weight1) {
-                    set_heater(1, 1, 0);
                     set_stirrer(1);
                 }
             }
@@ -1656,7 +1694,7 @@ function core_watchdog() {
                     }
 
                     input_mode_delay_count++;
-                    if(input_mode_delay_count > 20) {
+                    if(input_mode_delay_count > 40) {
                         input_mode_delay_count = 0;
                     }
                 }
@@ -1669,7 +1707,7 @@ function core_watchdog() {
                 }
 
                 contents_delay_count++;
-                if(contents_delay_count > 20) {
+                if(contents_delay_count > 40) {
                     contents_delay_count = 0;
                 }
             }
@@ -1838,7 +1876,7 @@ function core_watchdog() {
                 }
 
                 input_mode_delay_count++;
-                if(input_mode_delay_count > 20) {
+                if(input_mode_delay_count > 40) {
                     input_mode_delay_count = 0;
                 }
             }
