@@ -282,8 +282,8 @@ def get_temp():
 	avg_bottom_temp = round((sum(bottom_temp_arr) / arr_count), 2)
 	avg_top_temp = round((sum(top_temp_arr) / arr_count), 2)
 
-	temperature1 = val_to_json(avg_bottom_temp)
-	temperature2 = val_to_json(avg_top_temp)
+	temperature1 = val_to_json(avg_top_temp)
+	temperature2 = val_to_json(avg_bottom_temp)
 
 	return (temperature1, temperature2)
 	
@@ -562,8 +562,8 @@ while True:
 		#print(g_recv_topic)
 		if (g_recv_topic == '/req_internal_temp'):
 			#print("topic: ", g_recv_topic)
-			temp_bottom, temp_top = get_temp()
-			dry_client.publish("/res_internal_temp", temp_bottom)
+			temp_top, temp_bottom = get_temp()
+			dry_client.publish("/res_internal_temp", temp_top)
 			
 		elif (g_recv_topic == '/req_debug_mode'):
 			#print("topic: ", g_recv_topic)

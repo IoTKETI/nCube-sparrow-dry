@@ -600,7 +600,8 @@ try {
 }
 catch (e) {
     dry_data_block.state = 'INIT';
-    dry_data_block.internal_temp = 0.0;
+    dry_data_block.internal_temp = 0.0; // Top Temp
+    dry_data_block.external_temp = 0.0; // Bottom Temp
     dry_data_block.cur_weight = 0.0;
     dry_data_block.ref_weight = 0.0;
     dry_data_block.pre_weight = 0.0;
@@ -923,14 +924,15 @@ function res_calc_factor(val, val2) {
 }
 
 
-function res_internal_temp(val) {
+function res_internal_temp(val, val2) {
     dry_data_block.internal_temp = parseFloat(val.toString()).toFixed(1);
-
+    dry_data_block.external_temp = parseFloat(val2.toString()).toFixed(1);
     if (pre_internal_temp != dry_data_block.internal_temp) {
         pre_internal_temp = dry_data_block.internal_temp;
 
         var msg_obj = {};
         msg_obj.val = dry_data_block.internal_temp;
+        msg_obj.val2 = dry_data_block.external_temp;
         dry_mqtt_client.publish('/print_lcd_internal_temp', JSON.stringify(msg_obj));
     }
 }
