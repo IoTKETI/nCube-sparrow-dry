@@ -634,6 +634,7 @@ var pre_input_door = -1;
 var pre_output_door = -1;
 var pre_safe_door = -1;
 var pre_internal_temp = -1.0;
+var pre_external_temp = -1.0;
 var pre_elapsed_time = -1;
 var pre_debug_message = '';
 
@@ -927,8 +928,8 @@ function res_calc_factor(val, val2) {
 function res_internal_temp(val, val2) {
     dry_data_block.internal_temp = parseFloat(val.toString()).toFixed(1);
     dry_data_block.external_temp = parseFloat(val2.toString()).toFixed(1);
-    if (pre_internal_temp != dry_data_block.internal_temp) {
-        pre_internal_temp = dry_data_block.internal_temp;
+    if (pre_external_temp != dry_data_block.external_temp) {
+        pre_external_temp = dry_data_block.external_temp;
 
         var msg_obj = {};
         msg_obj.val = dry_data_block.internal_temp;

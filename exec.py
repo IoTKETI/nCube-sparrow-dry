@@ -282,10 +282,9 @@ def get_temp():
 	avg_bottom_temp = round((sum(bottom_temp_arr) / arr_count), 2)
 	avg_top_temp = round((sum(top_temp_arr) / arr_count), 2)
 
-	temperature1 = val_to_json(avg_top_temp)
-	temperature2 = val_to_json(avg_bottom_temp)
+	temperature1 = val_to_json(avg_top_temp, avg_bottom_temp)
 
-	return (temperature1, temperature2)
+	return (temperature1)
 	
 #---Debug Button--------------------------------------------------------	
 def debug_mode(Debug_switch_pin):
@@ -562,8 +561,8 @@ while True:
 		#print(g_recv_topic)
 		if (g_recv_topic == '/req_internal_temp'):
 			#print("topic: ", g_recv_topic)
-			temp_top, temp_bottom = get_temp()
-			dry_client.publish("/res_internal_temp", temp_top)
+			temperature = get_temp()
+			dry_client.publish("/res_internal_temp", temperature)
 			
 		elif (g_recv_topic == '/req_debug_mode'):
 			#print("topic: ", g_recv_topic)
@@ -620,11 +619,14 @@ while True:
 				
 		elif (g_recv_topic == '/print_lcd_internal_temp'):
 			#print("topic: ", g_recv_topic)
-			#data = msg.payload.decode('utf-8').replace("'", '"')
-			#temper = json_to_val(data)
+			data = msg.payload.decode('utf-8').replace("'", '"')
+			top, bottom = json_to_val(data)
 			
-			displayMsg(avg_bottom_temp, 8,0)
-			displayMsg(avg_top_temp, 14,0)
+			# displayMsg(avg_bottom_temp, 8,0)
+			# displayMsg(avg_top_temp, 14,0)
+
+			displayMsg(top, 8,0)
+			displayMsg(bottom, 14,0)
 			#print(avg_bottom_temp, ' ', avg_top_temp)
 			
 		elif (g_recv_topic == '/print_lcd_state'):
