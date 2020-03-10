@@ -1583,7 +1583,7 @@ function core_watchdog() {
                 set_buzzer();
             }
             else {
-                if(dry_data_block.external_temp < 170) {
+                if(parseFloat(dry_data_block.external_temp) < 170) {
                     if (parseFloat(dry_data_block.cur_weight) <= parseFloat(dry_data_block.tar_weight3)) {
                         dry_data_block.cum_weight += dry_data_block.ref_weight;
                         
