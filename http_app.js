@@ -807,7 +807,7 @@ function req_internal_temp() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_internal_temp', JSON.stringify(msg_obj));
         //console.log(msg_obj.val);
-        setTimeout(req_internal_temp, 1000 + parseInt(Math.random() * 100));
+        setTimeout(req_internal_temp, 1100);
     }
     else {
         setTimeout(req_internal_temp, 1000 + parseInt(Math.random() * 1000));
@@ -820,7 +820,7 @@ function req_input_door() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_input_door', JSON.stringify(msg_obj));
 
-        setTimeout(req_input_door, 100 + parseInt(Math.random() * 50));
+        setTimeout(req_input_door, 200);
     }
     else {
         setTimeout(req_input_door, 1000 + parseInt(Math.random() * 1000));
@@ -833,7 +833,7 @@ function req_output_door() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_output_door', JSON.stringify(msg_obj));
 
-        setTimeout(req_output_door, 100 + parseInt(Math.random() * 50));
+        setTimeout(req_output_door, 200);
     }
     else {
         setTimeout(req_output_door, 1000 + parseInt(Math.random() * 1000));
@@ -846,7 +846,7 @@ function req_safe_door() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_safe_door', JSON.stringify(msg_obj));
 
-        setTimeout(req_safe_door, 100 + parseInt(Math.random() * 50));
+        setTimeout(req_safe_door, 200);
     }
     else {
         setTimeout(req_safe_door, 1000 + parseInt(Math.random() * 1000));
@@ -865,7 +865,7 @@ function req_weight() {
             msg_obj.val = 1;
             dry_mqtt_client.publish('/req_weight', JSON.stringify(msg_obj));
         }
-        setTimeout(req_weight, 1000 + parseInt(Math.random() * 100));
+        setTimeout(req_weight, 1100);
     }
     else {
         setTimeout(req_weight, 1000 + parseInt(Math.random() * 1000));
@@ -878,7 +878,7 @@ function req_operation_mode() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_operation_mode', JSON.stringify(msg_obj));
 
-        setTimeout(req_operation_mode, 100 + parseInt(Math.random() * 50));
+        setTimeout(req_operation_mode, 200);
     }
     else {
         setTimeout(req_operation_mode, 1000 + parseInt(Math.random() * 1000));
@@ -891,7 +891,7 @@ function req_debug_mode() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_debug_mode', JSON.stringify(msg_obj));
         //console.log(msg_obj.val);
-        setTimeout(req_debug_mode, 100 + parseInt(Math.random() * 50));
+        setTimeout(req_debug_mode, 200);
     }
     else {
         setTimeout(req_debug_mode, 1000 + parseInt(Math.random() * 1000));
@@ -904,7 +904,7 @@ function req_start_btn() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_start_btn', JSON.stringify(msg_obj));
 
-        setTimeout(req_start_btn, 100 + parseInt(Math.random() * 50));
+        setTimeout(req_start_btn, 200);
     }
     else {
         setTimeout(req_start_btn, 1000 + parseInt(Math.random() * 1000));
