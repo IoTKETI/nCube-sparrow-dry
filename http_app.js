@@ -1437,6 +1437,13 @@ function core_watchdog() {
         }
         else if(dryer_event & EVENT_START_BTN_LONG) {
             dryer_event &= ~EVENT_START_BTN_LONG;
+
+            dry_data_block.debug_message = 'Reset the catalyst';
+            pre_debug_message = '';
+            print_lcd_debug_message();
+            set_buzzer();
+
+            cum_weight = 0;
         }
         else if(dryer_event & EVENT_INPUT_DOOR_OPEN) {
             dryer_event &= ~EVENT_INPUT_DOOR_OPEN;
