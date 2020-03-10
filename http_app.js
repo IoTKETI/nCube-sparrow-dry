@@ -1139,12 +1139,12 @@ var toggle_command = 0;
 setTimeout(always_watchdog, first_interval);
 
 function always_watchdog() {
-    //내부온도 70도 이상 순환팬과 열교환기 냉각팬 온 -> 30도 이상으로 변경
-    //내부온도 70도 이하 순환팬과 열교환기 냉각팬 오프 -> 30도 이하로 변경
-    //내부온도 80도 이상 3분 주기로 솔레노이드밸브 온, 오프 반복 -> 30도 이상으로 변경
-    //내부온도 80도 이하 솔레노이드밸브 오프 -> 30도 이하로 변경
+    //내부온도 70도 이상 순환팬과 열교환기 냉각팬 온
+    //내부온도 70도 이하 순환팬과 열교환기 냉각팬 오프
+    //내부온도 80도 이상 3분 주기로 솔레노이드밸브 온, 오프 반복
+    //내부온도 80도 이하 솔레노이드밸브 오프
 
-    if(parseFloat(dry_data_block.internal_temp) <= 30.0) {
+    if(parsefloat(dry_data_block.internal_temp) <= 30.0) {
         // 순환팬 오프
         // 열교환기 냉각팬 오프
 
@@ -1583,7 +1583,7 @@ function core_watchdog() {
                 set_buzzer();
             }
             else {
-                if(parseFloat(dry_data_block.external_temp) < 170.0) {
+                if(parseFloat(dry_data_block.external_temp) < 185.0) {
                     if (parseFloat(dry_data_block.cur_weight) <= parseFloat(dry_data_block.tar_weight3)) {
                         dry_data_block.cum_weight += dry_data_block.ref_weight;
                         
