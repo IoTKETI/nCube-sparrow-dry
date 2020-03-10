@@ -594,7 +594,7 @@ while True:
 
 	if(q.qsize()):
 		msg = q.get()
-		g_recv_topic = msg.topic;
+		g_recv_topic = msg.topic
 		#print(g_recv_topic)
 		if (g_recv_topic == '/req_internal_temp'):
 			#print("topic: ", g_recv_topic)
