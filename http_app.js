@@ -45,7 +45,7 @@ global.my_secure = 'off';
 
 const first_interval = 3000;
 const retry_interval = 2500;
-const normal_interval = 100;
+const normal_interval = 200;
 const data_interval = 2000;
 const display_interval = 1000;
 
