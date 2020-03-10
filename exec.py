@@ -191,8 +191,10 @@ def displayMsg(msg, x, y):
 		#print(msg)
 		if (y == 3):
 			message = '                    '
+		elif (y == 2 and x > 14):
+			message = ' '
 		else:
-			message = ''
+			message = '     '
 		g_lcd.message = message
 		g_lcd.cursor_position(x,y)
 		g_lcd.message = f'{msg}'
@@ -203,8 +205,10 @@ def displayMsg(msg, x, y):
 		#print(msg)
 		if (y == 3):
 			message = '                    '
+		elif (y == 2 and x > 14):
+			message = ' '
 		else:
-			message = ''
+			message = '     '
 		g_lcd.message = message
 		g_lcd.cursor_position(x,y)
 		g_lcd.message = f'{msg}'
