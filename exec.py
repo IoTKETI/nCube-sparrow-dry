@@ -50,12 +50,12 @@ Cooling_motor = 9 # Digital_Output_14
 Sol_val = 6 # Digital_Output_15
 Buzzer = 5
 
-# Temperature 1
+# Temperature 1 Top
 CLK1 = 27
 CS1  = 26
 SO1  = 17
 
-# Temperature 2
+# Temperature 2 Bottom
 CLK2 = 41
 CS2  = 40
 SO2  = 39
