@@ -45,7 +45,7 @@ global.my_secure = 'off';
 
 const first_interval = 3000;
 const retry_interval = 2500;
-const normal_interval = 200;
+const normal_interval = 100;
 const data_interval = 2000;
 const display_interval = 1000;
 
@@ -83,18 +83,17 @@ const EVENT_SAFE_DOOR_CLOSE = 0x20;
 const EVENT_START_BTN_CLICK = 0x40;
 const EVENT_START_BTN_LONG = 0x80;
 
-
-// var tas_dryer = spawn('python3', ['./exec.py']);
-// tas_dryer.stdout.on('data', function(data) {
-//     console.log('stdout: ' + data);
-// });
-// tas_dryer.on('exit', function(code) {
-//     console.log('exit: ' + code);
-// });
-// tas_dryer.on('error', function(code) {
-//     console.log('error: ' + code);
-// });
-//
+/*
+var tas_dryer = spawn('python3', ['./exec.py']);
+tas_dryer.stdout.on('data', function(data) {
+    console.log('stdout: ' + data);
+});
+tas_dryer.on('exit', function(code) {
+    console.log('exit: ' + code);
+});
+tas_dryer.on('error', function(code) {
+    console.log('error: ' + code);
+});*/
 
 // ?????? ????????.
 var server = null;
@@ -600,8 +599,8 @@ try {
 }
 catch (e) {
     dry_data_block.state = 'INIT';
-    dry_data_block.internal_temp = 0.0; // Top Temp
-    dry_data_block.external_temp = 0.0; // Bottom Temp
+    dry_data_block.internal_temp = 0.0;
+    dry_data_block.external_temp = 0.0;
     dry_data_block.cur_weight = 0.0;
     dry_data_block.ref_weight = 0.0;
     dry_data_block.pre_weight = 0.0;
@@ -620,7 +619,7 @@ catch (e) {
     dry_data_block.elapsed_time = 0;
     dry_data_block.debug_message = 'INIT';
     dry_data_block.loadcell_factor = 1841;
-    dry_data_block.loadcell_ref_weight = 7.2;
+    dry_data_block.loadcell_ref_weight = 20;
     dry_data_block.correlation_value = 4.6;
 
     fs.writeFileSync('ddb.json', JSON.stringify(dry_data_block, null, 4), 'utf8');
@@ -634,7 +633,6 @@ var pre_input_door = -1;
 var pre_output_door = -1;
 var pre_safe_door = -1;
 var pre_internal_temp = -1.0;
-var pre_external_temp = -1.0;
 var pre_elapsed_time = -1;
 var pre_debug_message = '';
 
@@ -807,7 +805,7 @@ function req_internal_temp() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_internal_temp', JSON.stringify(msg_obj));
         //console.log(msg_obj.val);
-        setTimeout(req_internal_temp, 1100);
+        setTimeout(req_internal_temp, 1000 + parseInt(Math.random() * 100));
     }
     else {
         setTimeout(req_internal_temp, 1000 + parseInt(Math.random() * 1000));
@@ -820,7 +818,7 @@ function req_input_door() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_input_door', JSON.stringify(msg_obj));
 
-        setTimeout(req_input_door, 200);
+        setTimeout(req_input_door, 100 + parseInt(Math.random() * 50));
     }
     else {
         setTimeout(req_input_door, 1000 + parseInt(Math.random() * 1000));
@@ -833,7 +831,7 @@ function req_output_door() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_output_door', JSON.stringify(msg_obj));
 
-        setTimeout(req_output_door, 200);
+        setTimeout(req_output_door, 100 + parseInt(Math.random() * 50));
     }
     else {
         setTimeout(req_output_door, 1000 + parseInt(Math.random() * 1000));
@@ -846,7 +844,7 @@ function req_safe_door() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_safe_door', JSON.stringify(msg_obj));
 
-        setTimeout(req_safe_door, 200);
+        setTimeout(req_safe_door, 100 + parseInt(Math.random() * 50));
     }
     else {
         setTimeout(req_safe_door, 1000 + parseInt(Math.random() * 1000));
@@ -865,7 +863,7 @@ function req_weight() {
             msg_obj.val = 1;
             dry_mqtt_client.publish('/req_weight', JSON.stringify(msg_obj));
         }
-        setTimeout(req_weight, 1100);
+        setTimeout(req_weight, 1000 + parseInt(Math.random() * 100));
     }
     else {
         setTimeout(req_weight, 1000 + parseInt(Math.random() * 1000));
@@ -878,7 +876,7 @@ function req_operation_mode() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_operation_mode', JSON.stringify(msg_obj));
 
-        setTimeout(req_operation_mode, 200);
+        setTimeout(req_operation_mode, 100 + parseInt(Math.random() * 50));
     }
     else {
         setTimeout(req_operation_mode, 1000 + parseInt(Math.random() * 1000));
@@ -891,7 +889,7 @@ function req_debug_mode() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_debug_mode', JSON.stringify(msg_obj));
         //console.log(msg_obj.val);
-        setTimeout(req_debug_mode, 200);
+        setTimeout(req_debug_mode, 100 + parseInt(Math.random() * 50));
     }
     else {
         setTimeout(req_debug_mode, 1000 + parseInt(Math.random() * 1000));
@@ -904,7 +902,7 @@ function req_start_btn() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_start_btn', JSON.stringify(msg_obj));
 
-        setTimeout(req_start_btn, 200);
+        setTimeout(req_start_btn, 100 + parseInt(Math.random() * 50));
     }
     else {
         setTimeout(req_start_btn, 1000 + parseInt(Math.random() * 1000));
@@ -928,8 +926,9 @@ function res_calc_factor(val, val2) {
 function res_internal_temp(val, val2) {
     dry_data_block.internal_temp = parseFloat(val.toString()).toFixed(1);
     dry_data_block.external_temp = parseFloat(val2.toString()).toFixed(1);
-    if (pre_external_temp != dry_data_block.external_temp) {
-        pre_external_temp = dry_data_block.external_temp;
+
+    if (pre_internal_temp != dry_data_block.internal_temp) {
+        pre_internal_temp = dry_data_block.internal_temp;
 
         var msg_obj = {};
         msg_obj.val = dry_data_block.internal_temp;
@@ -1216,8 +1215,7 @@ function lcd_display_watchdog() {
 
 var debug_mode_state = 'start';
 
-setTimeout(core_watchdog, 3000);
-setTimeout(dry_start, 2000);
+setTimeout(core_watchdog, 2000);
 
 var input_mode_delay_count = 0;
 var contents_delay_count = 0;
@@ -1229,7 +1227,7 @@ function core_watchdog() {
         pre_input_door = -1;
         pre_output_door = -1;
         pre_safe_door = -1;
-        
+
         set_heater(0, 0, 0);
         set_stirrer(0);
 
@@ -1396,7 +1394,7 @@ function core_watchdog() {
                             pre_state = '';
                             print_lcd_state();
                             console.log('->' + dry_data_block.state);
-                            
+
                             dry_data_block.debug_message = '                    ';
                             pre_debug_message = '';
                             print_lcd_debug_message();
@@ -1587,7 +1585,7 @@ function core_watchdog() {
                 if(parseFloat(dry_data_block.external_temp) < 185.0) {
                     if (parseFloat(dry_data_block.cur_weight) <= parseFloat(dry_data_block.tar_weight3)) {
                         dry_data_block.cum_weight += dry_data_block.ref_weight;
-                        
+
                         //console.log('heater 0');
 
                         dry_data_block.ref_weight = 0.0;
@@ -1912,7 +1910,7 @@ function core_watchdog() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-setTimeout(food_watchdog, 3000);
+setTimeout(food_watchdog, 1000);
 
 function food_watchdog(){
     //100ms동작
@@ -1942,17 +1940,3 @@ func['res_weight'] = res_weight;
 func['res_operation_mode'] = res_operation_mode;
 func['res_debug_mode'] = res_debug_mode;
 func['res_start_btn'] = res_start_btn;
-
-
-function dry_start() {
-    var tas_dryer = spawn('python3', ['./exec.py']);
-    tas_dryer.stdout.on('data', function(data) {
-        console.log('stdout: ' + data);
-    });
-    tas_dryer.on('exit', function(code) {
-        console.log('exit: ' + code);
-    });
-    tas_dryer.on('error', function(code) {
-        console.log('error: ' + code);
-    });
-}
