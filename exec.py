@@ -528,7 +528,42 @@ port = 1883
 global g_lcd
 g_lcd = lcd_init()
 
-dry_client = mqtt_connect(broker_address, port)
+#dry_client = mqtt_connect(broker_address, port)
+
+dry_client = mqtt.Client()
+dry_client.on_connect = on_connect
+dry_client.on_disconnect = on_disconnect
+dry_client.on_subscribe = on_subscribe
+dry_client.on_message = on_message
+dry_client.connect(broker_address, port)
+
+dry_client.subscribe("/print_lcd_internal_temp")
+dry_client.subscribe("/print_lcd_state")
+dry_client.subscribe("/print_lcd_debug_message")
+dry_client.subscribe("/print_lcd_loadcell")
+dry_client.subscribe("/print_lcd_loadcell_factor")
+dry_client.subscribe("/print_lcd_elapsed_time")
+dry_client.subscribe("/print_lcd_input_door")
+dry_client.subscribe("/print_lcd_output_door")
+dry_client.subscribe("/print_lcd_safe_door")
+dry_client.subscribe("/req_zero_point")
+dry_client.subscribe("/req_internal_temp")
+dry_client.subscribe("/req_debug_mode")
+dry_client.subscribe("/req_start_btn")
+dry_client.subscribe("/req_calc_factor")
+dry_client.subscribe("/req_input_door")
+dry_client.subscribe("/req_output_door")
+dry_client.subscribe("/req_safe_door")
+dry_client.subscribe("/req_weight")
+dry_client.subscribe("/req_operation_mode")
+dry_client.subscribe("/set_solenoid")
+dry_client.subscribe("/set_fan")
+dry_client.subscribe("/set_heater")
+dry_client.subscribe("/set_stirrer")
+dry_client.subscribe("/set_buzzer")
+dry_client.subscribe("/set_zero_point")
+
+dry_client.loop_start()
 
 global correlation_value
 correlation_value = 0
