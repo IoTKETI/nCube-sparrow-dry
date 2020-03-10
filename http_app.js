@@ -84,17 +84,17 @@ const EVENT_START_BTN_CLICK = 0x40;
 const EVENT_START_BTN_LONG = 0x80;
 
 
-var tas_dryer = spawn('python3', ['./exec.py']);
-tas_dryer.stdout.on('data', function(data) {
-    console.log('stdout: ' + data);
-});
-tas_dryer.on('exit', function(code) {
-    console.log('exit: ' + code);
-});
-tas_dryer.on('error', function(code) {
-    console.log('error: ' + code);
-});
-
+// var tas_dryer = spawn('python3', ['./exec.py']);
+// tas_dryer.stdout.on('data', function(data) {
+//     console.log('stdout: ' + data);
+// });
+// tas_dryer.on('exit', function(code) {
+//     console.log('exit: ' + code);
+// });
+// tas_dryer.on('error', function(code) {
+//     console.log('error: ' + code);
+// });
+//
 
 // ?????? ????????.
 var server = null;
