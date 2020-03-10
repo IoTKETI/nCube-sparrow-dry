@@ -283,6 +283,8 @@ def get_temp():
 	avg_top_temp = round((sum(top_temp_arr) / arr_count), 2)
 
 	temperature1 = val_to_json(avg_top_temp, avg_bottom_temp)
+	print ('get_temp: ', avg_top_temp, ' ', avg_bottom_temp)
+	print ('get_temp_json: ', temperature1)
 
 	return (temperature1)
 	
@@ -624,7 +626,7 @@ while True:
 			
 			# displayMsg(avg_bottom_temp, 8,0)
 			# displayMsg(avg_top_temp, 14,0)
-
+			print ('print_lcd: ', top, ' ', bottom)
 			displayMsg(top, 8,0)
 			displayMsg(bottom, 14,0)
 			#print(avg_bottom_temp, ' ', avg_top_temp)
