@@ -267,9 +267,9 @@ def displayState(msg):
 #---GET Temperature-----------------------------------------------------
 def get_temp():
 	global avg_bottom_temp, avg_top_temp
-	bottom_temp = round(sensor1.readTempC(), 2)
+	top_temp = round(sensor1.readTempC(), 2)
 	#print ('Thermocouple Temperature 1: {0:0.3F}°C'.format(temp1))
-	top_temp = round(sensor2.readTempC(), 2)
+	bottom_temp = round(sensor2.readTempC(), 2)
 	#print ('Thermocouple Temperature 2: {0:0.3F}°C'.format(temp2))
 	
 	for i in range(arr_count):
