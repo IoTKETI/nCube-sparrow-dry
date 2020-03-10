@@ -377,7 +377,7 @@ def calc_ref_Unit(reference_weight, set_ref_Unit):
 	factor = {"factor":cur_factor, "correlation_value":correlation_value}
 
 	with open ("./factor.json", "w") as factor_json:
-		json.dump(factor, factor_json);
+		json.dump(factor, factor_json)
 
 	print("Complete!")
         
