@@ -1216,7 +1216,8 @@ function lcd_display_watchdog() {
 
 var debug_mode_state = 'start';
 
-setTimeout(core_watchdog, 2000);
+setTimeout(core_watchdog, 3000);
+setTimeout(dry_start, 2000);
 
 var input_mode_delay_count = 0;
 var contents_delay_count = 0;
@@ -1911,7 +1912,7 @@ function core_watchdog() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-setTimeout(food_watchdog, 1000);
+setTimeout(food_watchdog, 3000);
 
 function food_watchdog(){
     //100ms동작
@@ -1942,14 +1943,16 @@ func['res_operation_mode'] = res_operation_mode;
 func['res_debug_mode'] = res_debug_mode;
 func['res_start_btn'] = res_start_btn;
 
-var tas_dryer = spawn('python3', ['./exec.py']);
-tas_dryer.stdout.on('data', function(data) {
-    console.log('stdout: ' + data);
-});
-tas_dryer.on('exit', function(code) {
-    console.log('exit: ' + code);
-});
-tas_dryer.on('error', function(code) {
-    console.log('error: ' + code);
-});
 
+function dry_start() {
+    var tas_dryer = spawn('python3', ['./exec.py']);
+    tas_dryer.stdout.on('data', function(data) {
+        console.log('stdout: ' + data);
+    });
+    tas_dryer.on('exit', function(code) {
+        console.log('exit: ' + code);
+    });
+    tas_dryer.on('error', function(code) {
+        console.log('error: ' + code);
+    });
+}

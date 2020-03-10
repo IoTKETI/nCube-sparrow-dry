@@ -594,7 +594,7 @@ weight_arr = [0, 0, 0, 0, 0]
 flag = 0
 
 while True:
-	#g_lcd.backlight = True
+	g_lcd.backlight = True
 
 	if(q.qsize()):
 		msg = q.get()
