@@ -46,7 +46,7 @@ global.my_secure = 'off';
 const first_interval = 3000;
 const retry_interval = 2500;
 const normal_interval = 100;
-const data_interval = 2000;
+const data_interval = 10000;
 const display_interval = 1000;
 
 const always_interval = 30000;
@@ -1443,7 +1443,7 @@ function core_watchdog() {
             print_lcd_debug_message();
             set_buzzer();
 
-            cum_weight = 0;
+            dry_data_block.cum_weight = 0;
         }
         else if(dryer_event & EVENT_INPUT_DOOR_OPEN) {
             dryer_event &= ~EVENT_INPUT_DOOR_OPEN;
