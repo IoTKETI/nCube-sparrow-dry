@@ -1144,26 +1144,26 @@ function always_watchdog() {
     //내부온도 80도 이상 3분 주기로 솔레노이드밸브 온, 오프 반복
     //내부온도 80도 이하 솔레노이드밸브 오프
 
-    if(dry_data_block.internal_temp <= 70.0) {
+    if(parsefloat(dry_data_block.internal_temp) <= 30.0) {
         // 순환팬 오프
         // 열교환기 냉각팬 오프
 
         set_fan(0);
     }
-    else if(dry_data_block.internal_temp > 70.0) {
+    else if(parseFloat(dry_data_block.internal_temp) > 30.0) {
         // 순환팬 온
         // 열교환기 냉각팬 온
 
         set_fan(1);
     }
 
-    if(dry_data_block.internal_temp <= 80.0) {
+    if(parseFloat(dry_data_block.internal_temp) <= 30.0) {
         // 솔레노이드밸브 오프
 
         always_tick = 0;
         set_solenoid(0);
     }
-    else if(dry_data_block.internal_temp > 80.0) {
+    else if(parseFloat(dry_data_block.internal_temp) > 30.0) {
         // 3분 주기로 솔레노이드밸브 온, 오프 반복
 
         always_tick++;
