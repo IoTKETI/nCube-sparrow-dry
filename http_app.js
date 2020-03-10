@@ -1941,3 +1941,15 @@ func['res_weight'] = res_weight;
 func['res_operation_mode'] = res_operation_mode;
 func['res_debug_mode'] = res_debug_mode;
 func['res_start_btn'] = res_start_btn;
+
+var tas_dryer = spawn('python3', ['./exec.py']);
+tas_dryer.stdout.on('data', function(data) {
+    console.log('stdout: ' + data);
+});
+tas_dryer.on('exit', function(code) {
+    console.log('exit: ' + code);
+});
+tas_dryer.on('error', function(code) {
+    console.log('error: ' + code);
+});
+
