@@ -156,40 +156,40 @@ def func_set_q(msg):
 	if(msg.topic == '/set_buzzer'):
 		if(buzzer_running == 0):
 			q.put(msg)
-
-    elif (msg.topic == '/req_debug_mode'):
+			
+	elif (msg.topic == '/req_debug_mode'):
         #print("topic: ", g_recv_topic)
-        deb = debug_mode(Debug_switch_pin)
-        dry_client.publish("/res_debug_mode", deb)
+		deb = debug_mode(Debug_switch_pin)
+		dry_client.publish("/res_debug_mode", deb)
 
-    elif (msg.topic == '/req_start_btn'):
-        #print("topic: ", g_recv_topic)
-        sw4_json = start_btn(SW4_pin)
-        dry_client.publish("/res_start_btn", sw4_json)
+	elif (msg.topic == '/req_start_btn'):
+		#print("topic: ", g_recv_topic)
+		sw4_json = start_btn(SW4_pin)
+		dry_client.publish("/res_start_btn", sw4_json)
 
 	elif (msg.topic == '/req_input_door'):
-        #print("topic: ", g_recv_topic)
-        json_input_door = get_input_door(Input_Door_pin)
-        #print('input door: ', json_input_door)
-        dry_client.publish("/res_input_door", json_input_door)
+		#print("topic: ", g_recv_topic)
+		json_input_door = get_input_door(Input_Door_pin)
+		#print('input door: ', json_input_door)
+		dry_client.publish("/res_input_door", json_input_door)
 
-    elif (msg.topic == '/req_output_door'):
-        #print("topic: ", g_recv_topic)
-        json_output_door = get_output_door(Output_Door_pin)
-        #print("output door: ", json_output_door)
-        dry_client.publish("/res_output_door", json_output_door)
+	elif (msg.topic == '/req_output_door'):
+		#print("topic: ", g_recv_topic)
+		json_output_door = get_output_door(Output_Door_pin)
+		#print("output door: ", json_output_door)
+		dry_client.publish("/res_output_door", json_output_door)
 
-    elif (msg.topic == '/req_safe_door'):
-        #print("topic: ", g_recv_topic)
-        json_safe_door = get_safe_door(Safe_Door_pin)
-        #print("safe door: ", json_safe_door)
-        dry_client.publish("/res_safe_door", json_safe_door)
+	elif (msg.topic == '/req_safe_door'):
+		#print("topic: ", g_recv_topic)
+		json_safe_door = get_safe_door(Safe_Door_pin)
+		#print("safe door: ", json_safe_door)
+		dry_client.publish("/res_safe_door", json_safe_door)
 
-    elif (msg.topic == '/req_operation_mode'):
-        #print("topic: ", g_recv_topic)
-        json_operation_mode = Operation(Select_SW)
-        #print("operation: ", json_operation_mode)
-        dry_client.publish("/res_operation_mode", json_operation_mode)
+	elif (msg.topic == '/req_operation_mode'):
+		#print("topic: ", g_recv_topic)
+		json_operation_mode = Operation(Select_SW)
+		#print("operation: ", json_operation_mode)
+		dry_client.publish("/res_operation_mode", json_operation_mode)
 
 	else: 
 		q.put(msg)
@@ -213,6 +213,9 @@ def lcd_init():
 
 
 def displayState(msg):
+	if (len(str(msg)) > 5):
+		msg = str(msg)
+		msg = msg[0:5]
 	try:
 		if (msg == 'DEBUG'):
 			g_lcd.clear()
@@ -233,6 +236,12 @@ def displayState(msg):
 
 
 def displayTemp(msg, msg2):
+	if (len(str(msg)) > 5):
+		msg = str(msg)
+		msg = msg[0:5]
+	elif (len(str(msg2)) > 5):
+		msg2 = str(msg2)
+		msg2 = msg2[0:5]
 	try:
 		g_lcd.cursor_position(8,0)
 		message = '     '
@@ -261,6 +270,12 @@ def displayTemp(msg, msg2):
 				
 		
 def displayLoadcell(msg, msg2):
+	if (len(str(msg)) > 5):
+		msg = str(msg)
+		msg = msg[0:5]
+	elif (len(str(msg2)) > 5):
+		msg2 = str(msg2)
+		msg2 = msg2[0:5]
 	try:
 		g_lcd.cursor_position(0,1)
 		message = '          '
@@ -290,6 +305,10 @@ def displayLoadcell(msg, msg2):
 
 
 def displayLoadcellFactor(msg):
+	if (len(str(msg)) > 6):
+		msg = str(msg)
+		msg = msg[0:6]
+
 	try:
 		g_lcd.cursor_position(14,1)
 		message = '       '
@@ -307,6 +326,9 @@ def displayLoadcellFactor(msg):
 
 
 def displayInputDoor(msg):
+	if (len(str(msg)) > 1):
+		msg = str(msg)
+		msg = msg[0:1]
 	try:
 		g_lcd.cursor_position(15,2)
 		message = ' '
@@ -323,6 +345,9 @@ def displayInputDoor(msg):
 		
 		
 def displayOutputDoor(msg):
+	if (len(str(msg)) > 1):
+		msg = str(msg)
+		msg = msg[0:1]
 	try:
 
 		g_lcd.cursor_position(17,2)
@@ -340,6 +365,9 @@ def displayOutputDoor(msg):
 		
 		
 def displaySafeDoor(msg):
+	if (len(str(msg)) > 1):
+		msg = str(msg)
+		msg = msg[0:1]
 	try:
 		g_lcd.cursor_position(19,2)
 		message = ' '
@@ -356,6 +384,9 @@ def displaySafeDoor(msg):
 
 
 def displayElapsed(msg):
+	if (len(str(msg)) > 8):
+		msg = str(msg)
+		msg = msg[0:8]
 	try:
 		g_lcd.cursor_position(0,2)
 		message = '       '
@@ -372,6 +403,9 @@ def displayElapsed(msg):
 
 
 def displayMsg(msg):
+	if (len(str(msg)) > 20):
+		msg = str(msg)
+		msg = msg[0:20]
 	try:
 		g_lcd.cursor_position(0,3)
 		message = '                    '
@@ -660,42 +694,6 @@ while True:
 			weight = get_loadcell()
 			#print(weight)
 			dry_client.publish("/res_weight", weight)
-
-        '''
-		elif (g_recv_topic == '/req_debug_mode'):
-			#print("topic: ", g_recv_topic)
-			deb = debug_mode(Debug_switch_pin)
-			dry_client.publish("/res_debug_mode", deb)
-
-		elif (g_recv_topic == '/req_start_btn'):
-			#print("topic: ", g_recv_topic)
-			sw4_json = start_btn(SW4_pin)
-			dry_client.publish("/res_start_btn", sw4_json)
-
-		elif (g_recv_topic == '/req_input_door'):
-			#print("topic: ", g_recv_topic)
-			json_input_door = get_input_door(Input_Door_pin)
-			#print('input door: ', json_input_door)
-			dry_client.publish("/res_input_door", json_input_door)
-			
-		elif (g_recv_topic == '/req_output_door'):
-			#print("topic: ", g_recv_topic)
-			json_output_door = get_output_door(Output_Door_pin)
-			#print("output door: ", json_output_door)
-			dry_client.publish("/res_output_door", json_output_door)		
-			
-		elif (g_recv_topic == '/req_safe_door'):
-			#print("topic: ", g_recv_topic)
-			json_safe_door = get_safe_door(Safe_Door_pin)
-			#print("safe door: ", json_safe_door)
-			dry_client.publish("/res_safe_door", json_safe_door)
-					
-		elif (g_recv_topic == '/req_operation_mode'):
-			#print("topic: ", g_recv_topic)
-			json_operation_mode = Operation(Select_SW)
-			#print("operation: ", json_operation_mode)
-			dry_client.publish("/res_operation_mode", json_operation_mode)		
-		'''
 
 		elif (g_recv_topic == '/print_lcd_internal_temp'):
 			#print("topic: ", g_recv_topic)
