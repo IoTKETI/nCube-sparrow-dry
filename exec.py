@@ -25,8 +25,8 @@ top_temp_arr = [0,0,0,0,0]
 # Switch
 Debug_switch_pin = 16 # Debug Switch : Digital_Input_3
 SW4_pin = 38 # Start Button : Digital_Input_2
-Push_SW_pin = 38 # Start Button : Digital_Input_9
-Select_SW = 6 # Select Switch : Digital_Input_8
+Push_SW_pin = 38 # Start Button : Digital_Input_8
+Select_SW = 6 # Select Switch : Digital_Input_7
 
 # Load Cell (Direct)
 DAT = 34
@@ -37,9 +37,9 @@ SDA = 30 # SDA_LCD-DAT 28
 SCL = 31 # SCL_LCD-CLK 27
 
 # Digital IN
-Input_Door_pin = 7 # Input Door Sensor() : Digital_Input_5
-Output_Door_pin = 10 # Output Door Sensor() : Digital_Input_6
-Safe_Door_pin = 11 # Safe Door Sensor(Front Door) : Digital_Input_7
+Input_Door_pin = 7 # Input Door Sensor() : Digital_Input_4
+Output_Door_pin = 10 # Output Door Sensor() : Digital_Input_5
+Safe_Door_pin = 11 # Safe Door Sensor(Front Door) : Digital_Input_6
 
 # Digital OUT (Arduino)
 Heat_12 = 13 # Digital_Output_12
@@ -51,14 +51,14 @@ Sol_val = 6 # Digital_Output_15
 Buzzer = 5
 
 # Temperature 1 Top
-CLK1 = 27
-CS1  = 26
-SO1  = 17
+CLK1 = 27 # Digital_Input_9
+CS1  = 26 # Digital_Input_10
+SO1  = 17 # Digital_Input_11
 
 # Temperature 2 Bottom
-CLK2 = 41
-CS2  = 40
-SO2  = 39
+CLK2 = 41 # Digital_Input_12
+CS2  = 40 # Digital_Input_13
+SO2  = 39 # Digital_Input_14
 
 #---SET GPIO------------------------------------------------------------
 GPIO.setmode(GPIO.BCM)
