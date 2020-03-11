@@ -11,7 +11,7 @@ from hx711 import HX711
 import random
 
 
-q = queue.Queue()
+q = queue.Queue(maxsize=8)
 global buzzer_running
 buzzer_running = 0
 global arr_count
