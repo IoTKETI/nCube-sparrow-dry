@@ -73,6 +73,42 @@ GPIO.setup(Input_Door_pin, GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(Output_Door_pin, GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(Safe_Door_pin, GPIO.IN,GPIO.PUD_UP)
 
+#---GET Door------------------------------------------------------------
+def get_input_door(Input_Door_pin):
+	input_door = GPIO.input(Input_Door_pin)
+	json_input_door = val_to_json(input_door)
+
+	return (json_input_door)
+
+
+def get_output_door(Output_Door_pin):
+	output_door = GPIO.input(Output_Door_pin)
+	json_output_door = val_to_json(output_door)
+
+	return (json_output_door)
+
+
+def get_safe_door(Safe_Door_pin):
+	safe_door = GPIO.input(Safe_Door_pin)
+	json_safe_door = val_to_json(safe_door)
+
+	return (json_safe_door)
+#-----------------------------------------------------------------------
+
+#---Operation Mode------------------------------------------------------
+def Operation(Select_SW):
+	sel_sw = GPIO.input(Select_SW)
+	sel_sw = val_to_json(sel_sw)
+
+	return (sel_sw)
+
+#---Start Button--------------------------------------------------------
+def start_btn(SW4_pin):
+	SW4 = GPIO.input(SW4_pin)
+	SW4 = val_to_json(SW4)
+
+	return (SW4)
+
 # Temperature
 sensor1 = MAX6675.MAX6675(CLK1, CS1, SO1)
 sensor2 = MAX6675.MAX6675(CLK2, CS2, SO2)
@@ -93,8 +129,6 @@ def json_to_val(json_val):
 		val3 = payloadData['val3']
 		return (val, val2, val3)	
 
-
-	
 def val_to_json(val,val2=None):
 	if (val2 != None):
 		json_val = {"val":val,"val2":val2}
@@ -122,7 +156,41 @@ def func_set_q(msg):
 	if(msg.topic == '/set_buzzer'):
 		if(buzzer_running == 0):
 			q.put(msg)
-		
+
+    elif (msg.topic == '/req_debug_mode'):
+        #print("topic: ", g_recv_topic)
+        deb = debug_mode(Debug_switch_pin)
+        dry_client.publish("/res_debug_mode", deb)
+
+    elif (msg.topic == '/req_start_btn'):
+        #print("topic: ", g_recv_topic)
+        sw4_json = start_btn(SW4_pin)
+        dry_client.publish("/res_start_btn", sw4_json)
+
+	elif (msg.topic == '/req_input_door'):
+        #print("topic: ", g_recv_topic)
+        json_input_door = get_input_door(Input_Door_pin)
+        #print('input door: ', json_input_door)
+        dry_client.publish("/res_input_door", json_input_door)
+
+    elif (msg.topic == '/req_output_door'):
+        #print("topic: ", g_recv_topic)
+        json_output_door = get_output_door(Output_Door_pin)
+        #print("output door: ", json_output_door)
+        dry_client.publish("/res_output_door", json_output_door)
+
+    elif (msg.topic == '/req_safe_door'):
+        #print("topic: ", g_recv_topic)
+        json_safe_door = get_safe_door(Safe_Door_pin)
+        #print("safe door: ", json_safe_door)
+        dry_client.publish("/res_safe_door", json_safe_door)
+
+    elif (msg.topic == '/req_operation_mode'):
+        #print("topic: ", g_recv_topic)
+        json_operation_mode = Operation(Select_SW)
+        #print("operation: ", json_operation_mode)
+        dry_client.publish("/res_operation_mode", json_operation_mode)
+
 	else: 
 		q.put(msg)
 
@@ -337,7 +405,7 @@ def get_temp():
 	avg_top_temp = round((sum(top_temp_arr) / arr_count), 2)
 
 	temperature1 = val_to_json(avg_top_temp, avg_bottom_temp)
-	
+
 
 	return (temperature1)
 	
@@ -461,42 +529,6 @@ def ref_weight(tare_weight):
 	return val
 #-----------------------------------------------------------------------
 	
-#---GET Door------------------------------------------------------------	
-def get_input_door(Input_Door_pin):
-	input_door = GPIO.input(Input_Door_pin)
-	json_input_door = val_to_json(input_door)
-		
-	return (json_input_door)
-
-	
-def get_output_door(Output_Door_pin):
-	output_door = GPIO.input(Output_Door_pin)
-	json_output_door = val_to_json(output_door)
-		
-	return (json_output_door)
-	
-
-def get_safe_door(Safe_Door_pin):
-	safe_door = GPIO.input(Safe_Door_pin)
-	json_safe_door = val_to_json(safe_door)
-		
-	return (json_safe_door)
-#-----------------------------------------------------------------------	
-
-#---Start Button--------------------------------------------------------		
-def start_btn(SW4_pin):
-	SW4 = GPIO.input(SW4_pin)
-	SW4 = val_to_json(SW4)
-		
-	return (SW4)
-
-#---Operation Mode------------------------------------------------------
-def Operation(Select_SW):
-	sel_sw = GPIO.input(Select_SW)
-	sel_sw = val_to_json(sel_sw)
-	
-	return (sel_sw)
-
 
 #---Serial Communication with Arduino-----------------------------------
 def Serial_Feather(pin=None, pin2=None, pin3=None, val=None, val2=None, val3=None):
@@ -609,17 +641,6 @@ while True:
 			temperature = get_temp()
 			dry_client.publish("/res_internal_temp", temperature)
 			
-		elif (g_recv_topic == '/req_debug_mode'):
-			#print("topic: ", g_recv_topic)
-			deb = debug_mode(Debug_switch_pin)
-			dry_client.publish("/res_debug_mode", deb)
-			
-		elif (g_recv_topic == '/req_start_btn'):
-			#print("topic: ", g_recv_topic)
-			sw4_json = start_btn(SW4_pin)
-			dry_client.publish("/res_start_btn", sw4_json)	
-
-
 		elif (g_recv_topic == '/req_zero_point'):
 			#print("topic: ", g_recv_topic)
 			data = msg.payload.decode('utf-8').replace("'", '"')
@@ -639,7 +660,18 @@ while True:
 			weight = get_loadcell()
 			#print(weight)
 			dry_client.publish("/res_weight", weight)
-			
+
+        '''
+		elif (g_recv_topic == '/req_debug_mode'):
+			#print("topic: ", g_recv_topic)
+			deb = debug_mode(Debug_switch_pin)
+			dry_client.publish("/res_debug_mode", deb)
+
+		elif (g_recv_topic == '/req_start_btn'):
+			#print("topic: ", g_recv_topic)
+			sw4_json = start_btn(SW4_pin)
+			dry_client.publish("/res_start_btn", sw4_json)
+
 		elif (g_recv_topic == '/req_input_door'):
 			#print("topic: ", g_recv_topic)
 			json_input_door = get_input_door(Input_Door_pin)
@@ -663,7 +695,8 @@ while True:
 			json_operation_mode = Operation(Select_SW)
 			#print("operation: ", json_operation_mode)
 			dry_client.publish("/res_operation_mode", json_operation_mode)		
-				
+		'''
+
 		elif (g_recv_topic == '/print_lcd_internal_temp'):
 			#print("topic: ", g_recv_topic)
 			data = msg.payload.decode('utf-8').replace("'", '"')
