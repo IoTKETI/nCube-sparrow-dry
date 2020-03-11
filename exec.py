@@ -25,23 +25,23 @@ top_temp_arr = [0,0,0,0,0]
 # Switch
 Debug_switch_pin = 16 # Debug Switch : Digital_Input_3
 SW4_pin = 38 # Start Button : Digital_Input_2
-Push_SW_pin = 38 # Start Button : Digital_Input_15
-Select_SW = 6 # Select Switch
+Push_SW_pin = 38 # Start Button : Digital_Input_9
+Select_SW = 6 # Select Switch : Digital_Input_8
 
 # Load Cell (Direct)
 DAT = 34
 CLK = 35
 
-# LCD I2C (Arduino)
-SDA = 30
-SCL = 31
+# LCD I2C 
+SDA = 30 # SDA_LCD-DAT 28
+SCL = 31 # SCL_LCD-CLK 27
 
 # Digital IN
 Input_Door_pin = 7 # Input Door Sensor() : Digital_Input_5
 Output_Door_pin = 10 # Output Door Sensor() : Digital_Input_6
 Safe_Door_pin = 11 # Safe Door Sensor(Front Door) : Digital_Input_7
 
-# Digital OUT
+# Digital OUT (Arduino)
 Heat_12 = 13 # Digital_Output_12
 Heat_3 = 12 # Digital_Output_11
 Heat_4 = 11 # Digital_Output_10
@@ -50,15 +50,15 @@ Cooling_motor = 9 # Digital_Output_14
 Sol_val = 6 # Digital_Output_15
 Buzzer = 5
 
-# Temperature 1
+# Temperature 1 Top
 CLK1 = 27
 CS1  = 26
-DO1  = 17
+SO1  = 17
 
-# Temperature 2
+# Temperature 2 Bottom
 CLK2 = 41
 CS2  = 40
-DO2  = 39
+SO2  = 39
 
 #---SET GPIO------------------------------------------------------------
 GPIO.setmode(GPIO.BCM)
@@ -74,12 +74,10 @@ GPIO.setup(Output_Door_pin, GPIO.IN,GPIO.PUD_UP)
 GPIO.setup(Safe_Door_pin, GPIO.IN,GPIO.PUD_UP)
 
 # Temperature
-sensor1 = MAX6675.MAX6675(CLK1, CS1, DO1)
-sensor2 = MAX6675.MAX6675(CLK2, CS2, DO2)
+sensor1 = MAX6675.MAX6675(CLK1, CS1, SO1)
+sensor2 = MAX6675.MAX6675(CLK2, CS2, SO2)
 
 def json_to_val(json_val):
-#	if (str(type(json_val)) == "<class 'int'>"):
-#		json_val = str(json_val)
 	payloadData = json.loads(json_val)
 
 	if (len(payloadData) == 1):
@@ -94,7 +92,8 @@ def json_to_val(json_val):
 		val2 = payloadData['val2']
 		val3 = payloadData['val3']
 		return (val, val2, val3)	
-	
+
+
 	
 def val_to_json(val,val2=None):
 	if (val2 != None):
@@ -106,47 +105,7 @@ def val_to_json(val,val2=None):
 	return (json_val)
 	
 #---MQTT----------------------------------------------------------------
-def mqtt_connect(broker_address, port):
-	dry_client = mqtt.Client()
-	dry_client.on_connect = on_connect
-	dry_client.on_disconnect = on_disconnect
-	dry_client.on_subscribe = on_subscribe
-	dry_client.on_message = on_message
-	dry_client.connect(broker_address, port)
-	
-	dry_client.subscribe("/print_lcd_internal_temp")
-	dry_client.subscribe("/print_lcd_state")
-	dry_client.subscribe("/print_lcd_debug_message")
-	dry_client.subscribe("/print_lcd_loadcell")
-	dry_client.subscribe("/print_lcd_loadcell_factor")
-	dry_client.subscribe("/print_lcd_elapsed_time")
-	dry_client.subscribe("/print_lcd_input_door")
-	dry_client.subscribe("/print_lcd_output_door")
-	dry_client.subscribe("/print_lcd_safe_door")
-	dry_client.subscribe("/req_zero_point")
-	dry_client.subscribe("/req_internal_temp")
-	dry_client.subscribe("/req_debug_mode")
-	dry_client.subscribe("/req_start_btn")
-	dry_client.subscribe("/req_calc_factor")
-	dry_client.subscribe("/req_input_door")
-	dry_client.subscribe("/req_output_door")
-	dry_client.subscribe("/req_safe_door")
-	dry_client.subscribe("/req_weight")
-	dry_client.subscribe("/req_operation_mode")
-	dry_client.subscribe("/set_solenoid")
-	dry_client.subscribe("/set_fan")
-	dry_client.subscribe("/set_heater")
-	dry_client.subscribe("/set_stirrer")
-	dry_client.subscribe("/set_buzzer")
-	dry_client.subscribe("/set_zero_point")
 
-
-	dry_client.loop_start()
-#	dry_client.loop_forever()
-
-	return dry_client
-	
-	
 def on_connect(client,userdata,flags, rc):
 	print('[dry_mqtt_connect] connect to ', broker_address)
 
@@ -183,68 +142,6 @@ def lcd_init():
 	lcd.backlight = True
 
 	return lcd
-		
-
-def displayMsg(msg, x, y):
-	try:
-		g_lcd.cursor_position(x,y)
-		#print(msg)
-		if (y == 3):
-			message = '                    '
-		elif (y == 2 and x > 14):
-			message = ' '
-		else:
-			message = '     '
-		g_lcd.message = message
-		g_lcd.cursor_position(x,y)
-		g_lcd.message = f'{msg}'
-	
-	except OSError:
-		lcd_init()
-		g_lcd.cursor_position(x,y)
-		#print(msg)
-		if (y == 3):
-			message = '                    '
-		elif (y == 2 and x > 14):
-			message = ' '
-		else:
-			message = '     '
-		g_lcd.message = message
-		g_lcd.cursor_position(x,y)
-		g_lcd.message = f'{msg}'
-		
-		
-def displayLoadcell(msg, msg2):
-	try:
-		g_lcd.cursor_position(0,1)
-		#print(msg)
-		message = '          '
-		g_lcd.message = message
-		g_lcd.cursor_position(0,1)
-		g_lcd.message = f'{msg}'
-		
-		g_lcd.cursor_position(10,1)
-		#print(msg)
-		message = '          '
-		g_lcd.message = message
-		g_lcd.cursor_position(10,1)
-		g_lcd.message = f'{msg2}'
-	
-	except OSError:
-		lcd_init()
-		g_lcd.cursor_position(0,1)
-		#print(msg)
-		message = '          '
-		g_lcd.message = message
-		g_lcd.cursor_position(0,1)
-		g_lcd.message = f'{msg}'
-		
-		g_lcd.cursor_position(10,1)
-		#print(msg)
-		message = '          '
-		g_lcd.message = message
-		g_lcd.cursor_position(10,1)
-		g_lcd.message = f'{msg2}'
 
 
 def displayState(msg):
@@ -266,15 +163,168 @@ def displayState(msg):
 		g_lcd.cursor_position(0,0)
 		g_lcd.message = f'{msg}'
 
+
+def displayTemp(msg, msg2):
+	try:
+		g_lcd.cursor_position(8,0)
+		message = '     '
+		g_lcd.message = message
+		g_lcd.cursor_position(8,0)
+		g_lcd.message = f'{msg}'
+		g_lcd.cursor_position(14,0)
+		message = '     '
+		g_lcd.message = message
+		g_lcd.cursor_position(14,0)
+		g_lcd.message = f'{msg2}'
+	
+	except OSError:
+		lcd_init()
+		g_lcd.cursor_position(8,0)
+		message = '     '
+		g_lcd.message = message
+		g_lcd.cursor_position(8,0)
+		g_lcd.message = f'{msg}'
+		g_lcd.cursor_position(14,0)
+		message = '     '
+		g_lcd.message = message
+		g_lcd.cursor_position(14,0)
+		g_lcd.message = f'{msg2}'
+
+				
+		
+def displayLoadcell(msg, msg2):
+	try:
+		g_lcd.cursor_position(0,1)
+		message = '          '
+		g_lcd.message = message
+		g_lcd.cursor_position(0,1)
+		g_lcd.message = f'{msg}'
+		
+		g_lcd.cursor_position(10,1)
+		message = '          '
+		g_lcd.message = message
+		g_lcd.cursor_position(10,1)
+		g_lcd.message = f'{msg2}'
+	
+	except OSError:
+		lcd_init()
+		g_lcd.cursor_position(0,1)
+		message = '          '
+		g_lcd.message = message
+		g_lcd.cursor_position(0,1)
+		g_lcd.message = f'{msg}'
+		
+		g_lcd.cursor_position(10,1)
+		message = '          '
+		g_lcd.message = message
+		g_lcd.cursor_position(10,1)
+		g_lcd.message = f'{msg2}'
+
+
+def displayLoadcellFactor(msg):
+	try:
+		g_lcd.cursor_position(14,1)
+		message = '       '
+		g_lcd.message = message
+		g_lcd.cursor_position(14,1)
+		g_lcd.message = f'{msg}'
+	
+	except OSError:
+		lcd_init()
+		g_lcd.cursor_position(14,1)
+		message = '       '
+		g_lcd.message = message
+		g_lcd.cursor_position(14,1)
+		g_lcd.message = f'{msg}'
+
+
+def displayInputDoor(msg):
+	try:
+		g_lcd.cursor_position(15,2)
+		message = ' '
+		g_lcd.message = message
+		g_lcd.cursor_position(15,2)
+		g_lcd.message = f'{msg}'
+	except OSError:
+		lcd_init()		
+		g_lcd.cursor_position(15,2)
+		message = ' '
+		g_lcd.message = message
+		g_lcd.cursor_position(15,2)
+		g_lcd.message = f'{msg}'
+		
+		
+def displayOutputDoor(msg):
+	try:
+
+		g_lcd.cursor_position(17,2)
+		message = ' '
+		g_lcd.message = message
+		g_lcd.cursor_position(17,2)
+		g_lcd.message = f'{msg}'
+	except OSError:
+		lcd_init()	
+		g_lcd.cursor_position(17,2)
+		message = ' '
+		g_lcd.message = message
+		g_lcd.cursor_position(17,2)
+		g_lcd.message = f'{msg}'
+		
+		
+def displaySafeDoor(msg):
+	try:
+		g_lcd.cursor_position(19,2)
+		message = ' '
+		g_lcd.message = message
+		g_lcd.cursor_position(19,2)
+		g_lcd.message = f'{msg}'
+	except OSError:
+		lcd_init()	
+		g_lcd.cursor_position(19,2)
+		message = ' '
+		g_lcd.message = message
+		g_lcd.cursor_position(19,2)
+		g_lcd.message = f'{msg}'
+
+
+def displayElapsed(msg):
+	try:
+		g_lcd.cursor_position(0,2)
+		message = '       '
+		g_lcd.message = message
+		g_lcd.cursor_position(0,2)
+		g_lcd.message = f'{msg}'
+	except OSError:
+		lcd_init()	
+		g_lcd.cursor_position(0,2)
+		message = '       '
+		g_lcd.message = message
+		g_lcd.cursor_position(0,2)
+		g_lcd.message = f'{msg}'	
+
+
+def displayMsg(msg):
+	try:
+		g_lcd.cursor_position(0,3)
+		message = '                    '
+		g_lcd.message = message
+		g_lcd.cursor_position(0,3)
+		g_lcd.message = f'{msg}'
+	
+	except OSError:
+		lcd_init()
+		g_lcd.cursor_position(0,3)
+		message = '                    '
+		g_lcd.message = message
+		g_lcd.cursor_position(0,3)
+		g_lcd.message = f'{msg}'	
 #-----------------------------------------------------------------------
 
 #---GET Temperature-----------------------------------------------------
 def get_temp():
 	global avg_bottom_temp, avg_top_temp
-	top_temp = round(sensor1.readTempC(), 2)
-	#print ('Thermocouple Temperature 1: {0:0.3F}°C'.format(temp1))
-	bottom_temp = round(sensor2.readTempC(), 2)
-	#print ('Thermocouple Temperature 2: {0:0.3F}°C'.format(temp2))
+	top_temp = round(sensor1.readTempC(), 1)
+	bottom_temp = round(sensor2.readTempC(), 1)
 	
 	for i in range(arr_count):
 		if (i > 0):
@@ -287,16 +337,14 @@ def get_temp():
 	avg_top_temp = round((sum(top_temp_arr) / arr_count), 2)
 
 	temperature1 = val_to_json(avg_top_temp, avg_bottom_temp)
-	print ('get_temp: ', avg_top_temp, ' ', avg_bottom_temp)
-	print ('get_temp_json: ', temperature1)
+	
 
 	return (temperature1)
 	
 #---Debug Button--------------------------------------------------------	
 def debug_mode(Debug_switch_pin):
 	debug_val = GPIO.input(Debug_switch_pin)
-	#print('debug_val: ', debug_val)
-	
+
 	debug_val = val_to_json(debug_val)
 
 	return (debug_val)
@@ -313,7 +361,6 @@ def cleanAndExit():
 
 
 def init_loadcell(referenceUnit = 1):
-	#print('init_referenceUnit: ', referenceUnit)
 	global hx
 	global nWeightCount
 	nWeightCount = 1
@@ -322,43 +369,26 @@ def init_loadcell(referenceUnit = 1):
 	hx.set_reading_format("MSB", "MSB")
 	hx.set_reference_unit(referenceUnit)
 	hx.reset()
-	#hx.tare()
-	#print("Tare done! Add weight now...")
 
 
 def set_factor(referenceUnit):
-	#print(referenceUnit)
 	hx.set_reference_unit(referenceUnit)
 	hx.reset()
 
 
 def calc_ref_Unit(reference_weight, set_ref_Unit):
-	#global factor_weight
-	#print ('calc_reference_weight: ', reference_weight)
-	#print ('set_ref_Unit: ', set_ref_Unit)
 	ref_weight_total = 0
 
 	for i in range(nWeightCount):	
 		weight = hx.get_weight(5)
-		#weight = round((val/1000), 1)
-		#print(weight)
 		ref_weight_total += weight
 		
 	avg_ref_weight = (ref_weight_total / nWeightCount)
-	#print ("avg_ref_weight: ", avg_ref_weight)
 	cur_weight = (avg_ref_weight - avg_zero_weight)
-	#print ("cur_weight: ", cur_weight)
 	cur_factor = (cur_weight / reference_weight)
-	'''
-	if (avg_zero_weight == 0 and cur_weight > reference_weight):
-		cur_factor = cur_factor + set_ref_Unit
-	elif (avg_zero_weight == 0 and cur_weight < reference_weight):
-		cur_factor = cur_factor + set_ref_Unit
-		'''
 		
 	if (cur_factor == 0.0):
 		cur_factor = set_ref_Unit
-	#print("cur_factor: ", cur_factor)
 
 	hx.set_reference_unit(cur_factor)
 	hx.reset()
@@ -367,13 +397,10 @@ def calc_ref_Unit(reference_weight, set_ref_Unit):
 
 	for i in range(nWeightCount):	
 		weight = hx.get_weight(5)
-		#weight = round((val/1000), 1)
-		#print(weight)
 		factor_weight_total += weight
 		
 	avg_factor_weight = (factor_weight_total / nWeightCount)
 	correlation_value = avg_factor_weight - reference_weight
-	#print(correlation_value)
 	factor = {"factor":cur_factor, "correlation_value":correlation_value}
 
 	with open ("./factor.json", "w") as factor_json:
@@ -382,7 +409,6 @@ def calc_ref_Unit(reference_weight, set_ref_Unit):
 	print("Complete!")
         
 	calc_ref_unit = val_to_json(cur_factor, correlation_value)
-	#print(calc_ref_unit)
 
 	return calc_ref_unit
 
@@ -392,40 +418,25 @@ def get_loadcell():
 	global weight_arr
 
 	try:
-		#print('get_weight: ',correlation_value)
 		if (flag == 0):
 			for i in range(arr_count):
 				weight = hx.get_weight(5)
-				#weight = round((val/1000), 1)
 				weight_arr[i] = weight
 				flag = 1
 		else:
 			weight = hx.get_weight(5)
-			#weight = round((val/1000), 1)
 			for i in range(arr_count):
 				if (i > 0):
 					weight_arr[i-1] = weight_arr[i]
 				weight_arr[arr_count-1] = weight
 				
-		#print('weight_arr: ', weight_arr)
 		avg_weight = round((sum(weight_arr) / arr_count), 2)
-		#loadcell_weight = avg_weight - reference_weight
 		final_weight = avg_weight - correlation_value
-		#print('Load Cell Weight: ', final_weight)
 		
 		weight_json = val_to_json(final_weight)
 
 	except (KeyboardInterrupt, SystemExit):
 		cleanAndExit()
-	'''	
-	except NameError:
-		print('Name Error')
-		with open ("factor.json", 'r') as refUnit_json:
-			loadcell_factor = json.load(refUnit_json)
-		loadcell_factor = loadcell_factor['factor']
-		init_loadcell(loadcell_factor)
-		weight_json = val_to_json(0)
-		'''
 
 	return (weight_json)
 
@@ -441,13 +452,9 @@ def ref_weight(tare_weight):
 	zero_weight = 0
 	for i in range(5):	
 		weight = hx.get_weight(5)
-		#weight = round((val/1000), 1)
-		#print(weight)
 		zero_weight += weight
 
 	avg_zero_weight = (zero_weight / 5)
-	#print ("avg_zero_weight: ", avg_zero_weight)
-	# parameter detail setting for calibration
 	
 	print("Add weight for initialize...")
 		
@@ -479,7 +486,6 @@ def get_safe_door(Safe_Door_pin):
 #---Start Button--------------------------------------------------------		
 def start_btn(SW4_pin):
 	SW4 = GPIO.input(SW4_pin)
-	#print('SW4: ', SW4)
 	SW4 = val_to_json(SW4)
 		
 	return (SW4)
@@ -531,8 +537,6 @@ port = 1883
 
 global g_lcd
 g_lcd = lcd_init()
-
-#dry_client = mqtt_connect(broker_address, port)
 
 dry_client = mqtt.Client()
 dry_client.on_connect = on_connect
@@ -594,7 +598,7 @@ weight_arr = [0, 0, 0, 0, 0]
 flag = 0
 
 while True:
-	g_lcd.backlight = True
+	#g_lcd.backlight = True
 
 	if(q.qsize()):
 		msg = q.get()
@@ -639,36 +643,33 @@ while True:
 		elif (g_recv_topic == '/req_input_door'):
 			#print("topic: ", g_recv_topic)
 			json_input_door = get_input_door(Input_Door_pin)
-			#print(json_input_door)
+			#print('input door: ', json_input_door)
 			dry_client.publish("/res_input_door", json_input_door)
 			
 		elif (g_recv_topic == '/req_output_door'):
 			#print("topic: ", g_recv_topic)
 			json_output_door = get_output_door(Output_Door_pin)
-			#print(json_output_door)
+			#print("output door: ", json_output_door)
 			dry_client.publish("/res_output_door", json_output_door)		
 			
 		elif (g_recv_topic == '/req_safe_door'):
 			#print("topic: ", g_recv_topic)
 			json_safe_door = get_safe_door(Safe_Door_pin)
+			#print("safe door: ", json_safe_door)
 			dry_client.publish("/res_safe_door", json_safe_door)
 					
 		elif (g_recv_topic == '/req_operation_mode'):
 			#print("topic: ", g_recv_topic)
 			json_operation_mode = Operation(Select_SW)
+			#print("operation: ", json_operation_mode)
 			dry_client.publish("/res_operation_mode", json_operation_mode)		
 				
 		elif (g_recv_topic == '/print_lcd_internal_temp'):
 			#print("topic: ", g_recv_topic)
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			top, bottom = json_to_val(data)
-			
-			# displayMsg(avg_bottom_temp, 8,0)
-			# displayMsg(avg_top_temp, 14,0)
-			print ('print_lcd: ', top, ' ', bottom)
-			displayMsg(top, 8,0)
-			displayMsg(bottom, 14,0)
-			#print(avg_bottom_temp, ' ', avg_top_temp)
+			#print ('print_lcd: ', top, ' ', bottom)
+			displayTemp(top, bottom)
 			
 		elif (g_recv_topic == '/print_lcd_state'):
 			#print("topic: ", g_recv_topic)
@@ -681,7 +682,7 @@ while True:
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			debug = json_to_val(data)
 			#print (debug)
-			displayMsg(debug, 0, 3)
+			displayMsg(debug)
 					
 		elif (g_recv_topic == '/print_lcd_loadcell'):
 			#print("topic: ", g_recv_topic)
@@ -698,32 +699,32 @@ while True:
 			#print("topic: ", g_recv_topic)
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			loadcell_factor, corr_val = json_to_val(data)
-			displayMsg(loadcell_factor,14,1)
+			displayLoadcellFactor(loadcell_factor)
 		
 		elif (g_recv_topic == '/print_lcd_input_door'):
 			#print("topic: ", g_recv_topic)
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			input_door = json_to_val(data)
-			displayMsg(input_door,15,2)
+			displayInputDoor(input_door)
 			
 		elif (g_recv_topic == '/print_lcd_output_door'):
 			#print("topic: ", g_recv_topic)
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			output_door = json_to_val(data)
-			displayMsg(output_door,17,2)
+			displayOutputDoor(output_door)
 			
 		elif (g_recv_topic == '/print_lcd_safe_door'):
 			#print("topic: ", g_recv_topic)
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			val_safe_door = json_to_val(data)
-			displayMsg(val_safe_door,19,2)
+			displaySafeDoor(val_safe_door)
 			
 		elif (g_recv_topic == '/print_lcd_elapsed_time'):
 			#print("topic: ", g_recv_topic)
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			elapsed_time = json_to_val(data)
 			elapsed_time = str(datetime.timedelta(seconds=elapsed_time))
-			displayMsg(elapsed_time,0,2)
+			displayElapsed(elapsed_time)
 						
 		elif (g_recv_topic == '/set_solenoid'):
 			#print("topic: ", g_recv_topic)
