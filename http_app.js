@@ -1110,11 +1110,12 @@ function res_start_btn(val) {
             start_press_flag = 1;
         }
 
-        if(start_press_count > 64) {
+        if(start_press_count > 48) {
             start_press_flag = 2;
             dry_data_block.start_btn = 2;
 
             dryer_event |= EVENT_START_BTN_LONG;
+            start_press_count = 0;
         }
     }
     else {
