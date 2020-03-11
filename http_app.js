@@ -1383,9 +1383,9 @@ function core_watchdog() {
 
                             dry_data_block.ref_weight = dry_data_block.ref_weight + dry_data_block.cur_weight - dry_data_block.pre_weight;
 
-                            dry_data_block.tar_weight1 = parseFloat(dry_data_block.ref_weight * 0.60).toFixed(1);
-                            dry_data_block.tar_weight2 = parseFloat(dry_data_block.ref_weight * 0.30).toFixed(1);
-                            dry_data_block.tar_weight3 = parseFloat(dry_data_block.ref_weight * 0.17).toFixed(1);
+                            dry_data_block.tar_weight1 = parseFloat(parseFloat(dry_data_block.ref_weight * 0.60).toFixed(1));
+                            dry_data_block.tar_weight2 = parseFloat(parseFloat(dry_data_block.ref_weight * 0.30).toFixed(1));
+                            dry_data_block.tar_weight3 = parseFloat(parseFloat(dry_data_block.ref_weight * 0.17).toFixed(1));
 
                             fs.writeFileSync('ddb.json', JSON.stringify(dry_data_block, null, 4), 'utf8');
 
