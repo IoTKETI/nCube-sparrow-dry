@@ -277,15 +277,15 @@ function retrieve_my_cnt_name(callback) {
             conf.cnt.push(JSON.parse(JSON.stringify(info)));
 
             if(dry_info.hasOwnProperty('loadcell_factor')) {
-                dry_data_block.loadcell_factor = dry_info.loadcell_factor;
+                dry_data_block.loadcell_factor = parseFloat(parseFloat(dry_info.loadcell_factor.toString()).toFixed(1));
             }
 
             if(dry_info.hasOwnProperty('cum_ref_weight')) {
-                dry_data_block.cum_ref_weight = dry_info.cum_ref_weight;
+                dry_data_block.cum_ref_weight = parseFloat(parseFloat(dry_info.cum_ref_weight.toString()).toFixed(1));
             }
 
             if(dry_info.hasOwnProperty('loadcell_ref_weight')) {
-                dry_data_block.loadcell_ref_weight = dry_info.loadcell_ref_weight;
+                dry_data_block.loadcell_ref_weight = parseFloat(parseFloat(dry_info.loadcell_ref_weight.toString()).toFixed(1));
             }
 
             MQTT_SUBSCRIPTION_ENABLE = 1;
@@ -916,16 +916,16 @@ function res_zero_point(val) {
 }
 
 function res_calc_factor(val, val2) {
-    dry_data_block.loadcell_factor = parseFloat(val.toString()).toFixed(1);
-    dry_data_block.correlation_value = parseFloat(val2.toString()).toFixed(1);
+    dry_data_block.loadcell_factor = parseFloat(parseFloat(val.toString()).toFixed(1));
+    dry_data_block.correlation_value = parseFloat(parseFloat(val2.toString()).toFixed(1));
 
     debug_mode_state = 'complete';
 }
 
 
 function res_internal_temp(val, val2) {
-    dry_data_block.internal_temp = parseFloat(val.toString()).toFixed(1);
-    dry_data_block.external_temp = parseFloat(val2.toString()).toFixed(1);
+    dry_data_block.internal_temp = parseFloat(parseFloat(val.toString()).toFixed(1));
+    dry_data_block.external_temp = parseFloat(parseFloat(val2.toString()).toFixed(1));
 
     if (pre_internal_temp != dry_data_block.internal_temp) {
         pre_internal_temp = dry_data_block.internal_temp;
@@ -1038,7 +1038,7 @@ function res_safe_door(val) {
 
 function res_weight(val) {
     //console.log('weight: ' + val);
-    dry_data_block.cur_weight = parseFloat(val.toString()).toFixed(1);
+    dry_data_block.cur_weight = parseFloat(parseFloat(val.toString()).toFixed(1));
 
     if (pre_cur_weight != dry_data_block.cur_weight) {
         //console.log(dry_data_block.cur_weight);
