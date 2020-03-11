@@ -155,7 +155,7 @@ def on_subscribe(client, userdata, mid, granted_qos):
 def func_set_q(msg):
 	if(msg.topic == '/set_buzzer'):
 		if(buzzer_running == 0):
-			q.put(msg)
+			q.put_nowait(msg)
 			
 	elif (msg.topic == '/req_debug_mode'):
         #print("topic: ", g_recv_topic)
@@ -192,7 +192,7 @@ def func_set_q(msg):
 		dry_client.publish("/res_operation_mode", json_operation_mode)
 
 	else: 
-		q.put(msg)
+		q.put_nowait(msg)
 
 
 def on_message(client, userdata, msg):
@@ -668,7 +668,7 @@ while True:
 	#g_lcd.backlight = True
 
 	if(q.qsize()):
-		msg = q.get()
+		msg = q.get_nowait()
 		g_recv_topic = msg.topic
 		#print(g_recv_topic)
 		if (g_recv_topic == '/req_internal_temp'):
