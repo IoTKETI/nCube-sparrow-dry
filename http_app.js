@@ -1396,6 +1396,8 @@ function core_watchdog() {
                             print_lcd_state();
                             console.log('->' + dry_data_block.state);
 
+                            send_to_Mobius(my_cnt_name, dry_data_block);
+
                             dry_data_block.debug_message = '                    ';
                             pre_debug_message = '';
                             print_lcd_debug_message();
