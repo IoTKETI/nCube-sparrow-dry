@@ -441,8 +441,6 @@ def get_temp():
 
 	temperature1 = val_to_json(avg_top_temp, avg_bottom_temp)
 	
-	print(avg_bottom_temp, ' ', avg_top_temp)
-
 	return (temperature1)
 	
 #---Debug Button--------------------------------------------------------	
