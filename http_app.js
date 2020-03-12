@@ -1623,9 +1623,16 @@ function core_watchdog() {
                 input_mode_delay_count = 0;
                 contents_delay_count = 0;
 
+                console.log(dry_data_block.state);
                 dry_data_block.state = 'INPUT';
                 pre_state = '';
                 print_lcd_state();
+                console.log('->' + dry_data_block.state);
+
+                send_to_Mobius(my_cnt_name, dry_data_block);
+
+                my_sortie_name = 'disarm';
+                my_cnt_name = my_parent_cnt_name + '/' + my_sortie_name;
 
                 set_heater(0, 0, 0);
                 set_stirrer(0);
@@ -1650,6 +1657,8 @@ function core_watchdog() {
                         dry_data_block.state = 'END';
                         pre_state = '';
                         print_lcd_state();
+
+                        send_to_Mobius(my_cnt_name, dry_data_block);
 
                         input_mode_delay_count = 0;
                         contents_delay_count = 0;
