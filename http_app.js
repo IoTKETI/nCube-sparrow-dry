@@ -1604,6 +1604,9 @@ function core_watchdog() {
 
                 fs.writeFileSync('ddb.json', JSON.stringify(dry_data_block, null, 4), 'utf8');
 
+                input_mode_delay_count = 0;
+                contents_delay_count = 0;
+
                 dry_data_block.state = 'INPUT';
                 pre_state = '';
                 print_lcd_state();
