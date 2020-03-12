@@ -805,7 +805,7 @@ function req_internal_temp() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_internal_temp', JSON.stringify(msg_obj));
         //console.log(msg_obj.val);
-        setTimeout(req_internal_temp, 1000 + parseInt(Math.random() * 100));
+        //setTimeout(req_internal_temp, 1000 + parseInt(Math.random() * 100));
     }
     else {
         setTimeout(req_internal_temp, 1000 + parseInt(Math.random() * 1000));
@@ -818,7 +818,7 @@ function req_input_door() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_input_door', JSON.stringify(msg_obj));
 
-        setTimeout(req_input_door, 100 + parseInt(Math.random() * 50));
+        //setTimeout(req_input_door, 100 + parseInt(Math.random() * 50));
     }
     else {
         setTimeout(req_input_door, 1000 + parseInt(Math.random() * 1000));
@@ -831,7 +831,7 @@ function req_output_door() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_output_door', JSON.stringify(msg_obj));
 
-        setTimeout(req_output_door, 100 + parseInt(Math.random() * 50));
+        //setTimeout(req_output_door, 100 + parseInt(Math.random() * 50));
     }
     else {
         setTimeout(req_output_door, 1000 + parseInt(Math.random() * 1000));
@@ -844,7 +844,7 @@ function req_safe_door() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_safe_door', JSON.stringify(msg_obj));
 
-        setTimeout(req_safe_door, 100 + parseInt(Math.random() * 50));
+        //setTimeout(req_safe_door, 100 + parseInt(Math.random() * 50));
     }
     else {
         setTimeout(req_safe_door, 1000 + parseInt(Math.random() * 1000));
@@ -863,7 +863,7 @@ function req_weight() {
             msg_obj.val = 1;
             dry_mqtt_client.publish('/req_weight', JSON.stringify(msg_obj));
         }
-        setTimeout(req_weight, 1000 + parseInt(Math.random() * 100));
+        //setTimeout(req_weight, 1000 + parseInt(Math.random() * 100));
     }
     else {
         setTimeout(req_weight, 1000 + parseInt(Math.random() * 1000));
@@ -876,7 +876,7 @@ function req_operation_mode() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_operation_mode', JSON.stringify(msg_obj));
 
-        setTimeout(req_operation_mode, 100 + parseInt(Math.random() * 50));
+        //setTimeout(req_operation_mode, 100 + parseInt(Math.random() * 50));
     }
     else {
         setTimeout(req_operation_mode, 1000 + parseInt(Math.random() * 1000));
@@ -889,7 +889,7 @@ function req_debug_mode() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_debug_mode', JSON.stringify(msg_obj));
         //console.log(msg_obj.val);
-        setTimeout(req_debug_mode, 100 + parseInt(Math.random() * 50));
+        //setTimeout(req_debug_mode, 100 + parseInt(Math.random() * 50));
     }
     else {
         setTimeout(req_debug_mode, 1000 + parseInt(Math.random() * 1000));
@@ -902,7 +902,7 @@ function req_start_btn() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_start_btn', JSON.stringify(msg_obj));
 
-        setTimeout(req_start_btn, 100 + parseInt(Math.random() * 50));
+        //setTimeout(req_start_btn, 100 + parseInt(Math.random() * 50));
     }
     else {
         setTimeout(req_start_btn, 1000 + parseInt(Math.random() * 1000));
@@ -935,6 +935,8 @@ function res_internal_temp(val, val2) {
         msg_obj.val2 = dry_data_block.external_temp;
         dry_mqtt_client.publish('/print_lcd_internal_temp', JSON.stringify(msg_obj));
     }
+
+    setTimeout(req_internal_temp, 100 + parseInt(Math.random() * 100));
 }
 
 var input_door_close_count = 0;
@@ -968,6 +970,8 @@ function res_input_door(val) {
             dry_data_block.input_door = 1;
         }
     }
+
+    setTimeout(req_input_door, 100 + parseInt(Math.random() * 100));
 }
 
 var output_door_close_count = 0;
@@ -1001,6 +1005,8 @@ function res_output_door(val) {
             dry_data_block.output_door = 1;
         }
     }
+
+    setTimeout(req_output_door, 100 + parseInt(Math.random() * 100));
 }
 
 var safe_door_close_count = 0;
@@ -1034,6 +1040,8 @@ function res_safe_door(val) {
             dry_data_block.safe_door = 1;
         }
     }
+
+    setTimeout(req_safe_door, 100 + parseInt(Math.random() * 100));
 }
 
 function res_weight(val) {
@@ -1050,6 +1058,8 @@ function res_weight(val) {
         msg_obj.val2 = dry_data_block.tar_weight3;
         dry_mqtt_client.publish('/print_lcd_loadcell', JSON.stringify(msg_obj));
     }
+
+    setTimeout(req_weight, 100 + parseInt(Math.random() * 100));
 }
 
 var operation_press_count = 0;
@@ -1073,6 +1083,8 @@ function res_operation_mode(val) {
             dry_data_block.operation_mode = 1;
         }
     }
+
+    setTimeout(req_operation_mode, 100 + parseInt(Math.random() * 100));
 }
 
 var debug_press_count = 0;
@@ -1096,6 +1108,8 @@ function res_debug_mode(val) {
             dry_data_block.debug_mode = 1;
         }
     }
+
+    setTimeout(req_debug_mode, 100 + parseInt(Math.random() * 100));
 }
 
 
@@ -1130,6 +1144,8 @@ function res_start_btn(val) {
         start_press_flag = 0;
         start_press_count = 0;
     }
+
+    setTimeout(req_start_btn, 100 + parseInt(Math.random() * 100));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
