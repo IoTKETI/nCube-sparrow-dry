@@ -1221,6 +1221,7 @@ setTimeout(core_watchdog, 2000);
 var input_mode_delay_count = 0;
 var contents_delay_count = 0;
 
+
 function core_watchdog() {
     //console.log(dry_data_block.debug_mode);
     //console.log(dry_data_block.state);
@@ -1462,6 +1463,8 @@ function core_watchdog() {
             pre_debug_message = '';
             print_lcd_debug_message();
             set_buzzer();
+
+            set_stirrer(1);
         }
         else if(dryer_event & EVENT_OUTPUT_DOOR_CLOSE) {
             dryer_event &= ~EVENT_OUTPUT_DOOR_CLOSE;
@@ -1469,6 +1472,8 @@ function core_watchdog() {
             dry_data_block.debug_message = '                    ';
             pre_debug_message = '';
             print_lcd_debug_message();
+
+            set_stirrer(0);
         }
         else if(dryer_event & EVENT_SAFE_DOOR_OPEN) {
             dryer_event &= ~EVENT_SAFE_DOOR_OPEN;
