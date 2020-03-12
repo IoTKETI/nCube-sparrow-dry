@@ -1404,7 +1404,7 @@ function core_watchdog() {
                             set_stirrer(1);
 
                             //my_sortie_name = moment().format('YYYY_MM_DD_T_hh_mm');
-                            my_sortie_name = moment().format('YYYY_MM_DD_T_hh');
+                            my_sortie_name = moment().local().format('YYYY_MM_DD_T_hh');
                             my_cnt_name = my_parent_cnt_name + '/' + my_sortie_name;
                             sh_adn.crtct(my_parent_cnt_name + '?rcn=0', my_sortie_name, 0, function (rsc, res_body, count) {
                             });
