@@ -46,7 +46,7 @@ global.my_secure = 'off';
 const first_interval = 3000;
 const retry_interval = 2500;
 const normal_interval = 100;
-const data_interval = 10000;
+var data_interval = 10000;
 const display_interval = 1000;
 
 const always_interval = 30000;
@@ -420,6 +420,12 @@ function http_watchdog() {
     else if (sh_state === 'crtci') {
         send_to_Mobius(my_cnt_name, dry_data_block);
 
+        if(dry_data_block.state == 'HEAT') {
+            data_interval = 10000;
+        }
+        else {
+            data_interval = 30000;
+        }
         setTimeout(http_watchdog, data_interval);
     }
 }
@@ -621,6 +627,7 @@ catch (e) {
     dry_data_block.loadcell_factor = 1841;
     dry_data_block.loadcell_ref_weight = 20;
     dry_data_block.correlation_value = 4.6;
+    dry_data_block.my_sortie_name = 'disarm';
 
     fs.writeFileSync('ddb.json', JSON.stringify(dry_data_block, null, 4), 'utf8');
 }
