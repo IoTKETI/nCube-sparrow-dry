@@ -3,7 +3,6 @@ import datetime
 import board, busio
 import serial
 import paho.mqtt.client as mqtt
-import Adafruit_GPIO.SPI as SPI
 import RPi.GPIO as GPIO
 import adafruit_character_lcd.character_lcd_i2c as character_lcd
 import MAX6675
@@ -474,7 +473,6 @@ def init_loadcell(referenceUnit = 1):
 
 
 def set_factor(referenceUnit):
-	print (referenceUnit)
 	hx.set_reference_unit(referenceUnit)
 	hx.reset()
 
