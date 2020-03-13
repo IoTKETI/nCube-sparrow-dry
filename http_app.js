@@ -1429,6 +1429,7 @@ function core_watchdog() {
                             print_lcd_state();
                             console.log('->' + dry_data_block.state);
 
+                            dry_data_block.my_sortie_name = moment().utc().format('YYYY_MM_DD_T_HH');
                             send_to_Mobius(my_cnt_name, dry_data_block);
 
                             dry_data_block.debug_message = '                    ';
@@ -1438,7 +1439,6 @@ function core_watchdog() {
                             set_heater(1, 1, 1);
                             set_stirrer(1);
 
-                            //my_sortie_name = moment().format('YYYY_MM_DD_T_hh_mm');
                             my_sortie_name = moment().utc().format('YYYY_MM_DD_T_HH');
                             my_cnt_name = my_parent_cnt_name + '/' + my_sortie_name;
                             sh_adn.crtct(my_parent_cnt_name + '?rcn=0', my_sortie_name, 0, function (rsc, res_body, count) {
@@ -1629,6 +1629,7 @@ function core_watchdog() {
                 print_lcd_state();
                 console.log('->' + dry_data_block.state);
 
+                dry_data_block.my_sortie_name = 'disarm';
                 send_to_Mobius(my_cnt_name, dry_data_block);
 
                 my_sortie_name = 'disarm';
@@ -1658,6 +1659,7 @@ function core_watchdog() {
                         pre_state = '';
                         print_lcd_state();
 
+                        dry_data_block.my_sortie_name = 'disarm';
                         send_to_Mobius(my_cnt_name, dry_data_block);
 
                         input_mode_delay_count = 0;
