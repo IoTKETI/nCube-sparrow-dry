@@ -1956,9 +1956,20 @@ function core_watchdog() {
 
                 fs.writeFileSync('ddb.json', JSON.stringify(dry_data_block, null, 4), 'utf8');
 
+                input_mode_delay_count = 0;
+                contents_delay_count = 0;
+
+                console.log(dry_data_block.state);
                 dry_data_block.state = 'INPUT';
                 pre_state = '';
                 print_lcd_state();
+                console.log('->' + dry_data_block.state);
+
+                dry_data_block.my_sortie_name = 'disarm';
+                send_to_Mobius(my_cnt_name, dry_data_block);
+
+                my_sortie_name = 'disarm';
+                my_cnt_name = my_parent_cnt_name + '/' + my_sortie_name;
 
                 set_heater(0, 0, 0);
                 set_stirrer(0);
