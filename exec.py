@@ -474,6 +474,7 @@ def init_loadcell(referenceUnit = 1):
 
 
 def set_factor(referenceUnit):
+	print (referenceUnit)
 	hx.set_reference_unit(referenceUnit)
 	hx.reset()
 
