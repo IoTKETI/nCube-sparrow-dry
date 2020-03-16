@@ -962,7 +962,7 @@ def mqtt_dequeue():
 			q.task_done()
 
 def core_func():
-	period = 10000
+	period = 1000
 	while_count = 0
 	while True:
 		while_count = while_count + 1
