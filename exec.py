@@ -823,6 +823,7 @@ flag = 0
 
 def mqtt_dequeue():
 	while True:
+		print('0')
 		if not q.empty():
 			try:
 				recv_msg = q.get(False)
@@ -964,11 +965,11 @@ def mqtt_dequeue():
 			q.task_done()
 
 def core_func():
-	period = 1000
+	period = 10000
 	while_count = 0
 	while True:
 		while_count = while_count + 1
-		print(while_count)
+		#print(while_count)
 		if ((while_count % period) == 0):
 			deb = debug_mode(Debug_switch_pin)
 			dry_client.publish("/res_debug_mode", deb)
