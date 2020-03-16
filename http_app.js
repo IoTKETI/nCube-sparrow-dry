@@ -1516,6 +1516,8 @@ function core_watchdog() {
         else if(dryer_event & EVENT_OUTPUT_DOOR_OPEN) {
             dryer_event &= ~EVENT_OUTPUT_DOOR_OPEN;
 
+            console.log('EVENT_OUTPUT_DOOR_OPEN');
+
             dry_data_block.debug_message = 'Close output door';
             pre_debug_message = '';
             print_lcd_debug_message();
