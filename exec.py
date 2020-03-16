@@ -872,8 +872,8 @@ while True:
 	#g_lcd.backlight = True
 
 	if not q.empty():
-        try:
-            recv_msg = q.get(False)
+		try:
+			recv_msg = q.get(False)
 			g_recv_topic = recv_msg.topic
 
 			if (g_recv_topic == '/req_internal_temp'):
@@ -1005,6 +1005,6 @@ while True:
 				set_ref_Unit = float(set_ref_Unit)
 				correlation_value = float(set_corr_val)
 				set_factor(set_ref_Unit)
-        except Empty:
-            continue
-        q.task_done()
+		except Empty:
+			continue
+		q.task_done()
