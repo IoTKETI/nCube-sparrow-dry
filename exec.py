@@ -499,7 +499,7 @@ def calc_ref_Unit(reference_weight, set_ref_Unit):
 	factor_weight_total = 0
 
 	for i in range(nWeightCount):	
-		weight = max(0, float(hx.get_weight(5)))
+		weight = hx.get_weight(5)
 		factor_weight_total += weight
 		
 	avg_factor_weight = (factor_weight_total / nWeightCount)
@@ -524,11 +524,11 @@ def get_loadcell():
 	try:
 		if (flag == 0):
 			for i in range(arr_count):
-				weight = max(0, float(hx.get_weight(5)))
+				weight = hx.get_weight(5)
 				weight_arr[i] = weight
 				flag = 1
 		else:
-			weight = max(0, float(hx.get_weight(5)))
+			weight = hx.get_weight(5)
 			for i in range(arr_count):
 				if (i > 0):
 					weight_arr[i-1] = weight_arr[i]
@@ -555,10 +555,11 @@ def ref_weight(tare_weight):
 	global avg_zero_weight
 	zero_weight = 0
 	for i in range(5):	
-		weight = max(0, float(hx.get_weight(5)))
+		weight = hx.get_weight(5)
 		zero_weight += weight
 
 	avg_zero_weight = (zero_weight / 5)
+	avg_zero_weight = max(0, float(avg_zero_weight))
 	
 	print("Add weight for initialize...")
 		
