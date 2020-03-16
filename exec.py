@@ -1024,7 +1024,7 @@ def main():
 	t2.start()
 
 	while True:
-		a = a
+		a = 1
 
 if __name__ == "__main__":
 	main()
