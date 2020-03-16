@@ -809,12 +809,19 @@ var internal_temp_timer = null;
 function req_internal_temp() {
     if(dry_mqtt_client != null) {
         var msg_obj = {};
-        msg_obj.val = 1;
-        dry_mqtt_client.publish('/req_internal_temp', JSON.stringify(msg_obj));
-        //console.log(msg_obj.val);
 
-        clearTimeout(internal_temp_timer);
-        internal_temp_timer = setTimeout(req_internal_temp, 5000);
+        if(dry_data_block.state == 'INIT') {
+        }
+        else if(dry_data_block.state == 'DEBUG') {
+        }
+        else {
+            msg_obj.val = 1;
+            dry_mqtt_client.publish('/req_internal_temp', JSON.stringify(msg_obj));
+            //console.log(msg_obj.val);
+
+            clearTimeout(internal_temp_timer);
+            internal_temp_timer = setTimeout(req_internal_temp, 5000);
+        }
     }
     else {
         clearTimeout(internal_temp_timer);
