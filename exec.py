@@ -802,8 +802,8 @@ flag = 0
 
 while_count = 0
 while True:
-    while_count = while_count + 1
-    if ((while_count % 16384) == 0):
+	while_count = while_count + 1
+	if ((while_count % 16384) == 0):
 		deb = debug_mode(Debug_switch_pin)
 		dry_client.publish("/res_debug_mode", deb)
 
