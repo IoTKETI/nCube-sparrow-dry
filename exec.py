@@ -311,7 +311,7 @@ def displayLoadcellFactor(msg):
 
 	try:
 		g_lcd.cursor_position(14,1)
-		message = '       '
+		message = '      '
 		g_lcd.message = message
 		g_lcd.cursor_position(14,1)
 		g_lcd.message = f'{msg}'
@@ -319,7 +319,7 @@ def displayLoadcellFactor(msg):
 	except OSError:
 		lcd_init()
 		g_lcd.cursor_position(14,1)
-		message = '       '
+		message = '      '
 		g_lcd.message = message
 		g_lcd.cursor_position(14,1)
 		g_lcd.message = f'{msg}'
