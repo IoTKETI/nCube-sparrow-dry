@@ -974,4 +974,5 @@ while True:
 			correlation_value = float(set_corr_val)
 			set_factor(set_ref_Unit)
 	except queue.Empty:
+		print('queue Empty')
 		pass
