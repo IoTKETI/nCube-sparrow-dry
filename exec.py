@@ -512,7 +512,6 @@ def func_set_q(f_msg):
 
 	else: 
 		q.put_nowait(f_msg)
-		print(f_msg.topic)
 		#q.put(f_msg)
 
 
