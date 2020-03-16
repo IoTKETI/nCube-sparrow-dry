@@ -332,8 +332,8 @@ def on_subscribe(client, userdata, mid, granted_qos):
 def func_set_q(msg):
 	if(msg.topic == '/set_buzzer'):
 		if(buzzer_running == 0):
-			#q.put_nowait(msg)
-			q.put(msg)
+			q.put_nowait(msg)
+			#q.put(msg)
 
 # 	elif (msg.topic == '/req_debug_mode'):
 #         #print("topic: ", msg.topic)
@@ -499,8 +499,8 @@ def func_set_q(msg):
 #         set_factor(set_ref_Unit)
 
 	else: 
-		#q.put_nowait(msg)
-		q.put(msg)
+		q.put_nowait(msg)
+		#q.put(msg)
 
 
 
@@ -839,7 +839,8 @@ while True:
 
 	#g_lcd.backlight = True
 
-	if(q.qsize()):
+	#if(q.qsize()):
+	try:
 		msg = q.get_nowait()
 		g_recv_topic = msg.topic
 
@@ -972,3 +973,5 @@ while True:
 			set_ref_Unit = float(set_ref_Unit)
 			correlation_value = float(set_corr_val)
 			set_factor(set_ref_Unit)
+	except Queue.Empty:
+		pass
