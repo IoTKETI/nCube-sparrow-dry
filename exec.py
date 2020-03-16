@@ -481,12 +481,14 @@ def calc_ref_Unit(reference_weight, set_ref_Unit):
 	ref_weight_total = 0
 
 	for i in range(nWeightCount):	
-		weight = max(0, float(hx.get_weight(5)))
+		weight = hx.get_weight(5)
 		ref_weight_total += weight
 		
 	avg_ref_weight = (ref_weight_total / nWeightCount)
 	cur_weight = (avg_ref_weight - avg_zero_weight)
+	cur_weight = max(0, float(cur_weight))
 	cur_factor = (cur_weight / reference_weight)
+	
 		
 	if (cur_factor == 0.0):
 		cur_factor = set_ref_Unit
@@ -501,6 +503,7 @@ def calc_ref_Unit(reference_weight, set_ref_Unit):
 		factor_weight_total += weight
 		
 	avg_factor_weight = (factor_weight_total / nWeightCount)
+	avg_factor_weight = max(0, float(avg_factor_weight))
 	correlation_value = avg_factor_weight - reference_weight
 	factor = {"factor":cur_factor, "correlation_value":correlation_value}
 
@@ -533,7 +536,7 @@ def get_loadcell():
 				
 		avg_weight = round((sum(weight_arr) / arr_count), 2)
 		final_weight = avg_weight - correlation_value
-		
+		final_weight = max(0, float(final_weight))
 		weight_json = val_to_json(final_weight)
 
 	except (KeyboardInterrupt, SystemExit):
