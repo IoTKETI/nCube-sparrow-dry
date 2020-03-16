@@ -873,7 +873,15 @@ def mqtt_dequeue():
 			data = recv_msg.payload.decode('utf-8').replace("'", '"')
 			debug = json_to_val(data)
 			#print (debug)
-			displayMsg(debug)
+			#displayMsg(debug)
+			if (len(str(debug)) > 20):
+				debug = str(debug)
+				debug = debug[0:20]
+
+			g_lcd.cursor_position(0,3)
+			g_lcd.message = '                   '
+			g_lcd.cursor_position(0,3)
+			g_lcd.message = f'{debug}'
 
 		elif (g_recv_topic == '/print_lcd_loadcell'):
 			#print("topic: ", g_recv_topic)
