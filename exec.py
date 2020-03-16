@@ -860,7 +860,7 @@ while True:
 	elif (g_print_lcd_safe_door_topic == '/print_lcd_safe_door'):
 		val_safe_door = json_to_val(g_print_lcd_safe_door_msg)
 		displaySafeDoor(val_safe_door)
-    	print('print_lcd_safe_door')
+		print('print_lcd_safe_door')
 		g_print_lcd_safe_door_topic = ''
 
 	#g_lcd.backlight = True
