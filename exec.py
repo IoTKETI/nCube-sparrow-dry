@@ -968,7 +968,7 @@ def core_func():
 	while_count = 0
 	while True:
 		while_count = while_count + 1
-		print(while_count)
+		#print(while_count)
 		if ((while_count % period) == 0):
 			deb = debug_mode(Debug_switch_pin)
 			dry_client.publish("/res_debug_mode", deb)
