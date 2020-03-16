@@ -9,6 +9,8 @@ import MAX6675
 from hx711 import HX711
 import random
 
+g_print_lcd_output_door_topic = ''
+g_print_lcd_output_door_msg = ''
 
 q = queue.Queue()
 global buzzer_running
@@ -505,7 +507,11 @@ def func_set_q(msg):
 
 
 def on_message(client, userdata, msg):
-	func_set_q(msg)
+	if(msg.topic == '/print_lcd_output_door'):
+		g_print_lcd_output_door_topic = msg.topic
+		g_print_lcd_output_door_msg = msg.payload.decode('utf-8').replace("'", '"')
+	else:
+		func_set_q(msg)
 #-----------------------------------------------------------------------
 
 #---INIT LCD & Display Message------------------------------------------
@@ -837,6 +843,12 @@ while True:
 		#print("operation: ", json_operation_mode)
 		dry_client.publish("/res_operation_mode", json_operation_mode)
 
+	if (g_print_lcd_output_door_topic == '/print_lcd_output_door'):
+		output_door = json_to_val(g_print_lcd_output_door_msg)
+		displayOutputDoor(output_door)
+		print('print_lcd_output_door')
+		g_print_lcd_output_door_topic = ''
+
 	#g_lcd.backlight = True
 
 	#if(q.qsize()):
@@ -913,12 +925,12 @@ while True:
 			input_door = json_to_val(data)
 			displayInputDoor(input_door)
 
-		elif (g_recv_topic == '/print_lcd_output_door'):
-			#print("topic: ", g_recv_topic)
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			output_door = json_to_val(data)
-			displayOutputDoor(output_door)
-			print('print_lcd_output_door')
+# 		elif (g_recv_topic == '/print_lcd_output_door'):
+# 			#print("topic: ", g_recv_topic)
+# 			data = msg.payload.decode('utf-8').replace("'", '"')
+# 			output_door = json_to_val(data)
+# 			displayOutputDoor(output_door)
+# 			print('print_lcd_output_door')
 
 		elif (g_recv_topic == '/print_lcd_safe_door'):
 			#print("topic: ", g_recv_topic)
