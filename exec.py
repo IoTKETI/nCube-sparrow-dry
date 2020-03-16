@@ -271,13 +271,13 @@ def ref_weight(tare_weight):
 #---Serial Communication with Arduino-----------------------------------
 def Serial_Feather(pin=None, pin2=None, pin3=None, val=None, val2=None, val3=None):
 	if (pin != None and pin2 == None and pin3 == None):
-		msg = ('<' + str(pin) + ',' + str(val) + '>\n').encode()
-		#print(msg)
-		ser.write(msg)
+		ser_msg = ('<' + str(pin) + ',' + str(val) + '>\n').encode()
+		#print(ser_msg)
+		ser.write(ser_msg)
 	elif (pin != None and pin2 != None and pin3 != None):
-		msg = ('<' + str(pin) + ',' + str(val) + '/' + str(pin2) + ',' + str(val2) + '/' + str(pin3) + ',' + str(val3) + '>\n').encode()
-		#print(msg)
-		ser.write(msg)
+		ser_msg = ('<' + str(pin) + ',' + str(val) + '/' + str(pin2) + ',' + str(val2) + '/' + str(pin3) + ',' + str(val3) + '>\n').encode()
+		#print(ser_msg)
+		ser.write(ser_msg)
 #-----------------------------------------------------------------------
 
 #---Heater--------------------------------------------------------------
@@ -340,11 +340,11 @@ def on_subscribe(client, userdata, mid, granted_qos):
 	print("subscribed: " + str(mid) + " " + str(granted_qos))
 
 
-def func_set_q(msg):
-	if(msg.topic == '/set_buzzer'):
+def func_set_q(f_msg):
+	if(f_msg.topic == '/set_buzzer'):
 		if(buzzer_running == 0):
-			q.put_nowait(msg)
-			#q.put(msg)
+			q.put_nowait(f_msg)
+			#q.put(f_msg)
 
 # 	elif (msg.topic == '/req_debug_mode'):
 #         #print("topic: ", msg.topic)
@@ -468,41 +468,41 @@ def func_set_q(msg):
 #         elapsed_time = str(datetime.timedelta(seconds=elapsed_time))
 #         displayElapsed(elapsed_time)
 
-	elif (msg.topic == '/set_solenoid'):
-		#print("topic: ", msg.topic)
-		data = msg.payload.decode('utf-8').replace("'", '"')
+	elif (f_msg.topic == '/set_solenoid'):
+		#print("topic: ", f_msg.topic)
+		data = f_msg.payload.decode('utf-8').replace("'", '"')
 		solenoid_val = json_to_val(data)
 		solenoid(Sol_val, solenoid_val)
 
-	elif (msg.topic == '/set_fan'):
-		#print("topic: ", msg.topic)
-		data = msg.payload.decode('utf-8').replace("'", '"')
+	elif (f_msg.topic == '/set_fan'):
+		#print("topic: ", f_msg.topic)
+		data = f_msg.payload.decode('utf-8').replace("'", '"')
 		fan_val = json_to_val(data)
 		fan(Cooling_motor, fan_val)
 
-	elif (msg.topic == '/set_heater'):
-		#print("topic: ", msg.topic)
-		data = msg.payload.decode('utf-8').replace("'", '"')
+	elif (f_msg.topic == '/set_heater'):
+		#print("topic: ", f_msg.topic)
+		data = f_msg.payload.decode('utf-8').replace("'", '"')
 		heat_val, heat_val2, heat_val3 = json_to_val(data)
 		heater(Heat_12, Heat_3, Heat_4, heat_val, heat_val2, heat_val3)
 
-	elif (msg.topic == '/set_stirrer'):
-		#print("topic: ", msg.topic)
-		data = msg.payload.decode('utf-8').replace("'", '"')
+	elif (f_msg.topic == '/set_stirrer'):
+		#print("topic: ", f_msg.topic)
+		data = f_msg.payload.decode('utf-8').replace("'", '"')
 		stirrer_val = json_to_val(data)
 		stirrer(Mix_motor, stirrer_val)
 
-#     elif (msg.topic == '/set_buzzer'):
-#         #print("topic: ", msg.topic)
+#     elif (f_msg.topic == '/set_buzzer'):
+#         #print("topic: ", f_msg.topic)
 #         buzzer_running = 1
-#         data = msg.payload.decode('utf-8').replace("'", '"')
+#         data = f_msg.payload.decode('utf-8').replace("'", '"')
 #         buzzer_val = json_to_val(data)
 #         buzzer(Buzzer, buzzer_val)
 #         buzzer_running = 0
 
-#     elif (msg.topic == '/set_zero_point'):
-#         #print("topic: ", msg.topic)
-#         data = msg.payload.decode('utf-8').replace("'", '"')
+#     elif (f_msg.topic == '/set_zero_point'):
+#         #print("topic: ", f_msg.topic)
+#         data = f_msg.payload.decode('utf-8').replace("'", '"')
 #         set_ref_Unit, set_corr_val = json_to_val(data)
 #         #print('set_zero_point - ',set_ref_Unit, ', ', set_corr_val)
 #         set_ref_Unit = float(set_ref_Unit)
@@ -510,12 +510,12 @@ def func_set_q(msg):
 #         set_factor(set_ref_Unit)
 
 	else: 
-		q.put_nowait(msg)
-		#q.put(msg)
+		q.put_nowait(f_msg)
+		#q.put(f_msg)
 
 
 
-def on_message(client, userdata, msg):
+def on_message(client, userdata, _msg):
 # 	if(msg.topic == '/print_lcd_output_door'):
 # 		g_print_lcd_output_door_topic = msg.topic
 # 		g_print_lcd_output_door_msg = msg.payload.decode('utf-8').replace("'", '"')
@@ -525,7 +525,7 @@ def on_message(client, userdata, msg):
 # 		g_print_lcd_safe_door_msg = msg.payload.decode('utf-8').replace("'", '"')
 #
 # 	else:
-	func_set_q(msg)
+	func_set_q(_msg)
 #-----------------------------------------------------------------------
 
 #---INIT LCD & Display Message------------------------------------------
