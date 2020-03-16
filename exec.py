@@ -12,6 +12,9 @@ import random
 g_print_lcd_output_door_topic = ''
 g_print_lcd_output_door_msg = ''
 
+g_print_lcd_safe_door_topic = ''
+g_print_lcd_safe_door_msg = ''
+
 q = queue.Queue()
 global buzzer_running
 buzzer_running = 0
@@ -510,6 +513,11 @@ def on_message(client, userdata, msg):
 	if(msg.topic == '/print_lcd_output_door'):
 		g_print_lcd_output_door_topic = msg.topic
 		g_print_lcd_output_door_msg = msg.payload.decode('utf-8').replace("'", '"')
+
+	elif(msg.topic == '/print_lcd_safe_door'):
+		g_print_lcd_safe_door_topic = msg.topic
+		g_print_lcd_safe_door_msg = msg.payload.decode('utf-8').replace("'", '"')
+
 	else:
 		func_set_q(msg)
 #-----------------------------------------------------------------------
@@ -849,6 +857,12 @@ while True:
 		print('print_lcd_output_door')
 		g_print_lcd_output_door_topic = ''
 
+	elif (g_print_lcd_safe_door_topic == '/print_lcd_safe_door'):
+		val_safe_door = json_to_val(g_print_lcd_safe_door_msg)
+    	displaySafeDoor(val_safe_door)
+    	print('print_lcd_safe_door')
+		g_print_lcd_safe_door_topic = ''
+
 	#g_lcd.backlight = True
 
 	#if(q.qsize()):
@@ -932,11 +946,11 @@ while True:
 # 			displayOutputDoor(output_door)
 # 			print('print_lcd_output_door')
 
-		elif (g_recv_topic == '/print_lcd_safe_door'):
-			#print("topic: ", g_recv_topic)
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			val_safe_door = json_to_val(data)
-			displaySafeDoor(val_safe_door)
+# 		elif (g_recv_topic == '/print_lcd_safe_door'):
+# 			#print("topic: ", g_recv_topic)
+# 			data = msg.payload.decode('utf-8').replace("'", '"')
+# 			val_safe_door = json_to_val(data)
+# 			displaySafeDoor(val_safe_door)
 
 		elif (g_recv_topic == '/print_lcd_elapsed_time'):
 			#print("topic: ", g_recv_topic)
@@ -986,5 +1000,5 @@ while True:
 			correlation_value = float(set_corr_val)
 			set_factor(set_ref_Unit)
 	except queue.Empty:
-		print('queue Empty')
+		#print('queue Empty')
 		pass
