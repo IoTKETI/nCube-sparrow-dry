@@ -9,4 +9,5 @@ git stash
 git pull
 sleep 5
 git stash pop
+python3 exec.py
 pm2 start thyme.js
