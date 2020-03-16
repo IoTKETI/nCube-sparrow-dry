@@ -334,7 +334,7 @@ def func_set_q(msg):
 		if(buzzer_running == 0):
 			#q.put_nowait(msg)
 			q.put(msg)
-			
+
 # 	elif (msg.topic == '/req_debug_mode'):
 #         #print("topic: ", msg.topic)
 # 		deb = debug_mode(Debug_switch_pin)
@@ -368,11 +368,11 @@ def func_set_q(msg):
 # 		json_operation_mode = Operation(Select_SW)
 # 		#print("operation: ", json_operation_mode)
 # 		dry_client.publish("/res_operation_mode", json_operation_mode)
-#
+
 	elif (msg.topic == '/req_internal_temp'):
-        #print("topic: ", msg.topic)
-        temperature = get_temp()
-        dry_client.publish("/res_internal_temp", temperature)
+	    #print("topic: ", msg.topic)
+	    temperature = get_temp()
+	    dry_client.publish("/res_internal_temp", temperature)
 
     elif (msg.topic == '/req_zero_point'):
         #print("topic: ", msg.topic)
