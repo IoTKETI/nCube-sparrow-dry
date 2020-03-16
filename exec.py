@@ -335,41 +335,41 @@ def func_set_q(msg):
 			#q.put_nowait(msg)
 			q.put(msg)
 			
-	elif (msg.topic == '/req_debug_mode'):
-        #print("topic: ", msg.topic)
-		deb = debug_mode(Debug_switch_pin)
-		dry_client.publish("/res_debug_mode", deb)
-
-	elif (msg.topic == '/req_start_btn'):
-		#print("topic: ", msg.topic)
-		sw4_json = start_btn(SW4_pin)
-		dry_client.publish("/res_start_btn", sw4_json)
-
-	elif (msg.topic == '/req_input_door'):
-		#print("topic: ", msg.topic)
-		json_input_door = get_input_door(Input_Door_pin)
-		#print('input door: ', json_input_door)
-		dry_client.publish("/res_input_door", json_input_door)
-
-	elif (msg.topic == '/req_output_door'):
-		#print("topic: ", msg.topic)
-		json_output_door = get_output_door(Output_Door_pin)
-		#print("output door: ", json_output_door)
-		dry_client.publish("/res_output_door", json_output_door)
-
-	elif (msg.topic == '/req_safe_door'):
-		#print("topic: ", msg.topic)
-		json_safe_door = get_safe_door(Safe_Door_pin)
-		#print("safe door: ", json_safe_door)
-		dry_client.publish("/res_safe_door", json_safe_door)
-
-	elif (msg.topic == '/req_operation_mode'):
-		#print("topic: ", msg.topic)
-		json_operation_mode = Operation(Select_SW)
-		#print("operation: ", json_operation_mode)
-		dry_client.publish("/res_operation_mode", json_operation_mode)
-
-	if (msg.topic == '/req_internal_temp'):
+# 	elif (msg.topic == '/req_debug_mode'):
+#         #print("topic: ", msg.topic)
+# 		deb = debug_mode(Debug_switch_pin)
+# 		dry_client.publish("/res_debug_mode", deb)
+#
+# 	elif (msg.topic == '/req_start_btn'):
+# 		#print("topic: ", msg.topic)
+# 		sw4_json = start_btn(SW4_pin)
+# 		dry_client.publish("/res_start_btn", sw4_json)
+#
+# 	elif (msg.topic == '/req_input_door'):
+# 		#print("topic: ", msg.topic)
+# 		json_input_door = get_input_door(Input_Door_pin)
+# 		#print('input door: ', json_input_door)
+# 		dry_client.publish("/res_input_door", json_input_door)
+#
+# 	elif (msg.topic == '/req_output_door'):
+# 		#print("topic: ", msg.topic)
+# 		json_output_door = get_output_door(Output_Door_pin)
+# 		#print("output door: ", json_output_door)
+# 		dry_client.publish("/res_output_door", json_output_door)
+#
+# 	elif (msg.topic == '/req_safe_door'):
+# 		#print("topic: ", msg.topic)
+# 		json_safe_door = get_safe_door(Safe_Door_pin)
+# 		#print("safe door: ", json_safe_door)
+# 		dry_client.publish("/res_safe_door", json_safe_door)
+#
+# 	elif (msg.topic == '/req_operation_mode'):
+# 		#print("topic: ", msg.topic)
+# 		json_operation_mode = Operation(Select_SW)
+# 		#print("operation: ", json_operation_mode)
+# 		dry_client.publish("/res_operation_mode", json_operation_mode)
+#
+	elif (msg.topic == '/req_internal_temp'):
         #print("topic: ", msg.topic)
         temperature = get_temp()
         dry_client.publish("/res_internal_temp", temperature)
@@ -501,6 +501,7 @@ def func_set_q(msg):
 	else: 
 		#q.put_nowait(msg)
 		q.put(msg)
+
 
 
 def on_message(client, userdata, msg):
@@ -799,12 +800,58 @@ set_ref_Unit = 1
 weight_arr = [0, 0, 0, 0, 0]
 flag = 0
 
+while_count = 0
 while True:
+    while_count = while_count + 1
+    if ((while_count % 8192) == 0):
+		deb = debug_mode(Debug_switch_pin)
+		dry_client.publish("/res_debug_mode", deb)
+
+	if ((while_count % 8192) == 0):
+		#print("topic: ", msg.topic)
+		sw4_json = start_btn(SW4_pin)
+		dry_client.publish("/res_start_btn", sw4_json)
+
+	if ((while_count % 8192) == 0):
+		#print("topic: ", msg.topic)
+		json_input_door = get_input_door(Input_Door_pin)
+		#print('input door: ', json_input_door)
+		dry_client.publish("/res_input_door", json_input_door)
+
+	if ((while_count % 8192) == 0):
+		#print("topic: ", msg.topic)
+		json_output_door = get_output_door(Output_Door_pin)
+		#print("output door: ", json_output_door)
+		dry_client.publish("/res_output_door", json_output_door)
+
+	if ((while_count % 8192) == 0):
+		#print("topic: ", msg.topic)
+		json_safe_door = get_safe_door(Safe_Door_pin)
+		#print("safe door: ", json_safe_door)
+		dry_client.publish("/res_safe_door", json_safe_door)
+
+	if ((while_count % 8192) == 0):
+		#print("topic: ", msg.topic)
+		json_operation_mode = Operation(Select_SW)
+		#print("operation: ", json_operation_mode)
+		dry_client.publish("/res_operation_mode", json_operation_mode)
+
+# 	if ((while_count % 8192) == 0):
+#         #print("topic: ", msg.topic)
+#         temperature = get_temp()
+#         dry_client.publish("/res_internal_temp", temperature)
+#
+#     if ((while_count % 8192) == 0):
+#         #print("topic: ", msg.topic)
+#         weight = get_loadcell()
+#         #print(weight)
+#         dry_client.publish("/res_weight", weight)
+
 	#g_lcd.backlight = True
 
-	if(q.qsize()):
-		msg = q.get_nowait()
-		g_recv_topic = msg.topic
+# 	if(q.qsize()):
+# 		msg = q.get_nowait()
+# 		g_recv_topic = msg.topic
 		#print(g_recv_topic)
 # 		if (g_recv_topic == '/req_internal_temp'):
 # 			#print("topic: ", g_recv_topic)

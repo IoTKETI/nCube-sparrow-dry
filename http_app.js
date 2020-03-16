@@ -2018,13 +2018,13 @@ function food_watchdog(){
     //roadcell_lunch() //roadcell측정
 
     internal_temp_timer = setTimeout(req_internal_temp, parseInt(Math.random()*10));
-    input_door_timer = setTimeout(req_input_door, parseInt(Math.random()*10));
-    output_door_timer = setTimeout(req_output_door, parseInt(Math.random()*10));
-    safe_door_timer = setTimeout(req_safe_door, parseInt(Math.random()*10));
+    //input_door_timer = setTimeout(req_input_door, parseInt(Math.random()*10));
+    //output_door_timer = setTimeout(req_output_door, parseInt(Math.random()*10));
+    //safe_door_timer = setTimeout(req_safe_door, parseInt(Math.random()*10));
     weight_timer = setTimeout(req_weight, parseInt(Math.random()*10));
-    operation_mode_timer = setTimeout(req_operation_mode, parseInt(Math.random()*10));
-    debug_mode_timer = setTimeout(req_debug_mode, parseInt(Math.random()*10));
-    start_btn_timer = setTimeout(req_start_btn, parseInt(Math.random()*10));
+    //operation_mode_timer = setTimeout(req_operation_mode, parseInt(Math.random()*10));
+    //debug_mode_timer = setTimeout(req_debug_mode, parseInt(Math.random()*10));
+    //start_btn_timer = setTimeout(req_start_btn, parseInt(Math.random()*10));
 
     //console.log('food watchdog');
 }
