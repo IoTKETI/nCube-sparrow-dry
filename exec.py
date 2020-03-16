@@ -408,7 +408,7 @@ def displayMsg(msg):
 		msg = msg[0:20]
 	try:
 		g_lcd.cursor_position(0,3)
-		message = '                    '
+		message = '                   '
 		g_lcd.message = message
 		g_lcd.cursor_position(0,3)
 		g_lcd.message = f'{msg}'
@@ -416,7 +416,7 @@ def displayMsg(msg):
 	except OSError:
 		lcd_init()
 		g_lcd.cursor_position(0,3)
-		message = '                    '
+		message = '                   '
 		g_lcd.message = message
 		g_lcd.cursor_position(0,3)
 		g_lcd.message = f'{msg}'	
