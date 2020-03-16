@@ -8,7 +8,7 @@ import adafruit_character_lcd.character_lcd_i2c as character_lcd
 import MAX6675
 from hx711 import HX711
 import random
-import threading
+from multiprocessing import Process
 
 global g_print_lcd_output_door_topic
 g_print_lcd_output_door_topic = ''
@@ -1018,18 +1018,12 @@ def core_func():
 
 
 
-def main():
-	t1 = threading.Thread(target=mqtt_dequeue)
-	t1.daemon = True
-	t1.start()
-
-	t2 = threading.Thread(target=core_func)
-	t2.daemon = True
-	t2.start()
-
-	while True:
-		a = 1
-
 if __name__ == "__main__":
-	main()
+	p1 = Process(target=mqtt_dequeue, args=('bob',))
+	p1.start()
+	p1.join()
+
+	p2 = Process(target=core_func, args=('bob',))
+	p2.start()
+	p2.join()
 
