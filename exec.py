@@ -960,9 +960,6 @@ def mqtt_dequeue():
 			continue
 		q.task_done()
 
-t1 = threading.Thread(target=mqtt_dequeue)
-t1.start()
-
 def core_func():
 	period = 10000
 	while_count = 0
@@ -1016,6 +1013,19 @@ def core_func():
 		#g_lcd.backlight = True
 
 
-t2 = threading.Thread(target=core_func)
-t2.start()
+
+def main():
+	t1 = threading.Thread(target=mqtt_dequeue)
+	t1.daemon = True
+	t1.start()
+
+	t2 = threading.Thread(target=core_func)
+	t2.daemon = True
+	t2.start()
+
+	while True:
+		a = a
+
+if __name__ == "__main__":
+	main()
 
