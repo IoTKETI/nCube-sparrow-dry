@@ -569,7 +569,6 @@ def ref_weight(tare_weight):
 
 #---Serial Communication with Arduino-----------------------------------
 def Serial_Feather(pin=None, pin2=None, pin3=None, val=None, val2=None, val3=None):
-	print (ser.isOpen())
 	if (pin != None and pin2 == None and pin3 == None):
 		msg = ('<' + str(pin) + ',' + str(val) + '>\n').encode()
 		ser.write(msg)
