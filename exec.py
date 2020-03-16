@@ -1019,11 +1019,11 @@ def core_func():
 
 
 if __name__ == "__main__":
-	p1 = Process(target=mqtt_dequeue, args=('bob',))
+	p1 = Process(target=mqtt_dequeue)
 	p1.start()
 	p1.join()
 
-	p2 = Process(target=core_func, args=('bob',))
+	p2 = Process(target=core_func)
 	p2.start()
 	p2.join()
 
