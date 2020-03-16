@@ -112,6 +112,184 @@ def start_btn(SW4_pin):
 sensor1 = MAX6675.MAX6675(CLK1, CS1, SO1)
 sensor2 = MAX6675.MAX6675(CLK2, CS2, SO2)
 
+#---GET Temperature-----------------------------------------------------
+def get_temp():
+	global avg_bottom_temp, avg_top_temp
+	top_temp = round(sensor1.readTempC(), 1)
+	bottom_temp = round(sensor2.readTempC(), 1)
+
+	for i in range(arr_count):
+		if (i > 0):
+			bottom_temp_arr[i-1] = bottom_temp_arr[i]
+			top_temp_arr[i-1] = top_temp_arr[i]
+		bottom_temp_arr[arr_count-1] = bottom_temp
+		top_temp_arr[arr_count-1] = top_temp
+
+	avg_bottom_temp = round((sum(bottom_temp_arr) / arr_count), 2)
+	avg_top_temp = round((sum(top_temp_arr) / arr_count), 2)
+
+	temperature1 = val_to_json(avg_top_temp, avg_bottom_temp)
+
+	return (temperature1)
+
+#---Debug Button--------------------------------------------------------
+def debug_mode(Debug_switch_pin):
+	debug_val = GPIO.input(Debug_switch_pin)
+
+	debug_val = val_to_json(debug_val)
+
+	return (debug_val)
+
+#---SET Load Cell & GET Weight------------------------------------------
+def cleanAndExit():
+    print("Cleaning...")
+
+    if not EMULATE_HX711:
+        GPIO.cleanup()
+
+    print("Bye!")
+    sys.exit()
+
+
+def init_loadcell(referenceUnit = 1):
+	global hx
+	global nWeightCount
+	nWeightCount = 1
+
+	hx = HX711(34, 35)
+	hx.set_reading_format("MSB", "MSB")
+	hx.set_reference_unit(referenceUnit)
+	hx.reset()
+
+
+def set_factor(referenceUnit):
+	hx.set_reference_unit(referenceUnit)
+	hx.reset()
+
+
+def calc_ref_Unit(reference_weight, set_ref_Unit):
+	ref_weight_total = 0
+
+	for i in range(nWeightCount):
+		weight = hx.get_weight(5)
+		ref_weight_total += weight
+
+	avg_ref_weight = (ref_weight_total / nWeightCount)
+	cur_weight = (avg_ref_weight - avg_zero_weight)
+	cur_weight = max(0, float(cur_weight))
+	cur_factor = (cur_weight / reference_weight)
+
+
+	if (cur_factor == 0.0):
+		cur_factor = set_ref_Unit
+
+	hx.set_reference_unit(cur_factor)
+	hx.reset()
+
+	factor_weight_total = 0
+
+	for i in range(nWeightCount):
+		weight = hx.get_weight(5)
+		factor_weight_total += weight
+
+	avg_factor_weight = (factor_weight_total / nWeightCount)
+	avg_factor_weight = max(0, float(avg_factor_weight))
+	correlation_value = avg_factor_weight - reference_weight
+	factor = {"factor":cur_factor, "correlation_value":correlation_value}
+
+	with open ("./factor.json", "w") as factor_json:
+		json.dump(factor, factor_json)
+
+	print("Complete!")
+
+	calc_ref_unit = val_to_json(cur_factor, correlation_value)
+
+	return calc_ref_unit
+
+
+def get_loadcell():
+	global flag
+	global weight_arr
+
+	try:
+		if (flag == 0):
+			for i in range(arr_count):
+				weight = hx.get_weight(5)
+				weight_arr[i] = weight
+				flag = 1
+		else:
+			weight = hx.get_weight(5)
+			for i in range(arr_count):
+				if (i > 0):
+					weight_arr[i-1] = weight_arr[i]
+				weight_arr[arr_count-1] = weight
+
+		avg_weight = round((sum(weight_arr) / arr_count), 2)
+		final_weight = avg_weight - correlation_value
+		final_weight = max(0, float(final_weight))
+		weight_json = val_to_json(final_weight)
+
+	except (KeyboardInterrupt, SystemExit):
+		cleanAndExit()
+
+	return (weight_json)
+
+
+def ref_weight(tare_weight):
+	global reference_weight
+	reference_weight = tare_weight
+
+	val = val_to_json(1)
+
+	init_loadcell(1)
+	global avg_zero_weight
+	zero_weight = 0
+	for i in range(5):
+		weight = hx.get_weight(5)
+		zero_weight += weight
+
+	avg_zero_weight = (zero_weight / 5)
+	avg_zero_weight = max(0, float(avg_zero_weight))
+
+	print("Add weight for initialize...")
+
+	return val
+#-----------------------------------------------------------------------
+
+
+#---Serial Communication with Arduino-----------------------------------
+def Serial_Feather(pin=None, pin2=None, pin3=None, val=None, val2=None, val3=None):
+	if (pin != None and pin2 == None and pin3 == None):
+		msg = ('<' + str(pin) + ',' + str(val) + '>\n').encode()
+		#print(msg)
+		ser.write(msg)
+	elif (pin != None and pin2 != None and pin3 != None):
+		msg = ('<' + str(pin) + ',' + str(val) + '/' + str(pin2) + ',' + str(val2) + '/' + str(pin3) + ',' + str(val3) + '>\n').encode()
+		#print(msg)
+		ser.write(msg)
+#-----------------------------------------------------------------------
+
+#---Heater--------------------------------------------------------------
+def heater(Heat_12, Heat_3, Heat_4, val, val2, val3):
+	Serial_Feather(pin=Heat_12, pin2=Heat_3, pin3=Heat_4, val=val, val2=val2, val3=val3)
+
+#---Buzzer--------------------------------------------------------------
+def buzzer(Buzzer, val):
+	Serial_Feather(pin=Buzzer, val=val)
+	#print ("Beep")
+
+#---Solenoid------------------------------------------------------------
+def solenoid(Sol_val, val):
+	Serial_Feather(pin=Sol_val, val=val)
+
+#---Fan-----------------------------------------------------------------
+def fan(Cooling_motor, val):
+	Serial_Feather(pin=Cooling_motor, val=val)
+
+#---Stirrer-------------------------------------------------------------
+def stirrer(Mix_motor, val):
+	Serial_Feather(pin=Mix_motor, val=val)
+
 def json_to_val(json_val):
 	payloadData = json.loads(json_val)
 
@@ -552,184 +730,6 @@ def displayMsg(msg):
 		g_lcd.cursor_position(0,3)
 		g_lcd.message = f'{msg}'	
 #-----------------------------------------------------------------------
-
-#---GET Temperature-----------------------------------------------------
-def get_temp():
-	global avg_bottom_temp, avg_top_temp
-	top_temp = round(sensor1.readTempC(), 1)
-	bottom_temp = round(sensor2.readTempC(), 1)
-	
-	for i in range(arr_count):
-		if (i > 0):
-			bottom_temp_arr[i-1] = bottom_temp_arr[i]
-			top_temp_arr[i-1] = top_temp_arr[i]
-		bottom_temp_arr[arr_count-1] = bottom_temp
-		top_temp_arr[arr_count-1] = top_temp
-		
-	avg_bottom_temp = round((sum(bottom_temp_arr) / arr_count), 2)
-	avg_top_temp = round((sum(top_temp_arr) / arr_count), 2)
-
-	temperature1 = val_to_json(avg_top_temp, avg_bottom_temp)
-	
-	return (temperature1)
-	
-#---Debug Button--------------------------------------------------------	
-def debug_mode(Debug_switch_pin):
-	debug_val = GPIO.input(Debug_switch_pin)
-
-	debug_val = val_to_json(debug_val)
-
-	return (debug_val)
-	
-#---SET Load Cell & GET Weight------------------------------------------	
-def cleanAndExit():
-    print("Cleaning...")
-
-    if not EMULATE_HX711:
-        GPIO.cleanup()
-        
-    print("Bye!")
-    sys.exit()
-
-
-def init_loadcell(referenceUnit = 1):
-	global hx
-	global nWeightCount
-	nWeightCount = 1
-	
-	hx = HX711(34, 35)
-	hx.set_reading_format("MSB", "MSB")
-	hx.set_reference_unit(referenceUnit)
-	hx.reset()
-
-
-def set_factor(referenceUnit):
-	hx.set_reference_unit(referenceUnit)
-	hx.reset()
-
-
-def calc_ref_Unit(reference_weight, set_ref_Unit):
-	ref_weight_total = 0
-
-	for i in range(nWeightCount):	
-		weight = hx.get_weight(5)
-		ref_weight_total += weight
-		
-	avg_ref_weight = (ref_weight_total / nWeightCount)
-	cur_weight = (avg_ref_weight - avg_zero_weight)
-	cur_weight = max(0, float(cur_weight))
-	cur_factor = (cur_weight / reference_weight)
-	
-		
-	if (cur_factor == 0.0):
-		cur_factor = set_ref_Unit
-
-	hx.set_reference_unit(cur_factor)
-	hx.reset()
-
-	factor_weight_total = 0
-
-	for i in range(nWeightCount):	
-		weight = hx.get_weight(5)
-		factor_weight_total += weight
-		
-	avg_factor_weight = (factor_weight_total / nWeightCount)
-	avg_factor_weight = max(0, float(avg_factor_weight))
-	correlation_value = avg_factor_weight - reference_weight
-	factor = {"factor":cur_factor, "correlation_value":correlation_value}
-
-	with open ("./factor.json", "w") as factor_json:
-		json.dump(factor, factor_json)
-
-	print("Complete!")
-        
-	calc_ref_unit = val_to_json(cur_factor, correlation_value)
-
-	return calc_ref_unit
-
-
-def get_loadcell():
-	global flag
-	global weight_arr
-
-	try:
-		if (flag == 0):
-			for i in range(arr_count):
-				weight = hx.get_weight(5)
-				weight_arr[i] = weight
-				flag = 1
-		else:
-			weight = hx.get_weight(5)
-			for i in range(arr_count):
-				if (i > 0):
-					weight_arr[i-1] = weight_arr[i]
-				weight_arr[arr_count-1] = weight
-				
-		avg_weight = round((sum(weight_arr) / arr_count), 2)
-		final_weight = avg_weight - correlation_value
-		final_weight = max(0, float(final_weight))
-		weight_json = val_to_json(final_weight)
-
-	except (KeyboardInterrupt, SystemExit):
-		cleanAndExit()
-
-	return (weight_json)
-
-
-def ref_weight(tare_weight):
-	global reference_weight
-	reference_weight = tare_weight
-	
-	val = val_to_json(1)
-	
-	init_loadcell(1)
-	global avg_zero_weight
-	zero_weight = 0
-	for i in range(5):	
-		weight = hx.get_weight(5)
-		zero_weight += weight
-
-	avg_zero_weight = (zero_weight / 5)
-	avg_zero_weight = max(0, float(avg_zero_weight))
-	
-	print("Add weight for initialize...")
-		
-	return val
-#-----------------------------------------------------------------------
-	
-
-#---Serial Communication with Arduino-----------------------------------
-def Serial_Feather(pin=None, pin2=None, pin3=None, val=None, val2=None, val3=None):
-	if (pin != None and pin2 == None and pin3 == None):
-		msg = ('<' + str(pin) + ',' + str(val) + '>\n').encode()
-		#print(msg)
-		ser.write(msg)
-	elif (pin != None and pin2 != None and pin3 != None):
-		msg = ('<' + str(pin) + ',' + str(val) + '/' + str(pin2) + ',' + str(val2) + '/' + str(pin3) + ',' + str(val3) + '>\n').encode()
-		#print(msg)
-		ser.write(msg)
-#-----------------------------------------------------------------------
-
-#---Heater--------------------------------------------------------------
-def heater(Heat_12, Heat_3, Heat_4, val, val2, val3):
-	Serial_Feather(pin=Heat_12, pin2=Heat_3, pin3=Heat_4, val=val, val2=val2, val3=val3)	
-	
-#---Buzzer--------------------------------------------------------------			
-def buzzer(Buzzer, val):
-	Serial_Feather(pin=Buzzer, val=val)
-	#print ("Beep")
-	
-#---Solenoid------------------------------------------------------------
-def solenoid(Sol_val, val):
-	Serial_Feather(pin=Sol_val, val=val)
-	
-#---Fan-----------------------------------------------------------------
-def fan(Cooling_motor, val):
-	Serial_Feather(pin=Cooling_motor, val=val)	
-	
-#---Stirrer-------------------------------------------------------------
-def stirrer(Mix_motor, val):
-	Serial_Feather(pin=Mix_motor, val=val)	
 
 
 #=======================================================================
