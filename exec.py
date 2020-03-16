@@ -571,9 +571,11 @@ def ref_weight(tare_weight):
 def Serial_Feather(pin=None, pin2=None, pin3=None, val=None, val2=None, val3=None):
 	if (pin != None and pin2 == None and pin3 == None):
 		msg = ('<' + str(pin) + ',' + str(val) + '>\n').encode()
+		print(msg)
 		ser.write(msg)
 	elif (pin != None and pin2 != None and pin3 != None):
 		msg = ('<' + str(pin) + ',' + str(val) + '/' + str(pin2) + ',' + str(val2) + '/' + str(pin3) + ',' + str(val3) + '>\n').encode()
+		print(msg)
 		ser.write(msg)
 #-----------------------------------------------------------------------
 
