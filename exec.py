@@ -457,7 +457,7 @@ def func_set_q(msg):
 #         elapsed_time = str(datetime.timedelta(seconds=elapsed_time))
 #         displayElapsed(elapsed_time)
 
-    elif (msg.topic == '/set_solenoid'):
+	elif (msg.topic == '/set_solenoid'):
         #print("topic: ", msg.topic)
         data = msg.payload.decode('utf-8').replace("'", '"')
         solenoid_val = json_to_val(data)
