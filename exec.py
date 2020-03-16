@@ -22,7 +22,7 @@ g_print_lcd_safe_door_topic = ''
 global g_print_lcd_safe_door_msg
 g_print_lcd_safe_door_msg = ''
 
-q = queue.Queue()
+#q = queue.Queue()
 global buzzer_running
 buzzer_running = 0
 global arr_count
@@ -1020,6 +1020,8 @@ def core_func(q):
 from multiprocessing import Process
 
 def main():
+	q = Process.Queue()
+
 	p1 = Process(target=mqtt_dequeue, args=(q,))
 	p1.start()
 
