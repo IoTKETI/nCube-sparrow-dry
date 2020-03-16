@@ -9,10 +9,16 @@ import MAX6675
 from hx711 import HX711
 import random
 
+global g_print_lcd_output_door_topic
 g_print_lcd_output_door_topic = ''
+
+global g_print_lcd_output_door_msg
 g_print_lcd_output_door_msg = ''
 
+global g_print_lcd_safe_door_topic
 g_print_lcd_safe_door_topic = ''
+
+global g_print_lcd_safe_door_msg
 g_print_lcd_safe_door_msg = ''
 
 q = queue.Queue()
