@@ -812,10 +812,13 @@ function req_internal_temp() {
         msg_obj.val = 1;
         dry_mqtt_client.publish('/req_internal_temp', JSON.stringify(msg_obj));
         //console.log(msg_obj.val);
+
+        clearTimeout(internal_temp_timer);
         internal_temp_timer = setTimeout(req_internal_temp, 5000);
     }
     else {
-        setTimeout(req_internal_temp, 1000 + parseInt(Math.random() * 1000));
+        clearTimeout(internal_temp_timer);
+        internal_temp_timer = setTimeout(req_internal_temp, 1000 + parseInt(Math.random() * 1000));
     }
 }
 
@@ -952,7 +955,7 @@ function res_internal_temp(val, val2) {
     }
 
     clearTimeout(internal_temp_timer);
-    setTimeout(req_internal_temp, 900 + parseInt(Math.random() * 100));
+    internal_temp_timer = setTimeout(req_internal_temp, 900 + parseInt(Math.random() * 100));
 }
 
 var input_door_close_count = 0;
@@ -1997,7 +2000,8 @@ function food_watchdog(){
     //실시간으로 변경되는상태값 저장
     //roadcell_lunch() //roadcell측정
 
-    setTimeout(req_internal_temp, parseInt(Math.random()*10));
+    clearTimeout(internal_temp_timer);
+    internal_temp_timer = setTimeout(req_internal_temp, parseInt(Math.random()*10));
     setTimeout(req_input_door, parseInt(Math.random()*10));
     setTimeout(req_output_door, parseInt(Math.random()*10));
     setTimeout(req_safe_door, parseInt(Math.random()*10));
