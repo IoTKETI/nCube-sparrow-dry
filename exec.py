@@ -8,6 +8,7 @@ import adafruit_character_lcd.character_lcd_i2c as character_lcd
 import MAX6675
 from hx711 import HX711
 import random
+import threading
 
 global g_print_lcd_output_door_topic
 g_print_lcd_output_door_topic = ''
@@ -541,34 +542,34 @@ def lcd_init():
 	return lcd
 
 
-def displayState(msg):
-	print(msg)
-	if (len(str(msg)) > 5):
-		msg = str(msg)
-		msg = msg[0:5]
+def displayState(msg1):
+	print(msg1)
+	if (len(str(msg1)) > 5):
+		msg1 = str(msg1)
+		msg1 = msg1[0:5]
 	try:
-		if (msg == 'DEBUG'):
+		if (msg1 == 'DEBUG'):
 			g_lcd.clear()
 		g_lcd.cursor_position(0,0)
 		message = '     '
 		g_lcd.message = message
 		g_lcd.cursor_position(0,0)
-		g_lcd.message = f'{msg}'
+		g_lcd.message = f'{msg1}'
 	except OSError:
 		lcd_init()
-		if (msg == 'DEBUG'):
+		if (msg1 == 'DEBUG'):
 			g_lcd.clear()
 		g_lcd.cursor_position(0,0)
 		message = '     '
 		g_lcd.message = message
 		g_lcd.cursor_position(0,0)
-		g_lcd.message = f'{msg}'
+		g_lcd.message = f'{msg1}'
 
 
-def displayTemp(msg, msg2):
-	if (len(str(msg)) > 5):
-		msg = str(msg)
-		msg = msg[0:5]
+def displayTemp(msg1, msg2):
+	if (len(str(msg1)) > 5):
+		msg1 = str(msg1)
+		msg1 = msg1[0:5]
 	elif (len(str(msg2)) > 5):
 		msg2 = str(msg2)
 		msg2 = msg2[0:5]
@@ -577,7 +578,7 @@ def displayTemp(msg, msg2):
 		message = '     '
 		g_lcd.message = message
 		g_lcd.cursor_position(8,0)
-		g_lcd.message = f'{msg}'
+		g_lcd.message = f'{msg1}'
 		g_lcd.cursor_position(14,0)
 		message = '     '
 		g_lcd.message = message
@@ -590,7 +591,7 @@ def displayTemp(msg, msg2):
 		message = '     '
 		g_lcd.message = message
 		g_lcd.cursor_position(8,0)
-		g_lcd.message = f'{msg}'
+		g_lcd.message = f'{msg1}'
 		g_lcd.cursor_position(14,0)
 		message = '     '
 		g_lcd.message = message
@@ -599,10 +600,10 @@ def displayTemp(msg, msg2):
 
 				
 		
-def displayLoadcell(msg, msg2):
-	if (len(str(msg)) > 5):
-		msg = str(msg)
-		msg = msg[0:5]
+def displayLoadcell(msg1, msg2):
+	if (len(str(msg1)) > 5):
+		msg1 = str(msg1)
+		msg1 = msg1[0:5]
 	elif (len(str(msg2)) > 5):
 		msg2 = str(msg2)
 		msg2 = msg2[0:5]
@@ -611,7 +612,7 @@ def displayLoadcell(msg, msg2):
 		message = '          '
 		g_lcd.message = message
 		g_lcd.cursor_position(0,1)
-		g_lcd.message = f'{msg}'
+		g_lcd.message = f'{msg1}'
 		
 		g_lcd.cursor_position(10,1)
 		message = '          '
@@ -625,7 +626,7 @@ def displayLoadcell(msg, msg2):
 		message = '          '
 		g_lcd.message = message
 		g_lcd.cursor_position(0,1)
-		g_lcd.message = f'{msg}'
+		g_lcd.message = f'{msg1}'
 		
 		g_lcd.cursor_position(10,1)
 		message = '          '
@@ -634,17 +635,17 @@ def displayLoadcell(msg, msg2):
 		g_lcd.message = f'{msg2}'
 
 
-def displayLoadcellFactor(msg):
-	if (len(str(msg)) > 6):
-		msg = str(msg)
-		msg = msg[0:6]
+def displayLoadcellFactor(msg1):
+	if (len(str(msg1)) > 6):
+		msg1 = str(msg1)
+		msg1 = msg1[0:6]
 
 	try:
 		g_lcd.cursor_position(14,1)
 		message = '      '
 		g_lcd.message = message
 		g_lcd.cursor_position(14,1)
-		g_lcd.message = f'{msg}'
+		g_lcd.message = f'{msg1}'
 	
 	except OSError:
 		lcd_init()
@@ -652,96 +653,96 @@ def displayLoadcellFactor(msg):
 		message = '      '
 		g_lcd.message = message
 		g_lcd.cursor_position(14,1)
-		g_lcd.message = f'{msg}'
+		g_lcd.message = f'{msg1}'
 
 
-def displayInputDoor(msg):
-	if (len(str(msg)) > 1):
-		msg = str(msg)
-		msg = msg[0:1]
+def displayInputDoor(msg1):
+	if (len(str(msg1)) > 1):
+		msg1 = str(msg1)
+		msg1 = msg1[0:1]
 	try:
 		g_lcd.cursor_position(15,2)
 		message = ' '
 		g_lcd.message = message
 		g_lcd.cursor_position(15,2)
-		g_lcd.message = f'{msg}'
+		g_lcd.message = f'{msg1}'
 	except OSError:
 		lcd_init()		
 		g_lcd.cursor_position(15,2)
 		message = ' '
 		g_lcd.message = message
 		g_lcd.cursor_position(15,2)
-		g_lcd.message = f'{msg}'
+		g_lcd.message = f'{msg1}'
 		
 		
-def displayOutputDoor(msg):
-	if (len(str(msg)) > 1):
-		msg = str(msg)
-		msg = msg[0:1]
+def displayOutputDoor(msg1):
+	if (len(str(msg1)) > 1):
+		msg1 = str(msg1)
+		msg1 = msg1[0:1]
 	try:
 
 		g_lcd.cursor_position(17,2)
 		message = ' '
 		g_lcd.message = message
 		g_lcd.cursor_position(17,2)
-		g_lcd.message = f'{msg}'
+		g_lcd.message = f'{msg1}'
 	except OSError:
 		lcd_init()	
 		g_lcd.cursor_position(17,2)
 		message = ' '
 		g_lcd.message = message
 		g_lcd.cursor_position(17,2)
-		g_lcd.message = f'{msg}'
+		g_lcd.message = f'{msg1}'
 		
 		
-def displaySafeDoor(msg):
-	if (len(str(msg)) > 1):
-		msg = str(msg)
-		msg = msg[0:1]
+def displaySafeDoor(msg1):
+	if (len(str(msg1)) > 1):
+		msg1 = str(msg1)
+		msg1 = msg1[0:1]
 	try:
 		g_lcd.cursor_position(19,2)
 		message = ' '
 		g_lcd.message = message
 		g_lcd.cursor_position(19,2)
-		g_lcd.message = f'{msg}'
+		g_lcd.message = f'{msg1}'
 	except OSError:
 		lcd_init()	
 		g_lcd.cursor_position(19,2)
 		message = ' '
 		g_lcd.message = message
 		g_lcd.cursor_position(19,2)
-		g_lcd.message = f'{msg}'
+		g_lcd.message = f'{msg1}'
 
 
-def displayElapsed(msg):
-	if (len(str(msg)) > 8):
-		msg = str(msg)
-		msg = msg[0:8]
+def displayElapsed(msg1):
+	if (len(str(msg1)) > 8):
+		msg1 = str(msg1)
+		msg1 = msg1[0:8]
 	try:
 		g_lcd.cursor_position(0,2)
 		message = '       '
 		g_lcd.message = message
 		g_lcd.cursor_position(0,2)
-		g_lcd.message = f'{msg}'
+		g_lcd.message = f'{msg1}'
 	except OSError:
 		lcd_init()	
 		g_lcd.cursor_position(0,2)
 		message = '       '
 		g_lcd.message = message
 		g_lcd.cursor_position(0,2)
-		g_lcd.message = f'{msg}'	
+		g_lcd.message = f'{msg1}'
 
 
-def displayMsg(msg):
-	if (len(str(msg)) > 20):
-		msg = str(msg)
-		msg = msg[0:20]
+def displayMsg(msg1):
+	if (len(str(msg1)) > 20):
+		msg1 = str(msg1)
+		msg1 = msg1[0:20]
 	try:
 		g_lcd.cursor_position(0,3)
 		message = '                   '
 		g_lcd.message = message
 		g_lcd.cursor_position(0,3)
-		g_lcd.message = f'{msg}'
+		g_lcd.message = f'{msg1}'
 	
 	except OSError:
 		lcd_init()
@@ -749,7 +750,7 @@ def displayMsg(msg):
 		message = '                   '
 		g_lcd.message = message
 		g_lcd.cursor_position(0,3)
-		g_lcd.message = f'{msg}'	
+		g_lcd.message = f'{msg1}'
 #-----------------------------------------------------------------------
 
 
@@ -820,58 +821,8 @@ set_ref_Unit = 1
 weight_arr = [0, 0, 0, 0, 0]
 flag = 0
 
-period = 10000
-while_count = 0
-while True:
-	while_count = while_count + 1
-	if ((while_count % period) == 0):
-		deb = debug_mode(Debug_switch_pin)
-		dry_client.publish("/res_debug_mode", deb)
-
-	if ((while_count % period) == 0):
-		#print("topic: ", msg.topic)
-		sw4_json = start_btn(SW4_pin)
-		dry_client.publish("/res_start_btn", sw4_json)
-
-	if ((while_count % period) == 0):
-		#print("topic: ", msg.topic)
-		json_input_door = get_input_door(Input_Door_pin)
-		#print('input door: ', json_input_door)
-		dry_client.publish("/res_input_door", json_input_door)
-
-	if ((while_count % period) == 0):
-		#print("topic: ", msg.topic)
-		json_output_door = get_output_door(Output_Door_pin)
-		#print("output door: ", json_output_door)
-		dry_client.publish("/res_output_door", json_output_door)
-
-	if ((while_count % period) == 0):
-		#print("topic: ", msg.topic)
-		json_safe_door = get_safe_door(Safe_Door_pin)
-		#print("safe door: ", json_safe_door)
-		dry_client.publish("/res_safe_door", json_safe_door)
-
-	if ((while_count % period) == 0):
-		#print("topic: ", msg.topic)
-		json_operation_mode = Operation(Select_SW)
-		#print("operation: ", json_operation_mode)
-		dry_client.publish("/res_operation_mode", json_operation_mode)
-
-# 	if (g_print_lcd_output_door_topic == '/print_lcd_output_door'):
-# 		output_door = json_to_val(g_print_lcd_output_door_msg)
-# 		displayOutputDoor(output_door)
-# 		print('print_lcd_output_door')
-# 		g_print_lcd_output_door_topic = ''
-#
-# 	elif (g_print_lcd_safe_door_topic == '/print_lcd_safe_door'):
-# 		val_safe_door = json_to_val(g_print_lcd_safe_door_msg)
-# 		displaySafeDoor(val_safe_door)
-# 		print('print_lcd_safe_door')
-# 		g_print_lcd_safe_door_topic = ''
-
-	#g_lcd.backlight = True
-
-	if not q.empty():
+def mqtt_dequeue():
+	while not q.empty():
 		try:
 			recv_msg = q.get(False)
 			g_recv_topic = recv_msg.topic
@@ -1008,3 +959,59 @@ while True:
 		except Empty:
 			continue
 		q.task_done()
+
+t1 = threading.Thread(target=mqtt_dequeue)
+t1.start()
+
+period = 10000
+while_count = 0
+while True:
+	while_count = while_count + 1
+	if ((while_count % period) == 0):
+		deb = debug_mode(Debug_switch_pin)
+		dry_client.publish("/res_debug_mode", deb)
+
+	if ((while_count % period) == 0):
+		#print("topic: ", msg.topic)
+		sw4_json = start_btn(SW4_pin)
+		dry_client.publish("/res_start_btn", sw4_json)
+
+	if ((while_count % period) == 0):
+		#print("topic: ", msg.topic)
+		json_input_door = get_input_door(Input_Door_pin)
+		#print('input door: ', json_input_door)
+		dry_client.publish("/res_input_door", json_input_door)
+
+	if ((while_count % period) == 0):
+		#print("topic: ", msg.topic)
+		json_output_door = get_output_door(Output_Door_pin)
+		#print("output door: ", json_output_door)
+		dry_client.publish("/res_output_door", json_output_door)
+
+	if ((while_count % period) == 0):
+		#print("topic: ", msg.topic)
+		json_safe_door = get_safe_door(Safe_Door_pin)
+		#print("safe door: ", json_safe_door)
+		dry_client.publish("/res_safe_door", json_safe_door)
+
+	if ((while_count % period) == 0):
+		#print("topic: ", msg.topic)
+		json_operation_mode = Operation(Select_SW)
+		#print("operation: ", json_operation_mode)
+		dry_client.publish("/res_operation_mode", json_operation_mode)
+
+# 	if (g_print_lcd_output_door_topic == '/print_lcd_output_door'):
+# 		output_door = json_to_val(g_print_lcd_output_door_msg)
+# 		displayOutputDoor(output_door)
+# 		print('print_lcd_output_door')
+# 		g_print_lcd_output_door_topic = ''
+#
+# 	elif (g_print_lcd_safe_door_topic == '/print_lcd_safe_door'):
+# 		val_safe_door = json_to_val(g_print_lcd_safe_door_msg)
+# 		displaySafeDoor(val_safe_door)
+# 		print('print_lcd_safe_door')
+# 		g_print_lcd_safe_door_topic = ''
+
+	#g_lcd.backlight = True
+
+
