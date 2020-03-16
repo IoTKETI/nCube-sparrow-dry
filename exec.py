@@ -158,38 +158,167 @@ def func_set_q(msg):
 			q.put(msg)
 			
 	elif (msg.topic == '/req_debug_mode'):
-        #print("topic: ", g_recv_topic)
+        #print("topic: ", msg.topic)
 		deb = debug_mode(Debug_switch_pin)
 		dry_client.publish("/res_debug_mode", deb)
 
 	elif (msg.topic == '/req_start_btn'):
-		#print("topic: ", g_recv_topic)
+		#print("topic: ", msg.topic)
 		sw4_json = start_btn(SW4_pin)
 		dry_client.publish("/res_start_btn", sw4_json)
 
 	elif (msg.topic == '/req_input_door'):
-		#print("topic: ", g_recv_topic)
+		#print("topic: ", msg.topic)
 		json_input_door = get_input_door(Input_Door_pin)
 		#print('input door: ', json_input_door)
 		dry_client.publish("/res_input_door", json_input_door)
 
 	elif (msg.topic == '/req_output_door'):
-		#print("topic: ", g_recv_topic)
+		#print("topic: ", msg.topic)
 		json_output_door = get_output_door(Output_Door_pin)
 		#print("output door: ", json_output_door)
 		dry_client.publish("/res_output_door", json_output_door)
 
 	elif (msg.topic == '/req_safe_door'):
-		#print("topic: ", g_recv_topic)
+		#print("topic: ", msg.topic)
 		json_safe_door = get_safe_door(Safe_Door_pin)
 		#print("safe door: ", json_safe_door)
 		dry_client.publish("/res_safe_door", json_safe_door)
 
 	elif (msg.topic == '/req_operation_mode'):
-		#print("topic: ", g_recv_topic)
+		#print("topic: ", msg.topic)
 		json_operation_mode = Operation(Select_SW)
 		#print("operation: ", json_operation_mode)
 		dry_client.publish("/res_operation_mode", json_operation_mode)
+
+	if (msg.topic == '/req_internal_temp'):
+        #print("topic: ", msg.topic)
+        temperature = get_temp()
+        dry_client.publish("/res_internal_temp", temperature)
+
+    elif (msg.topic == '/req_zero_point'):
+        #print("topic: ", msg.topic)
+        data = msg.payload.decode('utf-8').replace("'", '"')
+        reference_weight = json.loads(data)
+        reference_weight = reference_weight['val']
+        #print ("reference_weight: ", reference_weight)
+        val = ref_weight(reference_weight)
+        dry_client.publish("/res_zero_point", val)
+
+    elif (msg.topic == '/req_calc_factor'):
+        #print("topic: ", msg.topic)
+        calc_referenceUnit = calc_ref_Unit(reference_weight, set_ref_Unit)
+        dry_client.publish("/res_calc_factor", calc_referenceUnit)
+
+    elif (msg.topic == '/req_weight'):
+        #print("topic: ", msg.topic)
+        weight = get_loadcell()
+        #print(weight)
+        dry_client.publish("/res_weight", weight)
+
+    elif (msg.topic == '/print_lcd_internal_temp'):
+        #print("topic: ", msg.topic)
+        data = msg.payload.decode('utf-8').replace("'", '"')
+        top, bottom = json_to_val(data)
+        #print ('print_lcd: ', top, ' ', bottom)
+        displayTemp(top, bottom)
+
+    elif (msg.topic == '/print_lcd_state'):
+        #print("topic: ", msg.topic)
+        data = msg.payload.decode('utf-8').replace("'", '"')
+        state = json_to_val(data)
+        displayState(state)
+        print('print_lcd_state')
+
+    elif (msg.topic == '/print_lcd_debug_message'):
+        #print("topic: ", msg.topic)
+        data = msg.payload.decode('utf-8').replace("'", '"')
+        debug = json_to_val(data)
+        #print (debug)
+        displayMsg(debug)
+
+    elif (msg.topic == '/print_lcd_loadcell'):
+        #print("topic: ", msg.topic)
+        data = msg.payload.decode('utf-8').replace("'", '"')
+        loadcell, target_loadcell = json_to_val(data)
+        loadcell = str(loadcell)
+        #print(loadcell, ' ', target_loadcell)
+        target_loadcell = str(target_loadcell)
+        #loadcell = (loadcell[2:(len(loadcell)-5)])
+        #target_loadcell = (target_loadcell[2:(len(target_loadcell)-5)])
+        displayLoadcell(loadcell, target_loadcell)
+
+    elif (msg.topic == '/print_lcd_loadcell_factor'):
+        #print("topic: ", msg.topic)
+        data = msg.payload.decode('utf-8').replace("'", '"')
+        loadcell_factor, corr_val = json_to_val(data)
+        displayLoadcellFactor(loadcell_factor)
+
+    elif (msg.topic == '/print_lcd_input_door'):
+        #print("topic: ", msg.topic)
+        data = msg.payload.decode('utf-8').replace("'", '"')
+        input_door = json_to_val(data)
+        displayInputDoor(input_door)
+
+    elif (msg.topic == '/print_lcd_output_door'):
+        #print("topic: ", msg.topic)
+        data = msg.payload.decode('utf-8').replace("'", '"')
+        output_door = json_to_val(data)
+        displayOutputDoor(output_door)
+
+    elif (msg.topic == '/print_lcd_safe_door'):
+        #print("topic: ", msg.topic)
+        data = msg.payload.decode('utf-8').replace("'", '"')
+        val_safe_door = json_to_val(data)
+        displaySafeDoor(val_safe_door)
+
+    elif (msg.topic == '/print_lcd_elapsed_time'):
+        #print("topic: ", msg.topic)
+        data = msg.payload.decode('utf-8').replace("'", '"')
+        elapsed_time = json_to_val(data)
+        elapsed_time = str(datetime.timedelta(seconds=elapsed_time))
+        displayElapsed(elapsed_time)
+
+    elif (msg.topic == '/set_solenoid'):
+        #print("topic: ", msg.topic)
+        data = msg.payload.decode('utf-8').replace("'", '"')
+        solenoid_val = json_to_val(data)
+        solenoid(Sol_val, solenoid_val)
+
+    elif (msg.topic == '/set_fan'):
+        #print("topic: ", msg.topic)
+        data = msg.payload.decode('utf-8').replace("'", '"')
+        fan_val = json_to_val(data)
+        fan(Cooling_motor, fan_val)
+
+    elif (msg.topic == '/set_heater'):
+        #print("topic: ", msg.topic)
+        data = msg.payload.decode('utf-8').replace("'", '"')
+        heat_val, heat_val2, heat_val3 = json_to_val(data)
+        heater(Heat_12, Heat_3, Heat_4, heat_val, heat_val2, heat_val3)
+
+    elif (msg.topic == '/set_stirrer'):
+        #print("topic: ", msg.topic)
+        data = msg.payload.decode('utf-8').replace("'", '"')
+        stirrer_val = json_to_val(data)
+        stirrer(Mix_motor, stirrer_val)
+
+    elif (msg.topic == '/set_buzzer'):
+        #print("topic: ", msg.topic)
+        buzzer_running = 1
+        data = msg.payload.decode('utf-8').replace("'", '"')
+        buzzer_val = json_to_val(data)
+        buzzer(Buzzer, buzzer_val)
+        buzzer_running = 0
+
+    elif (msg.topic == '/set_zero_point'):
+        #print("topic: ", msg.topic)
+        data = msg.payload.decode('utf-8').replace("'", '"')
+        set_ref_Unit, set_corr_val = json_to_val(data)
+        #print('set_zero_point - ',set_ref_Unit, ', ', set_corr_val)
+        set_ref_Unit = float(set_ref_Unit)
+        correlation_value = float(set_corr_val)
+        set_factor(set_ref_Unit)
 
 	else: 
 		#q.put_nowait(msg)
@@ -677,131 +806,131 @@ while True:
 		msg = q.get_nowait()
 		g_recv_topic = msg.topic
 		#print(g_recv_topic)
-		if (g_recv_topic == '/req_internal_temp'):
-			#print("topic: ", g_recv_topic)
-			temperature = get_temp()
-			dry_client.publish("/res_internal_temp", temperature)
-
-		elif (g_recv_topic == '/req_zero_point'):
-			#print("topic: ", g_recv_topic)
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			reference_weight = json.loads(data)
-			reference_weight = reference_weight['val']
-			#print ("reference_weight: ", reference_weight)
-			val = ref_weight(reference_weight)
-			dry_client.publish("/res_zero_point", val)
-
-		elif (g_recv_topic == '/req_calc_factor'):
-			#print("topic: ", g_recv_topic)
-			calc_referenceUnit = calc_ref_Unit(reference_weight, set_ref_Unit)
-			dry_client.publish("/res_calc_factor", calc_referenceUnit)
-
-		elif (g_recv_topic == '/req_weight'):
-			#print("topic: ", g_recv_topic)
-			weight = get_loadcell()
-			#print(weight)
-			dry_client.publish("/res_weight", weight)
-
-		elif (g_recv_topic == '/print_lcd_internal_temp'):
-			#print("topic: ", g_recv_topic)
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			top, bottom = json_to_val(data)
-			#print ('print_lcd: ', top, ' ', bottom)
-			displayTemp(top, bottom)
-
-		elif (g_recv_topic == '/print_lcd_state'):
-			#print("topic: ", g_recv_topic)
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			state = json_to_val(data)
-			displayState(state)
-			print('print_lcd_state')
-
-		elif (g_recv_topic == '/print_lcd_debug_message'):
-			#print("topic: ", g_recv_topic)
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			debug = json_to_val(data)
-			#print (debug)
-			displayMsg(debug)
-
-		elif (g_recv_topic == '/print_lcd_loadcell'):
-			#print("topic: ", g_recv_topic)
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			loadcell, target_loadcell = json_to_val(data)
-			loadcell = str(loadcell)
-			#print(loadcell, ' ', target_loadcell)
-			target_loadcell = str(target_loadcell)
-			#loadcell = (loadcell[2:(len(loadcell)-5)])
-			#target_loadcell = (target_loadcell[2:(len(target_loadcell)-5)])
-			displayLoadcell(loadcell, target_loadcell)
-
-		elif (g_recv_topic == '/print_lcd_loadcell_factor'):
-			#print("topic: ", g_recv_topic)
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			loadcell_factor, corr_val = json_to_val(data)
-			displayLoadcellFactor(loadcell_factor)
-
-		elif (g_recv_topic == '/print_lcd_input_door'):
-			#print("topic: ", g_recv_topic)
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			input_door = json_to_val(data)
-			displayInputDoor(input_door)
-
-		elif (g_recv_topic == '/print_lcd_output_door'):
-			#print("topic: ", g_recv_topic)
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			output_door = json_to_val(data)
-			displayOutputDoor(output_door)
-
-		elif (g_recv_topic == '/print_lcd_safe_door'):
-			#print("topic: ", g_recv_topic)
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			val_safe_door = json_to_val(data)
-			displaySafeDoor(val_safe_door)
-
-		elif (g_recv_topic == '/print_lcd_elapsed_time'):
-			#print("topic: ", g_recv_topic)
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			elapsed_time = json_to_val(data)
-			elapsed_time = str(datetime.timedelta(seconds=elapsed_time))
-			displayElapsed(elapsed_time)
-
-		elif (g_recv_topic == '/set_solenoid'):
-			#print("topic: ", g_recv_topic)
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			solenoid_val = json_to_val(data)
-			solenoid(Sol_val, solenoid_val)
-
-		elif (g_recv_topic == '/set_fan'):
-			#print("topic: ", g_recv_topic)
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			fan_val = json_to_val(data)
-			fan(Cooling_motor, fan_val)
-
-		elif (g_recv_topic == '/set_heater'):
-			#print("topic: ", g_recv_topic)
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			heat_val, heat_val2, heat_val3 = json_to_val(data)
-			heater(Heat_12, Heat_3, Heat_4, heat_val, heat_val2, heat_val3)
-
-		elif (g_recv_topic == '/set_stirrer'):
-			#print("topic: ", g_recv_topic)
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			stirrer_val = json_to_val(data)
-			stirrer(Mix_motor, stirrer_val)
-
-		elif (g_recv_topic == '/set_buzzer'):
-			#print("topic: ", g_recv_topic)
-			buzzer_running = 1
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			buzzer_val = json_to_val(data)
-			buzzer(Buzzer, buzzer_val)
-			buzzer_running = 0
-
-		elif (g_recv_topic == '/set_zero_point'):
-			#print("topic: ", g_recv_topic)
-			data = msg.payload.decode('utf-8').replace("'", '"')
-			set_ref_Unit, set_corr_val = json_to_val(data)
-			#print('set_zero_point - ',set_ref_Unit, ', ', set_corr_val)
-			set_ref_Unit = float(set_ref_Unit)
-			correlation_value = float(set_corr_val)
-			set_factor(set_ref_Unit)
+# 		if (g_recv_topic == '/req_internal_temp'):
+# 			#print("topic: ", g_recv_topic)
+# 			temperature = get_temp()
+# 			dry_client.publish("/res_internal_temp", temperature)
+#
+# 		elif (g_recv_topic == '/req_zero_point'):
+# 			#print("topic: ", g_recv_topic)
+# 			data = msg.payload.decode('utf-8').replace("'", '"')
+# 			reference_weight = json.loads(data)
+# 			reference_weight = reference_weight['val']
+# 			#print ("reference_weight: ", reference_weight)
+# 			val = ref_weight(reference_weight)
+# 			dry_client.publish("/res_zero_point", val)
+#
+# 		elif (g_recv_topic == '/req_calc_factor'):
+# 			#print("topic: ", g_recv_topic)
+# 			calc_referenceUnit = calc_ref_Unit(reference_weight, set_ref_Unit)
+# 			dry_client.publish("/res_calc_factor", calc_referenceUnit)
+#
+# 		elif (g_recv_topic == '/req_weight'):
+# 			#print("topic: ", g_recv_topic)
+# 			weight = get_loadcell()
+# 			#print(weight)
+# 			dry_client.publish("/res_weight", weight)
+#
+# 		elif (g_recv_topic == '/print_lcd_internal_temp'):
+# 			#print("topic: ", g_recv_topic)
+# 			data = msg.payload.decode('utf-8').replace("'", '"')
+# 			top, bottom = json_to_val(data)
+# 			#print ('print_lcd: ', top, ' ', bottom)
+# 			displayTemp(top, bottom)
+#
+# 		elif (g_recv_topic == '/print_lcd_state'):
+# 			#print("topic: ", g_recv_topic)
+# 			data = msg.payload.decode('utf-8').replace("'", '"')
+# 			state = json_to_val(data)
+# 			displayState(state)
+# 			print('print_lcd_state')
+#
+# 		elif (g_recv_topic == '/print_lcd_debug_message'):
+# 			#print("topic: ", g_recv_topic)
+# 			data = msg.payload.decode('utf-8').replace("'", '"')
+# 			debug = json_to_val(data)
+# 			#print (debug)
+# 			displayMsg(debug)
+#
+# 		elif (g_recv_topic == '/print_lcd_loadcell'):
+# 			#print("topic: ", g_recv_topic)
+# 			data = msg.payload.decode('utf-8').replace("'", '"')
+# 			loadcell, target_loadcell = json_to_val(data)
+# 			loadcell = str(loadcell)
+# 			#print(loadcell, ' ', target_loadcell)
+# 			target_loadcell = str(target_loadcell)
+# 			#loadcell = (loadcell[2:(len(loadcell)-5)])
+# 			#target_loadcell = (target_loadcell[2:(len(target_loadcell)-5)])
+# 			displayLoadcell(loadcell, target_loadcell)
+#
+# 		elif (g_recv_topic == '/print_lcd_loadcell_factor'):
+# 			#print("topic: ", g_recv_topic)
+# 			data = msg.payload.decode('utf-8').replace("'", '"')
+# 			loadcell_factor, corr_val = json_to_val(data)
+# 			displayLoadcellFactor(loadcell_factor)
+#
+# 		elif (g_recv_topic == '/print_lcd_input_door'):
+# 			#print("topic: ", g_recv_topic)
+# 			data = msg.payload.decode('utf-8').replace("'", '"')
+# 			input_door = json_to_val(data)
+# 			displayInputDoor(input_door)
+#
+# 		elif (g_recv_topic == '/print_lcd_output_door'):
+# 			#print("topic: ", g_recv_topic)
+# 			data = msg.payload.decode('utf-8').replace("'", '"')
+# 			output_door = json_to_val(data)
+# 			displayOutputDoor(output_door)
+#
+# 		elif (g_recv_topic == '/print_lcd_safe_door'):
+# 			#print("topic: ", g_recv_topic)
+# 			data = msg.payload.decode('utf-8').replace("'", '"')
+# 			val_safe_door = json_to_val(data)
+# 			displaySafeDoor(val_safe_door)
+#
+# 		elif (g_recv_topic == '/print_lcd_elapsed_time'):
+# 			#print("topic: ", g_recv_topic)
+# 			data = msg.payload.decode('utf-8').replace("'", '"')
+# 			elapsed_time = json_to_val(data)
+# 			elapsed_time = str(datetime.timedelta(seconds=elapsed_time))
+# 			displayElapsed(elapsed_time)
+#
+# 		elif (g_recv_topic == '/set_solenoid'):
+# 			#print("topic: ", g_recv_topic)
+# 			data = msg.payload.decode('utf-8').replace("'", '"')
+# 			solenoid_val = json_to_val(data)
+# 			solenoid(Sol_val, solenoid_val)
+#
+# 		elif (g_recv_topic == '/set_fan'):
+# 			#print("topic: ", g_recv_topic)
+# 			data = msg.payload.decode('utf-8').replace("'", '"')
+# 			fan_val = json_to_val(data)
+# 			fan(Cooling_motor, fan_val)
+#
+# 		elif (g_recv_topic == '/set_heater'):
+# 			#print("topic: ", g_recv_topic)
+# 			data = msg.payload.decode('utf-8').replace("'", '"')
+# 			heat_val, heat_val2, heat_val3 = json_to_val(data)
+# 			heater(Heat_12, Heat_3, Heat_4, heat_val, heat_val2, heat_val3)
+#
+# 		elif (g_recv_topic == '/set_stirrer'):
+# 			#print("topic: ", g_recv_topic)
+# 			data = msg.payload.decode('utf-8').replace("'", '"')
+# 			stirrer_val = json_to_val(data)
+# 			stirrer(Mix_motor, stirrer_val)
+#
+# 		elif (g_recv_topic == '/set_buzzer'):
+# 			#print("topic: ", g_recv_topic)
+# 			buzzer_running = 1
+# 			data = msg.payload.decode('utf-8').replace("'", '"')
+# 			buzzer_val = json_to_val(data)
+# 			buzzer(Buzzer, buzzer_val)
+# 			buzzer_running = 0
+#
+# 		elif (g_recv_topic == '/set_zero_point'):
+# 			#print("topic: ", g_recv_topic)
+# 			data = msg.payload.decode('utf-8').replace("'", '"')
+# 			set_ref_Unit, set_corr_val = json_to_val(data)
+# 			#print('set_zero_point - ',set_ref_Unit, ', ', set_corr_val)
+# 			set_ref_Unit = float(set_ref_Unit)
+# 			correlation_value = float(set_corr_val)
+# 			set_factor(set_ref_Unit)
