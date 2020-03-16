@@ -458,28 +458,28 @@ def func_set_q(msg):
 #         displayElapsed(elapsed_time)
 
 	elif (msg.topic == '/set_solenoid'):
-        #print("topic: ", msg.topic)
-        data = msg.payload.decode('utf-8').replace("'", '"')
-        solenoid_val = json_to_val(data)
-        solenoid(Sol_val, solenoid_val)
+		#print("topic: ", msg.topic)
+		data = msg.payload.decode('utf-8').replace("'", '"')
+		solenoid_val = json_to_val(data)
+		solenoid(Sol_val, solenoid_val)
 
-    elif (msg.topic == '/set_fan'):
-        #print("topic: ", msg.topic)
-        data = msg.payload.decode('utf-8').replace("'", '"')
-        fan_val = json_to_val(data)
-        fan(Cooling_motor, fan_val)
+	elif (msg.topic == '/set_fan'):
+		#print("topic: ", msg.topic)
+		data = msg.payload.decode('utf-8').replace("'", '"')
+		fan_val = json_to_val(data)
+		fan(Cooling_motor, fan_val)
 
-    elif (msg.topic == '/set_heater'):
-        #print("topic: ", msg.topic)
-        data = msg.payload.decode('utf-8').replace("'", '"')
-        heat_val, heat_val2, heat_val3 = json_to_val(data)
-        heater(Heat_12, Heat_3, Heat_4, heat_val, heat_val2, heat_val3)
+	elif (msg.topic == '/set_heater'):
+		#print("topic: ", msg.topic)
+		data = msg.payload.decode('utf-8').replace("'", '"')
+		heat_val, heat_val2, heat_val3 = json_to_val(data)
+		heater(Heat_12, Heat_3, Heat_4, heat_val, heat_val2, heat_val3)
 
-    elif (msg.topic == '/set_stirrer'):
-        #print("topic: ", msg.topic)
-        data = msg.payload.decode('utf-8').replace("'", '"')
-        stirrer_val = json_to_val(data)
-        stirrer(Mix_motor, stirrer_val)
+	elif (msg.topic == '/set_stirrer'):
+		#print("topic: ", msg.topic)
+		data = msg.payload.decode('utf-8').replace("'", '"')
+		stirrer_val = json_to_val(data)
+		stirrer(Mix_motor, stirrer_val)
 
 #     elif (msg.topic == '/set_buzzer'):
 #         #print("topic: ", msg.topic)
