@@ -892,7 +892,7 @@ function req_weight() {
         }
 
         clearTimeout(weight_timer);
-        weight_timer = setTimeout(req_weight, 3000);
+        weight_timer = setTimeout(req_weight, 5000);
     }
     else {
         clearTimeout(weight_timer);
@@ -977,7 +977,7 @@ function res_internal_temp(val, val2) {
     }
 
     clearTimeout(internal_temp_timer);
-    internal_temp_timer = setTimeout(req_internal_temp, 900 + parseInt(Math.random() * 100));
+    internal_temp_timer = setTimeout(req_internal_temp, 2000 + parseInt(Math.random() * 100));
 }
 
 var input_door_close_count = 0;
@@ -1104,7 +1104,7 @@ function res_weight(val) {
     }
 
     clearTimeout(weight_timer);
-    weight_timer = setTimeout(req_weight, 900 + parseInt(Math.random() * 100));
+    weight_timer = setTimeout(req_weight, 2000 + parseInt(Math.random() * 100));
 }
 
 var operation_press_count = 0;
