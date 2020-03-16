@@ -712,6 +712,7 @@ while True:
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			state = json_to_val(data)
 			displayState(state)
+			print('print_lcd_state')
 			
 		elif (g_recv_topic == '/print_lcd_debug_message'):
 			#print("topic: ", g_recv_topic)
