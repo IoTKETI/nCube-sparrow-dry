@@ -823,9 +823,9 @@ flag = 0
 
 def mqtt_dequeue():
 	while True:
-		if not q.empty():
-			try:
-				recv_msg = q.get(False)
+# 		if not q.empty():
+# 			try:
+				recv_msg = q.get()
 				g_recv_topic = recv_msg.topic
 				print(g_recv_topic)
 
@@ -958,9 +958,9 @@ def mqtt_dequeue():
 					set_ref_Unit = float(set_ref_Unit)
 					correlation_value = float(set_corr_val)
 					set_factor(set_ref_Unit)
-			except Empty:
-				continue
-			q.task_done()
+# 			except Empty:
+# 				continue
+# 			q.task_done()
 
 def core_func():
 	period = 1000
