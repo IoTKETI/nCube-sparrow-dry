@@ -827,6 +827,7 @@ def mqtt_dequeue():
 			try:
 				recv_msg = q.get(False)
 				g_recv_topic = recv_msg.topic
+				print(g_recv_topic)
 
 				if (g_recv_topic == '/req_internal_temp'):
 					#print("topic: ", g_recv_topic)
@@ -966,6 +967,7 @@ def core_func():
 	while_count = 0
 	while True:
 		while_count = while_count + 1
+		print(while_count)
 		if ((while_count % period) == 0):
 			deb = debug_mode(Debug_switch_pin)
 			dry_client.publish("/res_debug_mode", deb)
