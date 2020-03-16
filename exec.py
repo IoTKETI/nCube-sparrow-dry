@@ -1022,14 +1022,12 @@ from multiprocessing import Process
 def main():
 	p1 = Process(target=mqtt_dequeue)
 	p1.start()
-	p1.join()
 
 	p2 = Process(target=core_func)
 	p2.start()
-	p2.join()
 
-	while True:
-		a = 1
+	p1.join()
+	p2.join()
 
 if __name__ == "__main__":
 	main()
