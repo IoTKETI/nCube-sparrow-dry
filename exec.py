@@ -963,55 +963,59 @@ def mqtt_dequeue():
 t1 = threading.Thread(target=mqtt_dequeue)
 t1.start()
 
-period = 10000
-while_count = 0
-while True:
-	while_count = while_count + 1
-	if ((while_count % period) == 0):
-		deb = debug_mode(Debug_switch_pin)
-		dry_client.publish("/res_debug_mode", deb)
+def core_func():
+	period = 10000
+	while_count = 0
+	while True:
+		while_count = while_count + 1
+		if ((while_count % period) == 0):
+			deb = debug_mode(Debug_switch_pin)
+			dry_client.publish("/res_debug_mode", deb)
 
-	if ((while_count % period) == 0):
-		#print("topic: ", msg.topic)
-		sw4_json = start_btn(SW4_pin)
-		dry_client.publish("/res_start_btn", sw4_json)
+		if ((while_count % period) == 0):
+			#print("topic: ", msg.topic)
+			sw4_json = start_btn(SW4_pin)
+			dry_client.publish("/res_start_btn", sw4_json)
 
-	if ((while_count % period) == 0):
-		#print("topic: ", msg.topic)
-		json_input_door = get_input_door(Input_Door_pin)
-		#print('input door: ', json_input_door)
-		dry_client.publish("/res_input_door", json_input_door)
+		if ((while_count % period) == 0):
+			#print("topic: ", msg.topic)
+			json_input_door = get_input_door(Input_Door_pin)
+			#print('input door: ', json_input_door)
+			dry_client.publish("/res_input_door", json_input_door)
 
-	if ((while_count % period) == 0):
-		#print("topic: ", msg.topic)
-		json_output_door = get_output_door(Output_Door_pin)
-		#print("output door: ", json_output_door)
-		dry_client.publish("/res_output_door", json_output_door)
+		if ((while_count % period) == 0):
+			#print("topic: ", msg.topic)
+			json_output_door = get_output_door(Output_Door_pin)
+			#print("output door: ", json_output_door)
+			dry_client.publish("/res_output_door", json_output_door)
 
-	if ((while_count % period) == 0):
-		#print("topic: ", msg.topic)
-		json_safe_door = get_safe_door(Safe_Door_pin)
-		#print("safe door: ", json_safe_door)
-		dry_client.publish("/res_safe_door", json_safe_door)
+		if ((while_count % period) == 0):
+			#print("topic: ", msg.topic)
+			json_safe_door = get_safe_door(Safe_Door_pin)
+			#print("safe door: ", json_safe_door)
+			dry_client.publish("/res_safe_door", json_safe_door)
 
-	if ((while_count % period) == 0):
-		#print("topic: ", msg.topic)
-		json_operation_mode = Operation(Select_SW)
-		#print("operation: ", json_operation_mode)
-		dry_client.publish("/res_operation_mode", json_operation_mode)
+		if ((while_count % period) == 0):
+			#print("topic: ", msg.topic)
+			json_operation_mode = Operation(Select_SW)
+			#print("operation: ", json_operation_mode)
+			dry_client.publish("/res_operation_mode", json_operation_mode)
 
-# 	if (g_print_lcd_output_door_topic == '/print_lcd_output_door'):
-# 		output_door = json_to_val(g_print_lcd_output_door_msg)
-# 		displayOutputDoor(output_door)
-# 		print('print_lcd_output_door')
-# 		g_print_lcd_output_door_topic = ''
-#
-# 	elif (g_print_lcd_safe_door_topic == '/print_lcd_safe_door'):
-# 		val_safe_door = json_to_val(g_print_lcd_safe_door_msg)
-# 		displaySafeDoor(val_safe_door)
-# 		print('print_lcd_safe_door')
-# 		g_print_lcd_safe_door_topic = ''
+	# 	if (g_print_lcd_output_door_topic == '/print_lcd_output_door'):
+	# 		output_door = json_to_val(g_print_lcd_output_door_msg)
+	# 		displayOutputDoor(output_door)
+	# 		print('print_lcd_output_door')
+	# 		g_print_lcd_output_door_topic = ''
+	#
+	# 	elif (g_print_lcd_safe_door_topic == '/print_lcd_safe_door'):
+	# 		val_safe_door = json_to_val(g_print_lcd_safe_door_msg)
+	# 		displaySafeDoor(val_safe_door)
+	# 		print('print_lcd_safe_door')
+	# 		g_print_lcd_safe_door_topic = ''
 
-	#g_lcd.backlight = True
+		#g_lcd.backlight = True
 
+
+t2 = threading.Thread(target=core_func)
+t2.start()
 
