@@ -973,5 +973,5 @@ while True:
 			set_ref_Unit = float(set_ref_Unit)
 			correlation_value = float(set_corr_val)
 			set_factor(set_ref_Unit)
-	except q.Empty:
+	except queue.Empty:
 		pass
