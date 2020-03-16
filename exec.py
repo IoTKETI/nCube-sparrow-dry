@@ -607,7 +607,7 @@ broker_address = "localhost"
 port = 1883
 
 global g_lcd
-# g_lcd = lcd_init()
+g_lcd = lcd_init()
 
 dry_client = mqtt.Client()
 dry_client.on_connect = on_connect
@@ -616,15 +616,15 @@ dry_client.on_subscribe = on_subscribe
 dry_client.on_message = on_message
 dry_client.connect(broker_address, port)
 
-# dry_client.subscribe("/print_lcd_internal_temp")
-# dry_client.subscribe("/print_lcd_state")
-# dry_client.subscribe("/print_lcd_debug_message")
-# dry_client.subscribe("/print_lcd_loadcell")
-# dry_client.subscribe("/print_lcd_loadcell_factor")
-# dry_client.subscribe("/print_lcd_elapsed_time")
-# dry_client.subscribe("/print_lcd_input_door")
-# dry_client.subscribe("/print_lcd_output_door")
-# dry_client.subscribe("/print_lcd_safe_door")
+dry_client.subscribe("/print_lcd_internal_temp")
+dry_client.subscribe("/print_lcd_state")
+dry_client.subscribe("/print_lcd_debug_message")
+dry_client.subscribe("/print_lcd_loadcell")
+dry_client.subscribe("/print_lcd_loadcell_factor")
+dry_client.subscribe("/print_lcd_elapsed_time")
+dry_client.subscribe("/print_lcd_input_door")
+dry_client.subscribe("/print_lcd_output_door")
+dry_client.subscribe("/print_lcd_safe_door")
 dry_client.subscribe("/req_zero_point")
 dry_client.subscribe("/req_internal_temp")
 dry_client.subscribe("/req_debug_mode")
@@ -700,67 +700,67 @@ while True:
 			#print(weight)
 			dry_client.publish("/res_weight", weight)
 
-		# elif (g_recv_topic == '/print_lcd_internal_temp'):
-		# 	#print("topic: ", g_recv_topic)
-		# 	data = msg.payload.decode('utf-8').replace("'", '"')
-		# 	top, bottom = json_to_val(data)
-		# 	#print ('print_lcd: ', top, ' ', bottom)
-		# 	displayTemp(top, bottom)
+		elif (g_recv_topic == '/print_lcd_internal_temp'):
+			#print("topic: ", g_recv_topic)
+			data = msg.payload.decode('utf-8').replace("'", '"')
+			top, bottom = json_to_val(data)
+			#print ('print_lcd: ', top, ' ', bottom)
+			displayTemp(top, bottom)
 			
-		# elif (g_recv_topic == '/print_lcd_state'):
-		# 	#print("topic: ", g_recv_topic)
-		# 	data = msg.payload.decode('utf-8').replace("'", '"')
-		# 	state = json_to_val(data)
-		# 	displayState(state)
+		elif (g_recv_topic == '/print_lcd_state'):
+			#print("topic: ", g_recv_topic)
+			data = msg.payload.decode('utf-8').replace("'", '"')
+			state = json_to_val(data)
+			displayState(state)
 			
-		# elif (g_recv_topic == '/print_lcd_debug_message'):
-		# 	#print("topic: ", g_recv_topic)
-		# 	data = msg.payload.decode('utf-8').replace("'", '"')
-		# 	debug = json_to_val(data)
-		# 	#print (debug)
-		# 	displayMsg(debug)
+		elif (g_recv_topic == '/print_lcd_debug_message'):
+			#print("topic: ", g_recv_topic)
+			data = msg.payload.decode('utf-8').replace("'", '"')
+			debug = json_to_val(data)
+			#print (debug)
+			displayMsg(debug)
 					
-		# elif (g_recv_topic == '/print_lcd_loadcell'):
-		# 	#print("topic: ", g_recv_topic)
-		# 	data = msg.payload.decode('utf-8').replace("'", '"')
-		# 	loadcell, target_loadcell = json_to_val(data)
-		# 	loadcell = str(loadcell)
-		# 	#print(loadcell, ' ', target_loadcell)
-		# 	target_loadcell = str(target_loadcell)
-		# 	#loadcell = (loadcell[2:(len(loadcell)-5)])
-		# 	#target_loadcell = (target_loadcell[2:(len(target_loadcell)-5)])
-		# 	displayLoadcell(loadcell, target_loadcell)
+		elif (g_recv_topic == '/print_lcd_loadcell'):
+			#print("topic: ", g_recv_topic)
+			data = msg.payload.decode('utf-8').replace("'", '"')
+			loadcell, target_loadcell = json_to_val(data)
+			loadcell = str(loadcell)
+			#print(loadcell, ' ', target_loadcell)
+			target_loadcell = str(target_loadcell)
+			#loadcell = (loadcell[2:(len(loadcell)-5)])
+			#target_loadcell = (target_loadcell[2:(len(target_loadcell)-5)])
+			displayLoadcell(loadcell, target_loadcell)
 
-		# elif (g_recv_topic == '/print_lcd_loadcell_factor'):
-		# 	#print("topic: ", g_recv_topic)
-		# 	data = msg.payload.decode('utf-8').replace("'", '"')
-		# 	loadcell_factor, corr_val = json_to_val(data)
-		# 	displayLoadcellFactor(loadcell_factor)
+		elif (g_recv_topic == '/print_lcd_loadcell_factor'):
+			#print("topic: ", g_recv_topic)
+			data = msg.payload.decode('utf-8').replace("'", '"')
+			loadcell_factor, corr_val = json_to_val(data)
+			displayLoadcellFactor(loadcell_factor)
 		
-		# elif (g_recv_topic == '/print_lcd_input_door'):
-		# 	#print("topic: ", g_recv_topic)
-		# 	data = msg.payload.decode('utf-8').replace("'", '"')
-		# 	input_door = json_to_val(data)
-		# 	displayInputDoor(input_door)
+		elif (g_recv_topic == '/print_lcd_input_door'):
+			#print("topic: ", g_recv_topic)
+			data = msg.payload.decode('utf-8').replace("'", '"')
+			input_door = json_to_val(data)
+			displayInputDoor(input_door)
 			
-		# elif (g_recv_topic == '/print_lcd_output_door'):
-		# 	#print("topic: ", g_recv_topic)
-		# 	data = msg.payload.decode('utf-8').replace("'", '"')
-		# 	output_door = json_to_val(data)
-		# 	displayOutputDoor(output_door)
+		elif (g_recv_topic == '/print_lcd_output_door'):
+			#print("topic: ", g_recv_topic)
+			data = msg.payload.decode('utf-8').replace("'", '"')
+			output_door = json_to_val(data)
+			displayOutputDoor(output_door)
 			
-		# elif (g_recv_topic == '/print_lcd_safe_door'):
-		# 	#print("topic: ", g_recv_topic)
-		# 	data = msg.payload.decode('utf-8').replace("'", '"')
-		# 	val_safe_door = json_to_val(data)
-		# 	displaySafeDoor(val_safe_door)
+		elif (g_recv_topic == '/print_lcd_safe_door'):
+			#print("topic: ", g_recv_topic)
+			data = msg.payload.decode('utf-8').replace("'", '"')
+			val_safe_door = json_to_val(data)
+			displaySafeDoor(val_safe_door)
 			
-		# elif (g_recv_topic == '/print_lcd_elapsed_time'):
-		# 	#print("topic: ", g_recv_topic)
-		# 	data = msg.payload.decode('utf-8').replace("'", '"')
-		# 	elapsed_time = json_to_val(data)
-		# 	elapsed_time = str(datetime.timedelta(seconds=elapsed_time))
-		# 	displayElapsed(elapsed_time)
+		elif (g_recv_topic == '/print_lcd_elapsed_time'):
+			#print("topic: ", g_recv_topic)
+			data = msg.payload.decode('utf-8').replace("'", '"')
+			elapsed_time = json_to_val(data)
+			elapsed_time = str(datetime.timedelta(seconds=elapsed_time))
+			displayElapsed(elapsed_time)
 						
 		elif (g_recv_topic == '/set_solenoid'):
 			#print("topic: ", g_recv_topic)
