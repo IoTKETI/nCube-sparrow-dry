@@ -56,11 +56,11 @@ def get_address():
     
 global g_lcd
 g_lcd = lcd_init()
+g_lcd.clear()
 
 msg1 = 'Start Food Dryer'
 displayMsg(msg1, 0, 1)
 
 ip = get_address()
 msg2 = 'IP: {}'.format(ip)
-print(msg2)
 displayMsg(msg2, 0, 2)
