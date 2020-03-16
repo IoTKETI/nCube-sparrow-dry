@@ -917,6 +917,7 @@ while True:
 			data = msg.payload.decode('utf-8').replace("'", '"')
 			output_door = json_to_val(data)
 			displayOutputDoor(output_door)
+			print('print_lcd_output_door')
 
 		elif (g_recv_topic == '/print_lcd_safe_door'):
 			#print("topic: ", g_recv_topic)
