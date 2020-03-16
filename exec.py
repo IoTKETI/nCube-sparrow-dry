@@ -821,9 +821,8 @@ set_ref_Unit = 1
 weight_arr = [0, 0, 0, 0, 0]
 flag = 0
 
-def mqtt_dequeue():
+def mqtt_dequeue(q):
 	while True:
-		print('0')
 		if not q.empty():
 			try:
 				recv_msg = q.get(False)
@@ -964,7 +963,7 @@ def mqtt_dequeue():
 				continue
 			q.task_done()
 
-def core_func():
+def core_func(q):
 	period = 10000
 	while_count = 0
 	while True:
@@ -1021,10 +1020,10 @@ def core_func():
 from multiprocessing import Process
 
 def main():
-	p1 = Process(target=mqtt_dequeue)
+	p1 = Process(target=mqtt_dequeue, args=(q,))
 	p1.start()
 
-	p2 = Process(target=core_func)
+	p2 = Process(target=core_func, args=(q,))
 	p2.start()
 
 	p1.join()
