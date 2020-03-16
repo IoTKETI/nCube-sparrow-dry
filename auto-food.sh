@@ -10,5 +10,5 @@ git pull
 sleep 5
 git stash pop
 python3 exec.py &
-sleep 3
+sleep 2
 pm2 start thyme.js
