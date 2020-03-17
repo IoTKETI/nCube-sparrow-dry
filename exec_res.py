@@ -389,42 +389,43 @@ def mqtt_dequeue():
 def core_func():
 	period = 10000
 	while_count = 0
-	while_count = while_count + 1
-	#print(while_count)
-	if ((while_count % period) == 0):
-		deb = debug_mode(Debug_switch_pin)
-		dry_client.publish("/res_debug_mode", deb)
+	while True:
+		while_count = while_count + 1
+		#print(while_count)
+		if ((while_count % period) == 0):
+			deb = debug_mode(Debug_switch_pin)
+			dry_client.publish("/res_debug_mode", deb)
 
-	if ((while_count % period) == 0):
-		#print("topic: ", msg.topic)
-		sw4_json = start_btn(SW4_pin)
-		dry_client.publish("/res_start_btn", sw4_json)
+		if ((while_count % period) == 0):
+			#print("topic: ", msg.topic)
+			sw4_json = start_btn(SW4_pin)
+			dry_client.publish("/res_start_btn", sw4_json)
 
-	if ((while_count % period) == 0):
-		#print("topic: ", msg.topic)
-		json_input_door = get_input_door(Input_Door_pin)
-		#print('input door: ', json_input_door)
-		dry_client.publish("/res_input_door", json_input_door)
+		if ((while_count % period) == 0):
+			#print("topic: ", msg.topic)
+			json_input_door = get_input_door(Input_Door_pin)
+			#print('input door: ', json_input_door)
+			dry_client.publish("/res_input_door", json_input_door)
 
-	if ((while_count % period) == 0):
-		#print("topic: ", msg.topic)
-		json_output_door = get_output_door(Output_Door_pin)
-		#print("output door: ", json_output_door)
-		dry_client.publish("/res_output_door", json_output_door)
+		if ((while_count % period) == 0):
+			#print("topic: ", msg.topic)
+			json_output_door = get_output_door(Output_Door_pin)
+			#print("output door: ", json_output_door)
+			dry_client.publish("/res_output_door", json_output_door)
 
-	if ((while_count % period) == 0):
-		#print("topic: ", msg.topic)
-		json_safe_door = get_safe_door(Safe_Door_pin)
-		#print("safe door: ", json_safe_door)
-		dry_client.publish("/res_safe_door", json_safe_door)
+		if ((while_count % period) == 0):
+			#print("topic: ", msg.topic)
+			json_safe_door = get_safe_door(Safe_Door_pin)
+			#print("safe door: ", json_safe_door)
+			dry_client.publish("/res_safe_door", json_safe_door)
 
-	if ((while_count % period) == 0):
-		#print("topic: ", msg.topic)
-		json_operation_mode = Operation(Select_SW)
-		#print("operation: ", json_operation_mode)
-		dry_client.publish("/res_operation_mode", json_operation_mode)
-	
-	mqtt_dequeue()
+		if ((while_count % period) == 0):
+			#print("topic: ", msg.topic)
+			json_operation_mode = Operation(Select_SW)
+			#print("operation: ", json_operation_mode)
+			dry_client.publish("/res_operation_mode", json_operation_mode)
+		
+		mqtt_dequeue()
 
 if __name__ == "__main__":
 	core_func()

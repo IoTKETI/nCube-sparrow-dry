@@ -170,9 +170,10 @@ def mqtt_dequeue():
 def core_func():
 	period = 10000
 	while_count = 0
-	while_count = while_count + 1
+	while True:
+		while_count = while_count + 1
 
-	mqtt_dequeue()
+		mqtt_dequeue()
 
 if __name__ == "__main__":
 	core_func()
