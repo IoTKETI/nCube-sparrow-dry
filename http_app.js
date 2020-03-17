@@ -1301,7 +1301,7 @@ function core_watchdog() {
         }
 
         core_delay_count++;
-        if(core_delay_count > 40) {
+        if(core_delay_count > 10) {
             core_delay_count = 0;
         }
 
@@ -1450,7 +1450,7 @@ function core_watchdog() {
         }
 
         core_delay_count++;
-        if(core_delay_count > 40) {
+        if(core_delay_count > 10) {
             core_delay_count = 0;
         }
 
@@ -1736,7 +1736,7 @@ function core_watchdog() {
                         }
                 
                         core_delay_count++;
-                        if(core_delay_count > 40) {
+                        if(core_delay_count > 10) {
                             core_delay_count = 0;
                         }
                     }
@@ -1748,7 +1748,7 @@ function core_watchdog() {
                         }
                 
                         core_delay_count++;
-                        if(core_delay_count > 40) {
+                        if(core_delay_count > 10) {
                             core_delay_count = 0;
                         }
                     }
@@ -1760,7 +1760,7 @@ function core_watchdog() {
                         }
                 
                         core_delay_count++;
-                        if(core_delay_count > 40) {
+                        if(core_delay_count > 10) {
                             core_delay_count = 0;
                         }
                     }
@@ -1772,7 +1772,7 @@ function core_watchdog() {
                     }
             
                     core_delay_count++;
-                    if(core_delay_count > 40) {
+                    if(core_delay_count > 10) {
                         core_delay_count = 0;
                     }
                 }
