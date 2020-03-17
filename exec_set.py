@@ -116,19 +116,19 @@ def func_set_q(f_msg):
 		#print("topic: ", f_msg.topic)
 		data = f_msg.payload.decode('utf-8').replace("'", '"')
 		fan_val = json_to_val(data)
-		fan(Cooling_motor, fan_val)
+		fan(fan_val)
 
 	elif (f_msg.topic == '/set_heater'):
 		#print("topic: ", f_msg.topic)
 		data = f_msg.payload.decode('utf-8').replace("'", '"')
 		heat_val, heat_val2, heat_val3 = json_to_val(data)
-		heater(Heat_12, Heat_3, Heat_4, heat_val, heat_val2, heat_val3)
+		heater(heat_val, heat_val2, heat_val3)
 
 	elif (f_msg.topic == '/set_stirrer'):
 		#print("topic: ", f_msg.topic)
 		data = f_msg.payload.decode('utf-8').replace("'", '"')
 		stirrer_val = json_to_val(data)
-		stirrer(Mix_motor, stirrer_val)
+		stirrer(stirrer_val)
 
 	else: 
 		q.put_nowait(f_msg)
@@ -172,7 +172,7 @@ def mqtt_dequeue():
 				buzzer_running = 1
 				data = recv_msg.payload.decode('utf-8').replace("'", '"')
 				buzzer_val = json_to_val(data)
-				buzzer(Buzzer, buzzer_val)
+				buzzer(buzzer_val)
 				buzzer_running = 0
 
 		except queue.Empty:
