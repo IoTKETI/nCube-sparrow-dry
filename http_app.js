@@ -1285,7 +1285,7 @@ setTimeout(core_watchdog, 2000);
 
 var input_mode_delay_count = 0;
 var contents_delay_count = 0;
-
+var core_delay_count = 0;
 
 function core_watchdog() {
     //console.log(dry_data_block.debug_mode);
@@ -1295,8 +1295,15 @@ function core_watchdog() {
         pre_output_door = -1;
         pre_safe_door = -1;
 
-        set_heater(0, 0, 0);
-        set_stirrer(0);
+        if(core_delay_count == 0) {
+            set_heater(0, 0, 0);
+            set_stirrer(0);
+        }
+
+        core_delay_count++;
+        if(core_delay_count > 40) {
+            core_delay_count = 0;
+        }
 
         if(dryer_event & EVENT_START_BTN_CLICK) {
             dryer_event &= ~EVENT_START_BTN_CLICK;
@@ -1393,6 +1400,7 @@ function core_watchdog() {
                         print_lcd_state();
 
                         dry_data_block.elapsed_time = 0;
+                        core_delay_count = 0;
 
                         if (dry_data_block.cum_weight > dry_data_block.cum_ref_weight) {
                             dry_data_block.debug_message = 'Replace the catalyst';
@@ -1436,8 +1444,15 @@ function core_watchdog() {
     }
 
     else if(dry_data_block.state == 'INPUT') {
-        set_heater(0, 0, 0);
-        set_stirrer(0);
+        if(core_delay_count == 0) {
+            set_heater(0, 0, 0);
+            set_stirrer(0);
+        }
+
+        core_delay_count++;
+        if(core_delay_count > 40) {
+            core_delay_count = 0;
+        }
 
         if(dryer_event & EVENT_START_BTN_CLICK) {
             dryer_event &= ~EVENT_START_BTN_CLICK;
@@ -1461,6 +1476,8 @@ function core_watchdog() {
                             pre_state = '';
                             print_lcd_state();
                             console.log('->' + dry_data_block.state);
+
+                            core_delay_count = 0;
 
                             dry_data_block.my_sortie_name = moment().utc().format('YYYY_MM_DD_T_HH');
                             send_to_Mobius(my_cnt_name, dry_data_block);
@@ -1638,6 +1655,8 @@ function core_watchdog() {
             pre_state = '';
             print_lcd_state();
 
+            core_delay_count = 0;
+
             set_heater(0, 0, 0);
             set_stirrer(0);
 
@@ -1699,6 +1718,7 @@ function core_watchdog() {
 
                         input_mode_delay_count = 0;
                         contents_delay_count = 0;
+                        core_delay_count = 0;
 
                         set_heater(0, 0, 0);
                         set_stirrer(0);
@@ -1710,23 +1730,51 @@ function core_watchdog() {
                     }
                     else if (parseFloat(dry_data_block.cur_weight) <= parseFloat(dry_data_block.tar_weight2)) {
                         //console.log('heater1 ' + dry_data_block.cur_weight + ' ' + dry_data_block.tar_weight1 + ' ' + dry_data_block.tar_weight2 + ' ' + dry_data_block.tar_weight3);
-                        set_heater(1, 0, 0);
-                        set_stirrer(1);
+                        if(core_delay_count == 0) {
+                            set_heater(1, 0, 0);
+                            set_stirrer(1);
+                        }
+                
+                        core_delay_count++;
+                        if(core_delay_count > 40) {
+                            core_delay_count = 0;
+                        }
                     }
                     else if (parseFloat(dry_data_block.cur_weight) <= parseFloat(dry_data_block.tar_weight1)) {
                         //console.log('heater2 ' + dry_data_block.cur_weight + ' ' + dry_data_block.tar_weight1 + ' ' + dry_data_block.tar_weight2 + ' ' + dry_data_block.tar_weight3);
-                        set_heater(1, 1, 0);
-                        set_stirrer(1);
+                        if(core_delay_count == 0) {
+                            set_heater(1, 1, 0);
+                            set_stirrer(1);    
+                        }
+                
+                        core_delay_count++;
+                        if(core_delay_count > 40) {
+                            core_delay_count = 0;
+                        }
                     }
                     else {
                         //console.log('heater3 ' + dry_data_block.cur_weight + ' ' + dry_data_block.tar_weight1 + ' ' + dry_data_block.tar_weight2 + ' ' + dry_data_block.tar_weight3);
-                        set_heater(1, 1, 1);
-                        set_stirrer(1);
+                        if(core_delay_count == 0) {
+                            set_heater(1, 1, 1);
+                            set_stirrer(1);  
+                        }
+                
+                        core_delay_count++;
+                        if(core_delay_count > 40) {
+                            core_delay_count = 0;
+                        }
                     }
                 }
                 else {
-                    set_heater(0, 0, 0);
-                    set_stirrer(1);
+                    if(core_delay_count == 0) {
+                        set_heater(0, 0, 0);
+                        set_stirrer(1);
+                    }
+            
+                    core_delay_count++;
+                    if(core_delay_count > 40) {
+                        core_delay_count = 0;
+                    }
                 }
             }
         }
