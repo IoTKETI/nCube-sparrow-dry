@@ -340,9 +340,10 @@ global set_ref_Unit
 set_ref_Unit = 1
 weight_arr = [0, 0, 0, 0, 0]
 flag = 0
-global req_zero_reference_weight
 
 def mqtt_dequeue():
+	global req_zero_reference_weight
+	
 	if not q.empty():
 		try:
 			recv_msg = q.get(False)
