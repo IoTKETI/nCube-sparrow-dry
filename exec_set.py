@@ -58,7 +58,7 @@ def solenoid(val):
 #---Buzzer--------------------------------------------------------------
 def buzzer(val):
 	#Serial_Feather(pin=Buzzer, val=val)
-	buzzer_msg = (':' + 'BZ' + '/' + str(val + ';')).encode()
+	buzzer_msg = (':' + 'BZ' + '/' + str(val) + ';').encode()
 	ser.write(buzzer_msg)
 
 #---Parse Data----------------------------------------------------------
