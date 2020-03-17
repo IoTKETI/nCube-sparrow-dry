@@ -1225,6 +1225,7 @@ function always_watchdog() {
         // 솔레노이드밸브 오프
 
         always_tick = 0;
+        toggle_command = 1;
         set_solenoid(0);
     }
     else if(parseFloat(dry_data_block.internal_temp) > 30.0) {
