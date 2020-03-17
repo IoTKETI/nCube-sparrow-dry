@@ -1199,7 +1199,7 @@ function res_start_btn(val) {
 ///////////////////////////////////////////////////////////////////////////////
 
 var always_tick = 0;
-var toggle_command = 0;
+var toggle_command = 1;
 setTimeout(always_watchdog, first_interval);
 
 function always_watchdog() {
