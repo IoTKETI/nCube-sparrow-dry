@@ -113,7 +113,7 @@ def func_set_q(f_msg):
 		solenoid(solenoid_val)
 
 	elif (f_msg.topic == '/set_fan'):
-		print("topic: ", f_msg.topic)
+		#print("topic: ", f_msg.topic)
 		data = f_msg.payload.decode('utf-8').replace("'", '"')
 		fan_val = json_to_val(data)
 		fan(fan_val)
@@ -157,7 +157,6 @@ dry_client.subscribe("/set_stirrer")
 dry_client.subscribe("/set_buzzer")
 
 dry_client.loop_start()
-
 
 
 def mqtt_dequeue():
