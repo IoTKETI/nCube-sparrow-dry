@@ -15,38 +15,47 @@ Cooling_motor = 9 # Digital_Output_14
 Sol_val = 6 # Digital_Output_15
 Buzzer = 5
 
-#---Serial Communication with Arduino-----------------------------------
-def Serial_Feather(pin=None, pin2=None, pin3=None, val=None, val2=None, val3=None):
-	if (pin != None and pin2 == None and pin3 == None):
-		ser_msg = ('<' + str(pin) + ',' + str(val) + '>\n').encode()
-		#print(ser_msg)
-		ser.write(ser_msg)
-	elif (pin != None and pin2 != None and pin3 != None):
-		ser_msg = ('<' + str(pin) + ',' + str(val) + '/' + str(pin2) + ',' + str(val2) + '/' + str(pin3) + ',' + str(val3) + '>\n').encode()
-		#print(ser_msg)
-		ser.write(ser_msg)
-#-----------------------------------------------------------------------
+# #---Serial Communication with Arduino-----------------------------------
+# def Serial_Feather(pin=None, pin2=None, pin3=None, val=None, val2=None, val3=None):
+# 	if (pin != None and pin2 == None and pin3 == None):
+# 		ser_msg = ('<' + str(pin) + ',' + str(val) + '>\n').encode()
+# 		#print(ser_msg)
+# 		ser.write(ser_msg)
+# 	elif (pin != None and pin2 != None and pin3 != None):
+# 		ser_msg = ('<' + str(pin) + ',' + str(val) + '/' + str(pin2) + ',' + str(val2) + '/' + str(pin3) + ',' + str(val3) + '>\n').encode()
+# 		#print(ser_msg)
+# 		ser.write(ser_msg)
+# #-----------------------------------------------------------------------
 
 #---Heater--------------------------------------------------------------
 def heater(Heat_12, Heat_3, Heat_4, val, val2, val3):
-	Serial_Feather(pin=Heat_12, pin2=Heat_3, pin3=Heat_4, val=val, val2=val2, val3=val3)
-
-#---Buzzer--------------------------------------------------------------
-def buzzer(Buzzer, val):
-	Serial_Feather(pin=Buzzer, val=val)
-	#print ("Beep")
-
-#---Solenoid------------------------------------------------------------
-def solenoid(Sol_val, val):
-	Serial_Feather(pin=Sol_val, val=val)
-
-#---Fan-----------------------------------------------------------------
-def fan(Cooling_motor, val):
-	Serial_Feather(pin=Cooling_motor, val=val)
+	# Serial_Feather(pin=Heat_12, pin2=Heat_3, pin3=Heat_4, val=val, val2=val2, val3=val3)
+	heater_msg = ('HA' + str(val) + 'HB' + str(val2) + 'HC' + str(val3)).encode()
+	ser.write(heater_msg)
 
 #---Stirrer-------------------------------------------------------------
 def stirrer(Mix_motor, val):
-	Serial_Feather(pin=Mix_motor, val=val)
+	# Serial_Feather(pin=Mix_motor, val=val)
+	stirrer_msg = ('SA' + str(val)).encode()
+	ser.write(stirrer_msg)
+
+#---Fan-----------------------------------------------------------------
+def fan(Cooling_motor, val):
+	# Serial_Feather(pin=Cooling_motor, val=val)
+	fan_msg = ('FA' + str(val)).encode()
+	ser.write(fan_msg)
+
+#---Solenoid------------------------------------------------------------
+def solenoid(Sol_val, val):
+	#Serial_Feather(pin=Sol_val, val=val)
+	solenoid_msg = ('SV' + str(val)).encode()
+	ser.write(solenoid_msg)
+
+#---Buzzer--------------------------------------------------------------
+def buzzer(Buzzer, val):
+	#Serial_Feather(pin=Buzzer, val=val)
+	buzzer_msg = ('BZ' + str(val)).encode()
+	ser.write(buzzer_msg)
 
 #---Parse Data----------------------------------------------------------
 def json_to_val(json_val):
@@ -170,10 +179,9 @@ def mqtt_dequeue():
 def core_func():
 	period = 10000
 	while_count = 0
-	while True:
-		while_count = while_count + 1
+	while_count = while_count + 1
 
-		mqtt_dequeue()
+	mqtt_dequeue()
 
 if __name__ == "__main__":
 	core_func()
