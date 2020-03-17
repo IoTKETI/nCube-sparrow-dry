@@ -159,6 +159,7 @@ def set_factor(referenceUnit):
 
 
 def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
+	print('calc_ref_Unit: ', reference_weight, ' ', cal_set_ref_Unit)
 	ref_weight_total = 0
 
 	for i in range(nWeightCount):
@@ -203,6 +204,7 @@ def get_loadcell():
 	global weight_arr
 
 	try:
+		print('flag: ', flag)
 		if (flag == 0):
 			for i in range(arr_count):
 				weight = hx.get_weight(5)
@@ -320,8 +322,7 @@ dry_client.subscribe("/set_zero_point")
 
 dry_client.loop_start()
 
-global correlation_value
-correlation_value = 0
+
 
 loadcell_param = {"factor":6555,"correlation_value":200}
 
@@ -336,7 +337,6 @@ else:
 	
 init_loadcell(loadcell_factor)
 
-
 weight_arr = [0, 0, 0, 0, 0]
 flag = 0
 
@@ -344,12 +344,14 @@ def mqtt_dequeue():
 	global req_zero_reference_weight
 	global set_ref_Unit
 	set_ref_Unit = 1
-	
+	global correlation_value
+	correlation_value = 0
+
 	if not q.empty():
 		try:
 			recv_msg = q.get(False)
 			g_recv_topic = recv_msg.topic
-			print(g_recv_topic)
+			#print(g_recv_topic)
 
 			if (g_recv_topic == '/req_internal_temp'):
 				#print("topic: ", g_recv_topic)
@@ -380,9 +382,9 @@ def mqtt_dequeue():
 				#print("topic: ", g_recv_topic)
 				data = recv_msg.payload.decode('utf-8').replace("'", '"')
 				set_ref_Unit, set_corr_val = json_to_val(data)
-				#print('set_zero_point - ',set_ref_Unit, ', ', set_corr_val)
 				set_ref_Unit = float(set_ref_Unit)
 				correlation_value = float(set_corr_val)
+				print ('set_zero_point: ', set_ref_Unit, ' ', correlation_value)
 				set_factor(set_ref_Unit)
 
 		except queue.Empty:
