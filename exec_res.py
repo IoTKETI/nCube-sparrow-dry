@@ -227,8 +227,8 @@ def get_loadcell():
 
 
 def ref_weight(tare_weight):
-	global reference_weight
-	reference_weight = tare_weight
+	global refer_weight
+	refer_weight = tare_weight
 
 	val = val_to_json(1)
 
@@ -340,6 +340,7 @@ global set_ref_Unit
 set_ref_Unit = 1
 weight_arr = [0, 0, 0, 0, 0]
 flag = 0
+global req_zero_reference_weight
 
 def mqtt_dequeue():
 	if not q.empty():
@@ -356,15 +357,15 @@ def mqtt_dequeue():
 			elif (g_recv_topic == '/req_zero_point'):
 				#print("topic: ", g_recv_topic)
 				data = recv_msg.payload.decode('utf-8').replace("'", '"')
-				reference_weight = json.loads(data)
-				reference_weight = reference_weight['val']
-				#print ("reference_weight: ", reference_weight)
-				val = ref_weight(reference_weight)
+				req_zero_reference_weight = json.loads(data)
+				req_zero_reference_weight = req_zero_reference_weight['val']
+				#print ("reference_weight: ", req_zero_reference_weight)
+				val = ref_weight(req_zero_reference_weight)
 				dry_client.publish("/res_zero_point", val)
 
 			elif (g_recv_topic == '/req_calc_factor'):
 				#print("topic: ", g_recv_topic)
-				calc_referenceUnit = calc_ref_Unit(reference_weight, set_ref_Unit)
+				calc_referenceUnit = calc_ref_Unit(req_zero_reference_weight, set_ref_Unit)
 				dry_client.publish("/res_calc_factor", calc_referenceUnit)
 
 			elif (g_recv_topic == '/req_weight'):
@@ -389,43 +390,42 @@ def mqtt_dequeue():
 def core_func():
 	period = 10000
 	while_count = 0
-	while True:
-		while_count = while_count + 1
-		#print(while_count)
-		if ((while_count % period) == 0):
-			deb = debug_mode(Debug_switch_pin)
-			dry_client.publish("/res_debug_mode", deb)
+	while_count = while_count + 1
+	#print(while_count)
+	if ((while_count % period) == 0):
+		deb = debug_mode(Debug_switch_pin)
+		dry_client.publish("/res_debug_mode", deb)
 
-		if ((while_count % period) == 0):
-			#print("topic: ", msg.topic)
-			sw4_json = start_btn(SW4_pin)
-			dry_client.publish("/res_start_btn", sw4_json)
+	if ((while_count % period) == 0):
+		#print("topic: ", msg.topic)
+		sw4_json = start_btn(SW4_pin)
+		dry_client.publish("/res_start_btn", sw4_json)
 
-		if ((while_count % period) == 0):
-			#print("topic: ", msg.topic)
-			json_input_door = get_input_door(Input_Door_pin)
-			#print('input door: ', json_input_door)
-			dry_client.publish("/res_input_door", json_input_door)
+	if ((while_count % period) == 0):
+		#print("topic: ", msg.topic)
+		json_input_door = get_input_door(Input_Door_pin)
+		#print('input door: ', json_input_door)
+		dry_client.publish("/res_input_door", json_input_door)
 
-		if ((while_count % period) == 0):
-			#print("topic: ", msg.topic)
-			json_output_door = get_output_door(Output_Door_pin)
-			#print("output door: ", json_output_door)
-			dry_client.publish("/res_output_door", json_output_door)
+	if ((while_count % period) == 0):
+		#print("topic: ", msg.topic)
+		json_output_door = get_output_door(Output_Door_pin)
+		#print("output door: ", json_output_door)
+		dry_client.publish("/res_output_door", json_output_door)
 
-		if ((while_count % period) == 0):
-			#print("topic: ", msg.topic)
-			json_safe_door = get_safe_door(Safe_Door_pin)
-			#print("safe door: ", json_safe_door)
-			dry_client.publish("/res_safe_door", json_safe_door)
+	if ((while_count % period) == 0):
+		#print("topic: ", msg.topic)
+		json_safe_door = get_safe_door(Safe_Door_pin)
+		#print("safe door: ", json_safe_door)
+		dry_client.publish("/res_safe_door", json_safe_door)
 
-		if ((while_count % period) == 0):
-			#print("topic: ", msg.topic)
-			json_operation_mode = Operation(Select_SW)
-			#print("operation: ", json_operation_mode)
-			dry_client.publish("/res_operation_mode", json_operation_mode)
-		
-		mqtt_dequeue()
+	if ((while_count % period) == 0):
+		#print("topic: ", msg.topic)
+		json_operation_mode = Operation(Select_SW)
+		#print("operation: ", json_operation_mode)
+		dry_client.publish("/res_operation_mode", json_operation_mode)
+	
+	mqtt_dequeue()
 
 if __name__ == "__main__":
 	core_func()
