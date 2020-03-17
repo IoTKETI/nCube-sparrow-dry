@@ -391,7 +391,6 @@ def core_func():
 	while_count = 0
 	while True:
 		while_count = while_count + 1
-
 		mqtt_dequeue()
 
 
