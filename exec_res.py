@@ -336,13 +336,14 @@ else:
 	
 init_loadcell(loadcell_factor)
 
-global set_ref_Unit
-set_ref_Unit = 1
+
 weight_arr = [0, 0, 0, 0, 0]
 flag = 0
 
 def mqtt_dequeue():
 	global req_zero_reference_weight
+	global set_ref_Unit
+	set_ref_Unit = 1
 	
 	if not q.empty():
 		try:
