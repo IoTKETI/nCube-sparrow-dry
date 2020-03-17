@@ -158,7 +158,7 @@ def set_factor(referenceUnit):
 	hx.reset()
 
 
-def calc_ref_Unit(reference_weight, set_ref_Unit):
+def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
 	ref_weight_total = 0
 
 	for i in range(nWeightCount):
@@ -172,7 +172,7 @@ def calc_ref_Unit(reference_weight, set_ref_Unit):
 
 
 	if (cur_factor == 0.0):
-		cur_factor = set_ref_Unit
+		cur_factor = cal_set_ref_Unit
 
 	hx.set_reference_unit(cur_factor)
 	hx.reset()
