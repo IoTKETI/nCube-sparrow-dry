@@ -395,8 +395,6 @@ def mqtt_dequeue():
 		q.task_done()
 
 def core_func():
-	global correlation_value
-	correlation_value = 0
 	period = 10000
 	while_count = 0
 	while True:
@@ -438,4 +436,5 @@ def core_func():
 		mqtt_dequeue()
 
 if __name__ == "__main__":
+	global correlation_value
 	core_func()
