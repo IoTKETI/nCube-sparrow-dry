@@ -28,33 +28,37 @@ Buzzer = 5
 # #-----------------------------------------------------------------------
 
 #---Heater--------------------------------------------------------------
-def heater(Heat_12, Heat_3, Heat_4, val, val2, val3):
+def heater(val, val2, val3):
 	# Serial_Feather(pin=Heat_12, pin2=Heat_3, pin3=Heat_4, val=val, val2=val2, val3=val3)
-	heater_msg = ('HA' + str(val) + 'HB' + str(val2) + 'HC' + str(val3)).encode()
-	ser.write(heater_msg)
+	heater12_msg = (':' + 'HA' + '/' + str(val) + ';').encode()
+	heater3_msg = (':' + 'HB' + '/' + str(val2) + ';').encode() 
+	heater4_msg = (':' + 'HC' + '/' + str(val3) + ';').encode()
+	ser.write(heater12_msg)
+	ser.write(heater3_msg)
+	ser.write(heater4_msg)
 
 #---Stirrer-------------------------------------------------------------
-def stirrer(Mix_motor, val):
+def stirrer(val):
 	# Serial_Feather(pin=Mix_motor, val=val)
-	stirrer_msg = ('SA' + str(val)).encode()
+	stirrer_msg = (':' + 'SA' + '/' + str(val) + ';').encode()
 	ser.write(stirrer_msg)
 
 #---Fan-----------------------------------------------------------------
-def fan(Cooling_motor, val):
+def fan(val):
 	# Serial_Feather(pin=Cooling_motor, val=val)
-	fan_msg = ('FA' + str(val)).encode()
+	fan_msg = (':' + 'FA' + '/' + str(val) + ';').encode()
 	ser.write(fan_msg)
 
 #---Solenoid------------------------------------------------------------
-def solenoid(Sol_val, val):
+def solenoid(val):
 	#Serial_Feather(pin=Sol_val, val=val)
-	solenoid_msg = ('SV' + str(val)).encode()
+	solenoid_msg = (':' + 'SV' + '/' + str(val) + ';').encode()
 	ser.write(solenoid_msg)
 
 #---Buzzer--------------------------------------------------------------
-def buzzer(Buzzer, val):
+def buzzer(val):
 	#Serial_Feather(pin=Buzzer, val=val)
-	buzzer_msg = ('BZ' + str(val)).encode()
+	buzzer_msg = (':' + 'BZ' + '/' + str(val + ';')).encode()
 	ser.write(buzzer_msg)
 
 #---Parse Data----------------------------------------------------------
@@ -106,7 +110,7 @@ def func_set_q(f_msg):
 		#print("topic: ", f_msg.topic)
 		data = f_msg.payload.decode('utf-8').replace("'", '"')
 		solenoid_val = json_to_val(data)
-		solenoid(Sol_val, solenoid_val)
+		solenoid(solenoid_val)
 
 	elif (f_msg.topic == '/set_fan'):
 		#print("topic: ", f_msg.topic)
@@ -154,8 +158,7 @@ dry_client.subscribe("/set_buzzer")
 
 dry_client.loop_start()
 
-global ser
-ser = serial.Serial("/dev/ttyAMA0", 9600)
+
 
 def mqtt_dequeue():
 	if not q.empty():
@@ -184,4 +187,6 @@ def core_func():
 		mqtt_dequeue()
 
 if __name__ == "__main__":
+	global ser
+	ser = serial.Serial("/dev/ttyAMA0", 9600)
 	core_func()
