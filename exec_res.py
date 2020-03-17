@@ -159,7 +159,7 @@ def set_factor(referenceUnit):
 
 
 def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
-	print('calc_ref_Unit: ', reference_weight, ' ', cal_set_ref_Unit)
+	# print('calc_ref_Unit: ', reference_weight, ' ', cal_set_ref_Unit)
 	ref_weight_total = 0
 
 	for i in range(nWeightCount):
@@ -170,8 +170,8 @@ def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
 	cur_weight = (avg_ref_weight - avg_zero_weight)
 	cur_weight = max(0, float(cur_weight))
 	cur_factor = (cur_weight / reference_weight)
-	print('cur_weight: ', cur_weight)
-	print('cur_factor: ', cur_factor)
+	# print('cur_weight: ', cur_weight)
+	# print('cur_factor: ', cur_factor)
 
 	if (cur_factor == 0.0):
 		cur_factor = cal_set_ref_Unit
@@ -189,8 +189,8 @@ def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
 	avg_factor_weight = max(0, float(avg_factor_weight))
 	correlation_value = avg_factor_weight - reference_weight
 	factor = {"factor":cur_factor, "correlation_value":correlation_value}
-	print('avg_factor_weight: ', avg_factor_weight)
-	print('correlation_value: ', correlation_value)
+	# print('avg_factor_weight: ', avg_factor_weight)
+	# print('correlation_value: ', correlation_value)
 	with open ("./factor.json", "w") as factor_json:
 		json.dump(factor, factor_json)
 
@@ -221,10 +221,10 @@ def get_loadcell():
 		avg_weight = round((sum(weight_arr) / arr_count), 2)
 		final_weight = avg_weight - correlation_value
 		final_weight = max(0, float(final_weight))
-		print('correlation_value: ', correlation_value)
-		print('avg_weight: ', avg_weight)
-		print('weight_arr: ', weight_arr)
-		print('final_weight: ', final_weight)
+		# print('correlation_value: ', correlation_value)
+		# print('avg_weight: ', avg_weight)
+		# print('weight_arr: ', weight_arr)
+		# print('final_weight: ', final_weight)
 		weight_json = val_to_json(final_weight)
 
 	except (KeyboardInterrupt, SystemExit):
@@ -388,7 +388,7 @@ def mqtt_dequeue():
 				set_ref_Unit, set_corr_val = json_to_val(data)
 				set_ref_Unit = float(set_ref_Unit)
 				correlation_value = float(set_corr_val)
-				print ('set_zero_point: ', set_ref_Unit, ' ', correlation_value)
+				#print ('set_zero_point: ', set_ref_Unit, ' ', correlation_value)
 				set_factor(set_ref_Unit)
 
 		except queue.Empty:
