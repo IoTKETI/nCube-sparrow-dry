@@ -238,15 +238,12 @@ def get_loadcell():
 
 
 def ref_weight(tare_weight):
-	global req_zero_reference_weight
-	global refer_weight
 	refer_weight = tare_weight
 
 	val = val_to_json(1)
 
 	init_loadcell(1)
 
-	global avg_zero_weight
 	zero_weight = 0
 	for i in range(5):
 		weight = hx.get_weight(5)
@@ -354,6 +351,11 @@ else:
 	# loadcell_corr_val = int(loadcell_corr_val)
 
 init_loadcell(loadcell_factor)
+
+global req_zero_reference_weight
+global refer_weight
+
+global avg_zero_weight
 
 weight_arr = [0, 0, 0, 0, 0]
 flag = 0
