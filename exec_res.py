@@ -158,8 +158,8 @@ def set_factor(referenceUnit):
 	hx.reset()
 
 
-def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
-	# print('calc_ref_Unit: ', reference_weight, ' ', cal_set_ref_Unit)
+def calc_ref_Unit(reference_weight, cal_set_ref_Unit):   	
+	print('calc_ref_Unit: ', reference_weight, ' ', cal_set_ref_Unit)
 	ref_weight_total = 0
 
 	for i in range(nWeightCount):
@@ -233,10 +233,8 @@ def get_loadcell():
 
 	return (weight_json)
 
-
 def ref_weight(tare_weight):
-	global refer_weight
-	refer_weight = tare_weight
+	global avg_zero_weight
 
 	val = val_to_json(1)
 
@@ -349,8 +347,6 @@ else:
 	# loadcell_corr_val = int(loadcell_corr_val)
 
 init_loadcell(loadcell_factor)
-
-global avg_zero_weight
 
 weight_arr = [0, 0, 0, 0, 0]
 flag = 0
