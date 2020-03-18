@@ -330,6 +330,7 @@ dry_client.loop_start()
 loadcell_param = {"factor":6555,"correlation_value":200}
 
 if (os. path.isfile("./factor.json") == False):
+	print('loadcell_param: ', loadcell_param)
 	with open("./factor.json","w") as refUnit_json:
 		json.dump(loadcell_param, refUnit_json)
 	loadcell_factor = loadcell_param['factor']
