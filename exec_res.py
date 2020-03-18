@@ -153,7 +153,7 @@ def init_loadcell(referenceUnit = 1):
 	hx.reset()
 
 
-def set_factor(set_ref_Unit, set_correlation_value):
+def set_factor(referenceUnit, correlation_value):
 	global set_ref_Unit
 	global set_correlation_value
 
