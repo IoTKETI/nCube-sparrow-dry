@@ -153,10 +153,7 @@ def init_loadcell(referenceUnit = 1):
 	hx.reset()
 
 
-def set_factor(referenceUnit, correlation_value):
-	global set_ref_Unit
-	global set_correlation_value
-
+def set_factor(referenceUnit):
 	hx.set_reference_unit(referenceUnit)
 	hx.reset()
 
@@ -360,6 +357,8 @@ flag = 0
 
 def mqtt_dequeue():
 	global req_zero_reference_weight
+	global referenceUnit
+	global correlation_value
 
 	if not q.empty():
 		try:
@@ -383,7 +382,7 @@ def mqtt_dequeue():
 
 			elif (g_recv_topic == '/req_calc_factor'):
 				#print("topic: ", g_recv_topic)
-				calc_referenceUnit = calc_ref_Unit(req_zero_reference_weight, set_ref_Unit)
+				calc_referenceUnit = calc_ref_Unit(req_zero_reference_weight, referenceUnit)
 				dry_client.publish("/res_calc_factor", calc_referenceUnit)
 
 			elif (g_recv_topic == '/req_weight'):
@@ -399,8 +398,8 @@ def mqtt_dequeue():
 				referenceUnit, set_corr_val = json_to_val(data)
 				referenceUnit = float(referenceUnit)
 				correlation_value = float(set_corr_val)
-				#print ('set_zero_point: ', set_ref_Unit, ' ', correlation_value)
-				set_factor(referenceUnit, correlation_value)
+				#print ('set_zero_point: ', referenceUnit, ' ', correlation_value)
+				set_factor(referenceUnit)
 
 		except queue.Empty:
 			pass
@@ -410,7 +409,7 @@ def core_func():
 	period = 10000
 	while_count = 0
 
-	set_ref_Unit = 1
+	referenceUnit = 1
 	correlation_value = 200
 
 	while True:
