@@ -154,12 +154,15 @@ def init_loadcell(referenceUnit = 1):
 
 
 def set_factor(referenceUnit):
+	print(referenceUnit)
 	hx.set_reference_unit(referenceUnit)
 	hx.reset()
 
 
 def calc_ref_Unit(reference_weight, cal_set_ref_Unit):   	
 	print('calc_ref_Unit: ', reference_weight, ' ', cal_set_ref_Unit)
+	print('avg_zero_weight: ', avg_zero_weight)
+
 	ref_weight_total = 0
 
 	for i in range(nWeightCount):
@@ -378,6 +381,8 @@ def mqtt_dequeue():
 
 			elif (g_recv_topic == '/req_calc_factor'):
 				#print("topic: ", g_recv_topic)
+				print('req_zero_reference_weight: ', req_zero_reference_weight)
+				print('referenceUnit: ', referenceUnit)
 				calc_referenceUnit = calc_ref_Unit(req_zero_reference_weight, referenceUnit)
 				dry_client.publish("/res_calc_factor", calc_referenceUnit)
 
