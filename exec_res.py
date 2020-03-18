@@ -298,7 +298,8 @@ def on_subscribe(client, userdata, mid, granted_qos):
 
 
 def func_set_q(f_msg):
-	q.put_nowait(f_msg)
+	# q.put_nowait(f_msg)
+	q.put(f_msg)
 
 
 def on_message(client, userdata, _msg):
