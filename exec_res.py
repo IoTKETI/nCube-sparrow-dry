@@ -154,14 +154,13 @@ def init_loadcell(referenceUnit = 1):
 
 
 def set_factor(referenceUnit):
-	print(referenceUnit)
+	print('set_factor: ', referenceUnit)
 	hx.set_reference_unit(referenceUnit)
 	hx.reset()
 
 
 def calc_ref_Unit(reference_weight, cal_set_ref_Unit):   	
 	print('calc_ref_Unit: ', reference_weight, ' ', cal_set_ref_Unit)
-	print('avg_zero_weight: ', avg_zero_weight)
 
 	ref_weight_total = 0
 
@@ -225,9 +224,9 @@ def get_loadcell():
 		avg_weight = round((sum(weight_arr) / arr_count), 2)
 		final_weight = avg_weight - loadcell_corr_val
 		final_weight = max(0, float(final_weight))
+		# print('weight_arr: ', weight_arr)
 		print('correlation_value: ', loadcell_corr_val)
 		print('avg_weight: ', avg_weight)
-		print('weight_arr: ', weight_arr)
 		print('final_weight: ', final_weight)
 		weight_json = val_to_json(final_weight)
 
@@ -237,7 +236,7 @@ def get_loadcell():
 	return (weight_json)
 
 def ref_weight(tare_weight):
-	global avg_zero_weight
+	global avg_zero_weight  
 
 	val = val_to_json(1)
 
@@ -353,12 +352,8 @@ init_loadcell(loadcell_factor)
 
 weight_arr = [0, 0, 0, 0, 0]
 flag = 0
-global referenceUnit
 
 def mqtt_dequeue():
-	global req_zero_reference_weight
-	global correlation_value
-	
 	if not q.empty():
 		try:
 			recv_msg = q.get(False)
@@ -374,15 +369,13 @@ def mqtt_dequeue():
 				#print("topic: ", g_recv_topic)
 				data = recv_msg.payload.decode('utf-8').replace("'", '"')
 				req_zero_reference_weight = json.loads(data)
-				req_zero_reference_weight = req_zero_reference_weight['val']
+				req_zero_ref_weight = req_zero_reference_weight['val']
 				#print ("reference_weight: ", req_zero_reference_weight)
-				val = ref_weight(req_zero_reference_weight)
+				val = ref_weight(req_zero_ref_weight)
 				dry_client.publish("/res_zero_point", val)
 
 			elif (g_recv_topic == '/req_calc_factor'):
 				#print("topic: ", g_recv_topic)
-				print('req_zero_reference_weight: ', req_zero_reference_weight)
-				print('referenceUnit: ', referenceUnit)
 				calc_referenceUnit = calc_ref_Unit(req_zero_reference_weight, referenceUnit)
 				dry_client.publish("/res_calc_factor", calc_referenceUnit)
 
