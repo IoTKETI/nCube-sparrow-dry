@@ -357,8 +357,8 @@ global referenceUnit
 
 def mqtt_dequeue():
 	global req_zero_reference_weight
- 	global correlation_value
-
+	global correlation_value
+	
 	if not q.empty():
 		try:
 			recv_msg = q.get(False)
