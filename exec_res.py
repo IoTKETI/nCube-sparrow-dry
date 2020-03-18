@@ -346,9 +346,11 @@ if (os. path.isfile("./factor.json") == False):
 else:
 	with open ("./factor.json", "r") as refUnit_json:
 		loadcell_factor = json.load(refUnit_json)
+
 	loadcell_factor = loadcell_factor['factor']
-	loadcell_corr_val = loadcell_factor['correlation_value']
-	
+	loadcell_corr_val = str(loadcell_factor['correlation_value'])
+	loadcell_corr_val = float(loadcell_corr_val)
+
 init_loadcell(loadcell_factor)
 
 weight_arr = [0, 0, 0, 0, 0]
