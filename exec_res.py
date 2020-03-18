@@ -25,6 +25,7 @@ global bottom_temp_arr, top_temp_arr
 bottom_temp_arr = [0,0,0,0,0]
 top_temp_arr = [0,0,0,0,0]
 
+json.encoder.FLOAT_REPR = lambda o: format(o, '.2f')
 
 #---SET Pin-------------------------------------------------------------
 # Switch
