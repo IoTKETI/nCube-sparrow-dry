@@ -164,7 +164,7 @@ def mqtt_dequeue():
 		try:
 			recv_msg = q.get(False)
 			g_recv_topic = recv_msg.topic
-			print(g_recv_topic)
+			# print(g_recv_topic)
 
 			if (g_recv_topic == '/set_buzzer'):
 				#print("topic: ", g_recv_topic)

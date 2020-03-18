@@ -177,10 +177,10 @@ def get_loadcell():
 				weight_arr[arr_count-1] = weight
 
 		avg_weight = round((sum(weight_arr) / arr_count), 2)
-		final_weight = avg_weight - loadcell_corr_val
+		final_weight = avg_weight - correlation_value
 		final_weight = max(0, float(final_weight))
 		# print('weight_arr: ', weight_arr)
-		print('get_loadcell - correlation_value: ', loadcell_corr_val)
+		print('get_loadcell - correlation_value: ', correlation_value)
 		print('get_loadcell - avg_weight: ', avg_weight)
 		print('get_loadcell - final_weight: ', final_weight)
 		weight_json = val_to_json(final_weight)
@@ -213,7 +213,7 @@ def ref_weight(tare_weight):
 	
 
 def calc_ref_Unit(reference_weight, cal_set_ref_Unit):   	
-	print('calc_ref_Unit: ', reference_weight, ' ', cal_set_ref_Unit)
+	# print('calc_ref_Unit: ', reference_weight, ' ', cal_set_ref_Unit)
 
 	ref_weight_total = 0
 
@@ -244,16 +244,16 @@ def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
 
 	avg_factor_weight = (factor_weight_total / nWeightCount)
 	avg_factor_weight = max(0, float(avg_factor_weight))
-	set_correlation_value = avg_factor_weight - reference_weight
-	factor = {"factor":cur_factor, "correlation_value":set_correlation_value}
+	correlation_value = avg_factor_weight - reference_weight
+	factor = {"factor":cur_factor, "correlation_value":correlation_value}
 	print('calc_ref_Unit - avg_factor_weight: ', avg_factor_weight)
-	print('calc_ref_Unit - correlation_value: ', set_correlation_value)
+	print('calc_ref_Unit - correlation_value: ', correlation_value)
 	with open ("./factor.json", "w") as factor_json:
 		json.dump(factor, factor_json)
 
 	print("Complete!")
 
-	calc_ref_unit = val_to_json(cur_factor, set_correlation_value)
+	calc_ref_unit = val_to_json(cur_factor, correlation_value)
 
 	return calc_ref_unit
 #-----------------------------------------------------------------------
