@@ -329,6 +329,11 @@ dry_client.loop_start()
 
 global loadcell_factor
 
+global set_ref_Unit
+global correlation_value
+set_ref_Unit = 1
+correlation_value = 200
+
 loadcell_param = {"factor":6555,"correlation_value":200}
 
 if (os. path.isfile("./factor.json") == False):
@@ -395,10 +400,6 @@ def mqtt_dequeue():
 def core_func():
 	period = 10000
 	while_count = 0
-	global set_ref_Unit
-	global correlation_value
-	set_ref_Unit = 1
-	correlation_value = 200
 	while True:
 		while_count = while_count + 1
 		#print(while_count)
