@@ -220,7 +220,7 @@ def get_loadcell():
 				weight_arr[arr_count-1] = weight
 
 		avg_weight = round((sum(weight_arr) / arr_count), 2)
-		final_weight = avg_weight - corr_val
+		final_weight = avg_weight - correlation_value
 		final_weight = max(0, float(final_weight))
 		print('correlation_value: ', correlation_value)
 		print('avg_weight: ', avg_weight)
