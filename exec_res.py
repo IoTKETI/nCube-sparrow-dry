@@ -205,7 +205,8 @@ def ref_weight(tare_weight):
 
 	avg_zero_weight = (zero_weight / 5)
 	avg_zero_weight = max(0, float(avg_zero_weight))
-
+	print("ref_weight - avg_zero_weight: ", avg_zero_weight)
+	
 	print("Add weight for initialize...")
 
 	return val
@@ -405,6 +406,8 @@ def core_func():
 	period = 10000
 	while_count = 0
 	global req_zero_ref_weight
+	global referenceUnit
+	global correlation_value
 	referenceUnit = 1
 	correlation_value = 200
 
