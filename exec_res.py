@@ -153,7 +153,10 @@ def init_loadcell(referenceUnit = 1):
 	hx.reset()
 
 
-def set_factor(referenceUnit):
+def set_factor(set_ref_Unit, set_correlation_value):
+	global set_ref_Unit
+	global set_correlation_value
+
 	hx.set_reference_unit(referenceUnit)
 	hx.reset()
 
@@ -187,16 +190,16 @@ def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
 
 	avg_factor_weight = (factor_weight_total / nWeightCount)
 	avg_factor_weight = max(0, float(avg_factor_weight))
-	cal_correlation_value = avg_factor_weight - reference_weight
-	factor = {"factor":cur_factor, "correlation_value":cal_correlation_value}
+	set_correlation_value = avg_factor_weight - reference_weight
+	factor = {"factor":cur_factor, "correlation_value":set_correlation_value}
 	print('avg_factor_weight: ', avg_factor_weight)
-	print('cal_correlation_value: ', cal_correlation_value)
+	print('cal_correlation_value: ', set_correlation_value)
 	with open ("./factor.json", "w") as factor_json:
 		json.dump(factor, factor_json)
 
 	print("Complete!")
 
-	calc_ref_unit = val_to_json(cur_factor, cal_correlation_value)
+	calc_ref_unit = val_to_json(cur_factor, set_correlation_value)
 
 	return calc_ref_unit
 
@@ -220,9 +223,9 @@ def get_loadcell():
 				weight_arr[arr_count-1] = weight
 
 		avg_weight = round((sum(weight_arr) / arr_count), 2)
-		final_weight = avg_weight - correlation_value
+		final_weight = avg_weight - set_correlation_value
 		final_weight = max(0, float(final_weight))
-		print('correlation_value: ', correlation_value)
+		print('correlation_value: ', set_correlation_value)
 		print('avg_weight: ', avg_weight)
 		print('weight_arr: ', weight_arr)
 		print('final_weight: ', final_weight)
@@ -235,12 +238,14 @@ def get_loadcell():
 
 
 def ref_weight(tare_weight):
+	global req_zero_reference_weight
 	global refer_weight
 	refer_weight = tare_weight
 
 	val = val_to_json(1)
 
 	init_loadcell(1)
+
 	global avg_zero_weight
 	zero_weight = 0
 	for i in range(5):
@@ -347,15 +352,11 @@ weight_arr = [0, 0, 0, 0, 0]
 flag = 0
 
 def mqtt_dequeue():
-	global req_zero_reference_weight
-	global set_ref_Unit
-	global correlation_value
-
 	if not q.empty():
 		try:
 			recv_msg = q.get(False)
 			g_recv_topic = recv_msg.topic
-			#print(g_recv_topic)
+			print(g_recv_topic)
 
 			if (g_recv_topic == '/req_internal_temp'):
 				#print("topic: ", g_recv_topic)
@@ -386,11 +387,11 @@ def mqtt_dequeue():
 			elif (g_recv_topic == '/set_zero_point'):
 				#print("topic: ", g_recv_topic)
 				data = recv_msg.payload.decode('utf-8').replace("'", '"')
-				set_ref_Unit, set_corr_val = json_to_val(data)
-				set_ref_Unit = float(set_ref_Unit)
+				referenceUnit, set_corr_val = json_to_val(data)
+				referenceUnit = float(referenceUnit)
 				correlation_value = float(set_corr_val)
 				#print ('set_zero_point: ', set_ref_Unit, ' ', correlation_value)
-				set_factor(set_ref_Unit)
+				set_factor(referenceUnit, correlation_value)
 
 		except queue.Empty:
 			pass
@@ -399,6 +400,7 @@ def mqtt_dequeue():
 def core_func():
 	period = 10000
 	while_count = 0
+
 	set_ref_Unit = 1
 	correlation_value = 200
 

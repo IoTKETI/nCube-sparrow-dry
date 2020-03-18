@@ -72,7 +72,7 @@ def lcd_init():
 
 
 def displayState(msg1):
-	print(msg1)
+	# print(msg1)
 	if (len(str(msg1)) > 5):
 		msg1 = str(msg1)
 		msg1 = msg1[0:5]
@@ -170,18 +170,18 @@ def displayLoadcellFactor(msg1):
 		msg1 = msg1[0:6]
 
 	try:
-		g_lcd.cursor_position(14,1)
+		g_lcd.cursor_position(13,1)
 		message = '      '
 		g_lcd.message = message
-		g_lcd.cursor_position(14,1)
+		g_lcd.cursor_position(13,1)
 		g_lcd.message = f'{msg1}'
 	
 	except OSError:
 		lcd_init()
-		g_lcd.cursor_position(14,1)
+		g_lcd.cursor_position(13,1)
 		message = '      '
 		g_lcd.message = message
-		g_lcd.cursor_position(14,1)
+		g_lcd.cursor_position(13,1)
 		g_lcd.message = f'{msg1}'
 
 
@@ -315,7 +315,7 @@ def mqtt_dequeue():
 		try:
 			recv_msg = q.get(False)
 			g_recv_topic = recv_msg.topic
-			print(g_recv_topic)
+			#print(g_recv_topic)
 
 			if (g_recv_topic == '/print_lcd_internal_temp'):
 				#print("topic: ", g_recv_topic)
@@ -329,7 +329,7 @@ def mqtt_dequeue():
 				data = recv_msg.payload.decode('utf-8').replace("'", '"')
 				state = json_to_val(data)
 				displayState(state)
-				print('print_lcd_state')
+				# print('print_lcd_state')
 
 			elif (g_recv_topic == '/print_lcd_debug_message'):
 				#print("topic: ", g_recv_topic)
@@ -337,7 +337,7 @@ def mqtt_dequeue():
 				debug = json_to_val(data)
 				#print (debug)
 				displayMsg(debug)
-				print('print_lcd_debug_message')
+				# print('print_lcd_debug_message')
 
 			elif (g_recv_topic == '/print_lcd_loadcell'):
 				#print("topic: ", g_recv_topic)
@@ -367,7 +367,7 @@ def mqtt_dequeue():
 				data = recv_msg.payload.decode('utf-8').replace("'", '"')
 				output_door = json_to_val(data)
 				displayOutputDoor(output_door)
-				print('print_lcd_output_door')
+				# print('print_lcd_output_door')
 
 			elif (g_recv_topic == '/print_lcd_safe_door'):
 				#print("topic: ", g_recv_topic)
