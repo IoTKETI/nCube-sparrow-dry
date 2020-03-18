@@ -168,12 +168,14 @@ def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
 		weight = hx.get_weight(5)
 		ref_weight_total += weight
 
+	print('calc_ref_Unit - avg_zero_weight: ', avg_zero_weight)
+
 	avg_ref_weight = (ref_weight_total / nWeightCount)
 	cur_weight = (avg_ref_weight - avg_zero_weight)
 	cur_weight = max(0, float(cur_weight))
 	cur_factor = (cur_weight / reference_weight)
-	print('cur_weight: ', cur_weight)
-	print('cur_factor: ', cur_factor)
+	print('calc_ref_Unit - cur_weight: ', cur_weight)
+	print('calc_ref_Unit - cur_factor: ', cur_factor)
 
 	if (cur_factor == 0.0):
 		cur_factor = cal_set_ref_Unit
@@ -191,8 +193,8 @@ def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
 	avg_factor_weight = max(0, float(avg_factor_weight))
 	set_correlation_value = avg_factor_weight - reference_weight
 	factor = {"factor":cur_factor, "correlation_value":set_correlation_value}
-	print('avg_factor_weight: ', avg_factor_weight)
-	print('cal_correlation_value: ', set_correlation_value)
+	print('calc_ref_Unit - avg_factor_weight: ', avg_factor_weight)
+	print('calc_ref_Unit - correlation_value: ', set_correlation_value)
 	with open ("./factor.json", "w") as factor_json:
 		json.dump(factor, factor_json)
 
@@ -225,9 +227,9 @@ def get_loadcell():
 		final_weight = avg_weight - loadcell_corr_val
 		final_weight = max(0, float(final_weight))
 		# print('weight_arr: ', weight_arr)
-		print('correlation_value: ', loadcell_corr_val)
-		print('avg_weight: ', avg_weight)
-		print('final_weight: ', final_weight)
+		print('get_loadcell - correlation_value: ', loadcell_corr_val)
+		print('get_loadcell - avg_weight: ', avg_weight)
+		print('get_loadcell - final_weight: ', final_weight)
 		weight_json = val_to_json(final_weight)
 
 	except (KeyboardInterrupt, SystemExit):
