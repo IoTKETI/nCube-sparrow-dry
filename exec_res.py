@@ -353,11 +353,11 @@ init_loadcell(loadcell_factor)
 
 weight_arr = [0, 0, 0, 0, 0]
 flag = 0
+global referenceUnit
 
 def mqtt_dequeue():
 	global req_zero_reference_weight
-	global referenceUnit
-	global correlation_value
+ 	global correlation_value
 
 	if not q.empty():
 		try:
