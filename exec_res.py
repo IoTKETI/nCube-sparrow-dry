@@ -332,7 +332,6 @@ global loadcell_factor
 loadcell_param = {"factor":6555,"correlation_value":200}
 
 if (os. path.isfile("./factor.json") == False):
-	print('loadcell_param: ', loadcell_param)
 	with open("./factor.json","w") as refUnit_json:
 		json.dump(loadcell_param, refUnit_json)
 	loadcell_factor = loadcell_param['factor']
@@ -349,9 +348,7 @@ flag = 0
 def mqtt_dequeue():
 	global req_zero_reference_weight
 	global set_ref_Unit
-	set_ref_Unit = 1
 	global correlation_value
-	correlation_value = 200
 
 	if not q.empty():
 		try:
@@ -439,4 +436,6 @@ def core_func():
 		mqtt_dequeue()
 
 if __name__ == "__main__":
+	set_ref_Unit = 1
+	correlation_value = 200
 	core_func()
