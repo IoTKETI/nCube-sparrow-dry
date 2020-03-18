@@ -51,8 +51,7 @@ def get_address():
     s.connect(('8.8.8.8', 0))
     ip = s.getsockname()[0]
     
-    return ip
-    
+    return ip 
     
 global g_lcd
 g_lcd = lcd_init()
