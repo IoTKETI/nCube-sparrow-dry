@@ -298,8 +298,7 @@ def on_subscribe(client, userdata, mid, granted_qos):
 
 
 def func_set_q(f_msg):
-	# q.put_nowait(f_msg)
-	q.put(f_msg)
+	q.put_nowait(f_msg)
 
 
 def on_message(client, userdata, _msg):
@@ -451,7 +450,7 @@ def core_func():
 		# mqtt_dequeue()
 		if not q.empty():
 			try:
-				recv_msg = q.get(False)
+				recv_msg = q.get_nowait()
 				g_recv_topic = recv_msg.topic
 				print(g_recv_topic)
 
