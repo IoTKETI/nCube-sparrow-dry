@@ -355,51 +355,51 @@ init_loadcell(loadcell_factor)
 weight_arr = [0, 0, 0, 0, 0]
 flag = 0
 
-def mqtt_dequeue():
-	if not q.empty():
-		try:
-			recv_msg = q.get(False)
-			g_recv_topic = recv_msg.topic
-			print(g_recv_topic)
+# def mqtt_dequeue():
+	# if not q.empty():
+    # 		try:
+	# 		recv_msg = q.get(False)
+	# 		g_recv_topic = recv_msg.topic
+	# 		print(g_recv_topic)
 
-			if (g_recv_topic == '/req_internal_temp'):
-				#print("topic: ", g_recv_topic)
-				temperature = get_temp()
-				dry_client.publish("/res_internal_temp", temperature)
+	# 		if (g_recv_topic == '/req_internal_temp'):
+	# 			#print("topic: ", g_recv_topic)
+	# 			temperature = get_temp()
+	# 			dry_client.publish("/res_internal_temp", temperature)
 
-			elif (g_recv_topic == '/req_zero_point'):
-				#print("topic: ", g_recv_topic)
-				data = recv_msg.payload.decode('utf-8').replace("'", '"')
-				req_zero_reference_weight = json.loads(data)
-				req_zero_ref_weight = req_zero_reference_weight['val']
-				#print ("reference_weight: ", req_zero_reference_weight)
-				val = ref_weight(req_zero_ref_weight)
-				dry_client.publish("/res_zero_point", val)
+	# 		elif (g_recv_topic == '/req_zero_point'):
+	# 			#print("topic: ", g_recv_topic)
+	# 			data = recv_msg.payload.decode('utf-8').replace("'", '"')
+	# 			req_zero_reference_weight = json.loads(data)
+	# 			req_zero_ref_weight = req_zero_reference_weight['val']
+	# 			#print ("reference_weight: ", req_zero_reference_weight)
+	# 			val = ref_weight(req_zero_ref_weight)
+	# 			dry_client.publish("/res_zero_point", val)
 
-			elif (g_recv_topic == '/req_calc_factor'):
-				#print("topic: ", g_recv_topic)
-				calc_referenceUnit = calc_ref_Unit(req_zero_ref_weight, referenceUnit)
-				dry_client.publish("/res_calc_factor", calc_referenceUnit)
+	# 		elif (g_recv_topic == '/req_calc_factor'):
+	# 			#print("topic: ", g_recv_topic)
+	# 			calc_referenceUnit = calc_ref_Unit(req_zero_ref_weight, referenceUnit)
+	# 			dry_client.publish("/res_calc_factor", calc_referenceUnit)
 
-			elif (g_recv_topic == '/req_weight'):
-				#print("topic: ", g_recv_topic)
-				# weight = get_loadcell(correlation_value)
-				weight = get_loadcell()
-				#print(weight)
-				dry_client.publish("/res_weight", weight)
+	# 		elif (g_recv_topic == '/req_weight'):
+	# 			#print("topic: ", g_recv_topic)
+	# 			# weight = get_loadcell(correlation_value)
+	# 			weight = get_loadcell()
+	# 			#print(weight)
+	# 			dry_client.publish("/res_weight", weight)
 			
-			elif (g_recv_topic == '/set_zero_point'):
-				#print("topic: ", g_recv_topic)
-				data = recv_msg.payload.decode('utf-8').replace("'", '"')
-				referenceUnit, set_corr_val = json_to_val(data)
-				referenceUnit = float(referenceUnit)
-				correlation_value = float(set_corr_val)
-				#print ('set_zero_point: ', referenceUnit, ' ', correlation_value)
-				set_factor(referenceUnit)
+	# 		elif (g_recv_topic == '/set_zero_point'):
+	# 			#print("topic: ", g_recv_topic)
+	# 			data = recv_msg.payload.decode('utf-8').replace("'", '"')
+	# 			referenceUnit, set_corr_val = json_to_val(data)
+	# 			referenceUnit = float(referenceUnit)
+	# 			correlation_value = float(set_corr_val)
+	# 			#print ('set_zero_point: ', referenceUnit, ' ', correlation_value)
+	# 			set_factor(referenceUnit)
 
-		except queue.Empty:
-			pass
-		q.task_done()
+	# 	except queue.Empty:
+	# 		pass
+	# 	q.task_done()
 
 def core_func():
 	period = 10000
@@ -444,7 +444,51 @@ def core_func():
 			#print("operation: ", json_operation_mode)
 			dry_client.publish("/res_operation_mode", json_operation_mode)
 		
-		mqtt_dequeue()
+		# mqtt_dequeue()
+		if not q.empty():
+			try:
+				recv_msg = q.get(False)
+				g_recv_topic = recv_msg.topic
+				print(g_recv_topic)
+
+				if (g_recv_topic == '/req_internal_temp'):
+					#print("topic: ", g_recv_topic)
+					temperature = get_temp()
+					dry_client.publish("/res_internal_temp", temperature)
+
+				elif (g_recv_topic == '/req_zero_point'):
+					#print("topic: ", g_recv_topic)
+					data = recv_msg.payload.decode('utf-8').replace("'", '"')
+					req_zero_reference_weight = json.loads(data)
+					req_zero_ref_weight = req_zero_reference_weight['val']
+					#print ("reference_weight: ", req_zero_reference_weight)
+					val = ref_weight(req_zero_ref_weight)
+					dry_client.publish("/res_zero_point", val)
+
+				elif (g_recv_topic == '/req_calc_factor'):
+					#print("topic: ", g_recv_topic)
+					calc_referenceUnit = calc_ref_Unit(req_zero_ref_weight, referenceUnit)
+					dry_client.publish("/res_calc_factor", calc_referenceUnit)
+
+				elif (g_recv_topic == '/req_weight'):
+					#print("topic: ", g_recv_topic)
+					# weight = get_loadcell(correlation_value)
+					weight = get_loadcell()
+					#print(weight)
+					dry_client.publish("/res_weight", weight)
+				
+				elif (g_recv_topic == '/set_zero_point'):
+					#print("topic: ", g_recv_topic)
+					data = recv_msg.payload.decode('utf-8').replace("'", '"')
+					referenceUnit, set_corr_val = json_to_val(data)
+					referenceUnit = float(referenceUnit)
+					correlation_value = float(set_corr_val)
+					#print ('set_zero_point: ', referenceUnit, ' ', correlation_value)
+					set_factor(referenceUnit)
+
+			except queue.Empty:
+				pass
+			q.task_done()
 
 if __name__ == "__main__":
 	core_func()
