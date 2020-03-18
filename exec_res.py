@@ -168,7 +168,6 @@ def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
 
 	avg_ref_weight = (ref_weight_total / nWeightCount)
 	cur_weight = (avg_ref_weight - avg_zero_weight)
-	print('cur_weight: ', cur_weight)
 	cur_weight = max(0, float(cur_weight))
 	cur_factor = (cur_weight / reference_weight)
 	# print('cur_weight: ', cur_weight)
@@ -187,7 +186,6 @@ def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
 		factor_weight_total += weight
 
 	avg_factor_weight = (factor_weight_total / nWeightCount)
-	print('avg_factor_weight: ', avg_factor_weight)
 	avg_factor_weight = max(0, float(avg_factor_weight))
 	correlation_value = avg_factor_weight - reference_weight
 	factor = {"factor":cur_factor, "correlation_value":correlation_value}
@@ -222,7 +220,6 @@ def get_loadcell():
 
 		avg_weight = round((sum(weight_arr) / arr_count), 2)
 		final_weight = avg_weight - correlation_value
-		print('final_weight: ', final_weight)
 		final_weight = max(0, float(final_weight))
 		# print('correlation_value: ', correlation_value)
 		# print('avg_weight: ', avg_weight)
