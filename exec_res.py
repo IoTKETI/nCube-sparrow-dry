@@ -334,6 +334,7 @@ dry_client.subscribe("/set_zero_point")
 dry_client.loop_start()
 
 global loadcell_factor
+global loadcell_corr_val
 
 loadcell_param = {"factor":6555,"correlation_value":200}
 
@@ -341,10 +342,12 @@ if (os. path.isfile("./factor.json") == False):
 	with open("./factor.json","w") as refUnit_json:
 		json.dump(loadcell_param, refUnit_json)
 	loadcell_factor = loadcell_param['factor']
+	loadcell_corr_val = loadcell_param['correlation_value']
 else:
 	with open ("./factor.json", "r") as refUnit_json:
 		loadcell_factor = json.load(refUnit_json)
 	loadcell_factor = loadcell_factor['factor']
+	loadcell_corr_val = loadcell_factor['correlation_value']
 	
 init_loadcell(loadcell_factor)
 
