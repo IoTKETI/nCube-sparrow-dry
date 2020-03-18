@@ -25,7 +25,6 @@ global bottom_temp_arr, top_temp_arr
 bottom_temp_arr = [0,0,0,0,0]
 top_temp_arr = [0,0,0,0,0]
 
-json.encoder.FLOAT_REPR = lambda o: format(o, '.2f')
 
 #---SET Pin-------------------------------------------------------------
 # Switch
@@ -345,11 +344,13 @@ if (os. path.isfile("./factor.json") == False):
 	loadcell_factor = loadcell_param['factor']
 	loadcell_corr_val = loadcell_param['correlation_value']
 else:
-	with open ("./factor.json", "r") as refUnit_json:
-		loadcell_factor = json.load(refUnit_json)
+	# with open ("./factor.json", "r") as refUnit_json:
+	# 	loadcell_factor = json.load(refUnit_json)
+	refUnit_json = open("./factor.json").read()
+	data = json.loads(refUnit_json) 
 
-	loadcell_factor = loadcell_factor['factor']
-	loadcell_corr_val = int(loadcell_factor['correlation_value'])
+	loadcell_factor = data['factor']
+	loadcell_corr_val = data['correlation_value']
 	# loadcell_corr_val = int(loadcell_corr_val)
 
 init_loadcell(loadcell_factor)
