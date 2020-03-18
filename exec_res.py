@@ -347,8 +347,6 @@ flag = 0
 
 def mqtt_dequeue():
 	global req_zero_reference_weight
-	global set_ref_Unit
-	global correlation_value
 
 	if not q.empty():
 		try:
@@ -397,6 +395,8 @@ def mqtt_dequeue():
 def core_func():
 	period = 10000
 	while_count = 0
+	global set_ref_Unit
+	global correlation_value
 	set_ref_Unit = 1
 	correlation_value = 200
 	while True:
