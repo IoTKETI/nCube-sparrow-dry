@@ -162,7 +162,6 @@ def set_factor(referenceUnit, correlation_value):
 
 
 def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
-	# global req_zero_reference_weight
 	# print('calc_ref_Unit: ', reference_weight, ' ', cal_set_ref_Unit)
 	ref_weight_total = 0
 
@@ -360,6 +359,8 @@ weight_arr = [0, 0, 0, 0, 0]
 flag = 0
 
 def mqtt_dequeue():
+	global req_zero_reference_weight
+
 	if not q.empty():
 		try:
 			recv_msg = q.get(False)
@@ -408,7 +409,6 @@ def mqtt_dequeue():
 def core_func():
 	period = 10000
 	while_count = 0
-	global req_zero_reference_weight
 
 	set_ref_Unit = 1
 	correlation_value = 200
