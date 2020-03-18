@@ -162,6 +162,7 @@ def set_factor(referenceUnit, correlation_value):
 
 
 def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
+	# global req_zero_reference_weight
 	# print('calc_ref_Unit: ', reference_weight, ' ', cal_set_ref_Unit)
 	ref_weight_total = 0
 
@@ -238,7 +239,6 @@ def get_loadcell():
 
 
 def ref_weight(tare_weight):
-	global req_zero_reference_weight
 	global refer_weight
 	refer_weight = tare_weight
 
@@ -408,6 +408,7 @@ def mqtt_dequeue():
 def core_func():
 	period = 10000
 	while_count = 0
+	global req_zero_reference_weight
 
 	set_ref_Unit = 1
 	correlation_value = 200
