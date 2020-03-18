@@ -201,7 +201,7 @@ def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
 	return calc_ref_unit
 
 
-def get_loadcell():
+def get_loadcell(corr_val):
 	global flag
 	global weight_arr
 
@@ -219,7 +219,7 @@ def get_loadcell():
 				weight_arr[arr_count-1] = weight
 
 		avg_weight = round((sum(weight_arr) / arr_count), 2)
-		final_weight = avg_weight - correlation_value
+		final_weight = avg_weight - corr_val
 		final_weight = max(0, float(final_weight))
 		# print('correlation_value: ', correlation_value)
 		# print('avg_weight: ', avg_weight)
@@ -377,7 +377,7 @@ def mqtt_dequeue():
 
 			elif (g_recv_topic == '/req_weight'):
 				#print("topic: ", g_recv_topic)
-				weight = get_loadcell()
+				weight = get_loadcell(correlation_value)
 				#print(weight)
 				dry_client.publish("/res_weight", weight)
 			
