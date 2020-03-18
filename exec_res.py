@@ -397,6 +397,8 @@ def mqtt_dequeue():
 def core_func():
 	period = 10000
 	while_count = 0
+	set_ref_Unit = 1
+	correlation_value = 200
 	while True:
 		while_count = while_count + 1
 		#print(while_count)
@@ -436,6 +438,4 @@ def core_func():
 		mqtt_dequeue()
 
 if __name__ == "__main__":
-	set_ref_Unit = 1
-	correlation_value = 200
 	core_func()
