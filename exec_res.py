@@ -157,7 +157,59 @@ def set_factor(referenceUnit):
 	print('set_factor: ', referenceUnit)
 	hx.set_reference_unit(referenceUnit)
 	hx.reset()
+	
 
+def get_loadcell():
+	global flag
+	global weight_arr
+
+	try:
+		if (flag == 0):
+			for i in range(arr_count):
+				weight = hx.get_weight(5)
+				weight_arr[i] = weight
+				flag = 1
+		else:
+			weight = hx.get_weight(5)
+			for i in range(arr_count):
+				if (i > 0):
+					weight_arr[i-1] = weight_arr[i]
+				weight_arr[arr_count-1] = weight
+
+		avg_weight = round((sum(weight_arr) / arr_count), 2)
+		final_weight = avg_weight - loadcell_corr_val
+		final_weight = max(0, float(final_weight))
+		# print('weight_arr: ', weight_arr)
+		print('get_loadcell - correlation_value: ', loadcell_corr_val)
+		print('get_loadcell - avg_weight: ', avg_weight)
+		print('get_loadcell - final_weight: ', final_weight)
+		weight_json = val_to_json(final_weight)
+
+	except (KeyboardInterrupt, SystemExit):
+		cleanAndExit()
+
+	return (weight_json)
+
+
+def ref_weight(tare_weight):
+	global avg_zero_weight  
+
+	val = val_to_json(1)
+
+	init_loadcell(1)
+
+	zero_weight = 0
+	for i in range(5):
+		weight = hx.get_weight(5)
+		zero_weight += weight
+
+	avg_zero_weight = (zero_weight / 5)
+	avg_zero_weight = max(0, float(avg_zero_weight))
+
+	print("Add weight for initialize...")
+
+	return val
+	
 
 def calc_ref_Unit(reference_weight, cal_set_ref_Unit):   	
 	print('calc_ref_Unit: ', reference_weight, ' ', cal_set_ref_Unit)
@@ -203,58 +255,6 @@ def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
 	calc_ref_unit = val_to_json(cur_factor, set_correlation_value)
 
 	return calc_ref_unit
-
-
-# def get_loadcell(corr_val):
-def get_loadcell():
-	global flag
-	global weight_arr
-
-	try:
-		if (flag == 0):
-			for i in range(arr_count):
-				weight = hx.get_weight(5)
-				weight_arr[i] = weight
-				flag = 1
-		else:
-			weight = hx.get_weight(5)
-			for i in range(arr_count):
-				if (i > 0):
-					weight_arr[i-1] = weight_arr[i]
-				weight_arr[arr_count-1] = weight
-
-		avg_weight = round((sum(weight_arr) / arr_count), 2)
-		final_weight = avg_weight - loadcell_corr_val
-		final_weight = max(0, float(final_weight))
-		# print('weight_arr: ', weight_arr)
-		print('get_loadcell - correlation_value: ', loadcell_corr_val)
-		print('get_loadcell - avg_weight: ', avg_weight)
-		print('get_loadcell - final_weight: ', final_weight)
-		weight_json = val_to_json(final_weight)
-
-	except (KeyboardInterrupt, SystemExit):
-		cleanAndExit()
-
-	return (weight_json)
-
-def ref_weight(tare_weight):
-	global avg_zero_weight  
-
-	val = val_to_json(1)
-
-	init_loadcell(1)
-
-	zero_weight = 0
-	for i in range(5):
-		weight = hx.get_weight(5)
-		zero_weight += weight
-
-	avg_zero_weight = (zero_weight / 5)
-	avg_zero_weight = max(0, float(avg_zero_weight))
-
-	print("Add weight for initialize...")
-
-	return val
 #-----------------------------------------------------------------------
 
 #---Parse Data----------------------------------------------------------
@@ -378,7 +378,7 @@ def mqtt_dequeue():
 
 			elif (g_recv_topic == '/req_calc_factor'):
 				#print("topic: ", g_recv_topic)
-				calc_referenceUnit = calc_ref_Unit(req_zero_reference_weight, referenceUnit)
+				calc_referenceUnit = calc_ref_Unit(req_zero_ref_weight, referenceUnit)
 				dry_client.publish("/res_calc_factor", calc_referenceUnit)
 
 			elif (g_recv_topic == '/req_weight'):
@@ -404,7 +404,7 @@ def mqtt_dequeue():
 def core_func():
 	period = 10000
 	while_count = 0
-
+	global req_zero_ref_weight
 	referenceUnit = 1
 	correlation_value = 200
 
