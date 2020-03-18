@@ -327,6 +327,8 @@ dry_client.subscribe("/set_zero_point")
 
 dry_client.loop_start()
 
+global loadcell_factor
+
 loadcell_param = {"factor":6555,"correlation_value":200}
 
 if (os. path.isfile("./factor.json") == False):
@@ -349,6 +351,7 @@ def mqtt_dequeue():
 	global set_ref_Unit
 	set_ref_Unit = 1
 	global correlation_value
+	correlation_value = 200
 
 	if not q.empty():
 		try:
