@@ -238,6 +238,8 @@ def get_loadcell():
 
 
 def ref_weight(tare_weight):
+	global req_zero_reference_weight
+	global refer_weight
 	refer_weight = tare_weight
 
 	val = val_to_json(1)
@@ -351,9 +353,6 @@ else:
 	# loadcell_corr_val = int(loadcell_corr_val)
 
 init_loadcell(loadcell_factor)
-
-global req_zero_reference_weight
-global refer_weight
 
 global avg_zero_weight
 
