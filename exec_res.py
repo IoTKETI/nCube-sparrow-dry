@@ -212,8 +212,7 @@ def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
 	print('calc_ref_Unit - avg_zero_weight: ', avg_zero_weight)
 
 	avg_ref_weight = (ref_weight_total / nWeightCount)
-	# cur_weight = (avg_ref_weight - avg_zero_weight)
-	cur_weight = (avg_ref_weight)
+	cur_weight = (avg_ref_weight - avg_zero_weight)
 	cur_factor = (cur_weight / reference_weight)
 	print('calc_ref_Unit - cur_weight: ', cur_weight)
 	print('calc_ref_Unit - cur_factor: ', cur_factor)
