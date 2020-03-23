@@ -217,7 +217,7 @@ def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
 	print('calc_ref_Unit - cur_weight: ', cur_weight)
 	print('calc_ref_Unit - cur_factor: ', cur_factor)
 
-	if (cur_factor == 0.0):
+	if (abs(cur_factor) < 1.0):
 		cur_factor = cal_set_ref_Unit
 
 	hx.set_reference_unit(cur_factor)
