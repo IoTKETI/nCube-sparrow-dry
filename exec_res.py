@@ -230,7 +230,7 @@ def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
 		factor_weight_total += weight
 
 	avg_factor_weight = (factor_weight_total / nWeightCount)
-	avg_factor_weight = max(0, float(avg_factor_weight))
+	# avg_factor_weight = max(0, float(avg_factor_weight))
 	correlation_value = avg_factor_weight - reference_weight
 	factor = {"factor":cur_factor, "correlation_value":correlation_value}
 	print('calc_ref_Unit - avg_factor_weight: ', avg_factor_weight)
