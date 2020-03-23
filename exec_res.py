@@ -188,12 +188,11 @@ def ref_weight(tare_weight):
 	init_loadcell(1)
 
 	zero_weight = 0
-	for i in range(5):
+	for i in range(nWeightCount):
 		weight = hx.get_weight(5)
 		zero_weight += weight
 
-	avg_zero_weight = (zero_weight / 5)
-	avg_zero_weight = max(0, float(avg_zero_weight))
+	avg_zero_weight = (zero_weight / nWeightCount)
 	print("ref_weight - avg_zero_weight: ", avg_zero_weight)
 	
 	print("Add weight for initialize...")
@@ -213,10 +212,9 @@ def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
 	print('calc_ref_Unit - avg_zero_weight: ', avg_zero_weight)
 
 	avg_ref_weight = (ref_weight_total / nWeightCount)
-	ori_cur_weight = (avg_ref_weight - avg_zero_weight)
-	cur_weight = max(0, float(ori_cur_weight))
+	# cur_weight = (avg_ref_weight - avg_zero_weight)
+	cur_weight = (avg_ref_weight)
 	cur_factor = (cur_weight / reference_weight)
-	print('calc_ref_Unit - ori_cur_weight: ', ori_cur_weight)
 	print('calc_ref_Unit - cur_weight: ', cur_weight)
 	print('calc_ref_Unit - cur_factor: ', cur_factor)
 
