@@ -6,17 +6,6 @@ import RPi.GPIO as GPIO
 import MAX6675
 from hx711 import HX711
 
-global g_print_lcd_output_door_topic
-g_print_lcd_output_door_topic = ''
-
-global g_print_lcd_output_door_msg
-g_print_lcd_output_door_msg = ''
-
-global g_print_lcd_safe_door_topic
-g_print_lcd_safe_door_topic = ''
-
-global g_print_lcd_safe_door_msg
-g_print_lcd_safe_door_msg = ''
 
 q = queue.Queue()
 global arr_count
@@ -213,7 +202,7 @@ def ref_weight(tare_weight):
 	
 
 def calc_ref_Unit(reference_weight, cal_set_ref_Unit):   	
-	# print('calc_ref_Unit: ', reference_weight, ' ', cal_set_ref_Unit)
+	print('calc_ref_Unit: ', reference_weight, ' ', cal_set_ref_Unit)
 
 	ref_weight_total = 0
 
@@ -224,9 +213,10 @@ def calc_ref_Unit(reference_weight, cal_set_ref_Unit):
 	print('calc_ref_Unit - avg_zero_weight: ', avg_zero_weight)
 
 	avg_ref_weight = (ref_weight_total / nWeightCount)
-	cur_weight = (avg_ref_weight - avg_zero_weight)
-	cur_weight = max(0, float(cur_weight))
+	ori_cur_weight = (avg_ref_weight - avg_zero_weight)
+	cur_weight = max(0, float(ori_cur_weight))
 	cur_factor = (cur_weight / reference_weight)
+	print('calc_ref_Unit - ori_cur_weight: ', ori_cur_weight)
 	print('calc_ref_Unit - cur_weight: ', cur_weight)
 	print('calc_ref_Unit - cur_factor: ', cur_factor)
 
