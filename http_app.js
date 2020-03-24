@@ -1695,7 +1695,7 @@ function core_watchdog() {
                 set_buzzer();
             }
             else {
-                if(parseFloat(dry_data_block.external_temp) < 400.0) {
+                if(parseFloat(dry_data_block.external_temp) < 450.0) {
                     if (parseFloat(dry_data_block.cur_weight) <= parseFloat(dry_data_block.tar_weight3)) {
                         dry_data_block.cum_weight += dry_data_block.ref_weight;
 
