@@ -202,6 +202,24 @@ def displayInputDoor(msg1):
 		g_lcd.message = message
 		g_lcd.cursor_position(15,2)
 		g_lcd.message = f'{msg1}'
+
+def displayOperationMode(msg1):
+	if (len(str(msg1)) > 1):
+		msg1 = str(msg1)
+		msg1 = msg1[0:1]
+	try:
+		g_lcd.cursor_position(13,2)
+		message = ' '
+		g_lcd.message = message
+		g_lcd.cursor_position(13,2)
+		g_lcd.message = f'{msg1}'
+	except OSError:
+		lcd_init()		
+		g_lcd.cursor_position(13,2)
+		message = ' '
+		g_lcd.message = message
+		g_lcd.cursor_position(13,2)
+		g_lcd.message = f'{msg1}'
 		
 		
 def displayOutputDoor(msg1):
@@ -307,6 +325,7 @@ dry_client.subscribe("/print_lcd_elapsed_time")
 dry_client.subscribe("/print_lcd_input_door")
 dry_client.subscribe("/print_lcd_output_door")
 dry_client.subscribe("/print_lcd_safe_door")
+dry_client.subscribe("/print_lcd_operation_mode")
 
 dry_client.loop_start()
 
@@ -355,6 +374,12 @@ def mqtt_dequeue():
 				data = recv_msg.payload.decode('utf-8').replace("'", '"')
 				loadcell_factor, corr_val = json_to_val(data)
 				displayLoadcellFactor(loadcell_factor)
+
+			elif (g_recv_topic == '/print_lcd_operation_mode'):
+				#print("topic: ", g_recv_topic)
+				data = recv_msg.payload.decode('utf-8').replace("'", '"')
+				operationmode = json_to_val(data)
+				displayOperationMode(operationmode)
 
 			elif (g_recv_topic == '/print_lcd_input_door'):
 				#print("topic: ", g_recv_topic)
