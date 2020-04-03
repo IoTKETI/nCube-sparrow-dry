@@ -698,6 +698,18 @@ function print_lcd_input_door() {
     }
 }
 
+function print_lcd_operation_mode() {
+    if(dry_mqtt_client != null) {
+        if (pre_input_door != dry_data_block.operation_mode) {
+            pre_input_door = dry_data_block.operation_mode;
+
+            var msg_obj = {};
+            msg_obj.val = dry_data_block.operation_mode;
+            dry_mqtt_client.publish('/print_lcd_input_door', JSON.stringify(msg_obj));
+        }
+    }
+}
+
 function print_lcd_output_door() {
     if(dry_mqtt_client != null) {
         if (pre_output_door != dry_data_block.output_door) {
@@ -1271,6 +1283,7 @@ function lcd_display_watchdog() {
         setTimeout(print_lcd_safe_door, parseInt(Math.random() * 10));
         setTimeout(print_lcd_elapsed_time, 0);
         setTimeout(print_lcd_debug_message, parseInt(Math.random() * 10));
+        setTimeout(print_lcd_operation_mode, parseInt(Math.random() * 10));
     }
 
     setTimeout(lcd_display_watchdog, display_interval);
